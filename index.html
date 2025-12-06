@@ -40,6 +40,13 @@
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @media print { body * { visibility: hidden; } #receipt-print-area, #receipt-print-area * { visibility: visible; } #receipt-print-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; } .no-print { display: none !important; } }
+        
+        .tab-active { border-bottom: 2px solid #4f46e5; color: #4f46e5; font-weight: bold; }
+        .tab-inactive { color: #64748b; }
+        
+        /* Category Button Active State */
+        .cat-btn-active { background-color: #4f46e5; color: white; border-color: #4f46e5; }
+        .cat-btn-inactive { background-color: white; color: #64748b; border-color: #e2e8f0; }
     </style>
 </head>
 <body class="bg-slate-50 h-screen flex flex-col text-slate-800 overflow-hidden">
@@ -51,14 +58,12 @@
             <h1 class="font-bold text-lg tracking-tight text-slate-900 hidden sm:block">PingPOS</h1>
         </div>
         
-        <!-- Updated: Staff Login Button (Only visible on Customer View) -->
         <div id="nav-customer-controls">
             <button onclick="openLoginModal()" class="text-slate-400 hover:text-primary text-sm font-medium transition flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50">
                 <i class="fas fa-lock"></i> <span class="hidden sm:inline">Staff Only</span>
             </button>
         </div>
 
-        <!-- Updated: Admin Controls (Only visible on Admin View) -->
         <div id="nav-admin-controls" class="hide">
             <button onclick="switchMode('customer')" class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-200 transition flex items-center gap-2">
                 <i class="fas fa-arrow-left"></i> Logout
@@ -79,6 +84,14 @@
                     </div>
                 </div>
             </div>
+
+            <!-- NEW: Category Filter Bar -->
+            <div class="px-4 pt-4 sm:px-6">
+                <div class="max-w-5xl mx-auto flex gap-2 overflow-x-auto pb-2 scrollbar-hide" id="category-bar">
+                    <!-- Categories will be injected here -->
+                </div>
+            </div>
+
             <div class="flex-1 overflow-y-auto p-4 sm:p-6 pb-32">
                 <div class="max-w-5xl mx-auto">
                     <div id="menu-loading" class="flex flex-col items-center justify-center py-20 opacity-60"><span class="loader mb-4"></span><p class="text-slate-500">Loading Menu...</p></div>
@@ -88,7 +101,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Cart Bar -->
             <div id="cart-bar" class="absolute bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 transform translate-y-[150%] transition-transform duration-500 z-40">
                 <div class="glass-panel rounded-2xl p-4 shadow-2xl flex flex-col gap-3">
                     <div class="flex justify-between items-center px-2">
@@ -107,9 +119,8 @@
             <div class="bg-white border-b border-slate-200 px-6 py-4 flex flex-wrap gap-4 justify-between items-center">
                 <div class="flex items-center gap-3"><h2 class="font-bold text-xl text-slate-800">Kitchen Display</h2><span id="connection-status" class="flex h-3 w-3 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span></div>
                 <div class="flex gap-2">
-                    <!-- Change PIN Button -->
                     <button onclick="openChangePinModal()" class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 hover:bg-slate-300 flex items-center justify-center transition" title="Change PIN"><i class="fas fa-key"></i></button>
-                    <button onclick="openReportModal()" class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 flex items-center justify-center"><i class="fas fa-chart-pie"></i></button>
+                    <button onclick="openReportModal()" class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 flex items-center justify-center"><i class="fas fa-chart-bar"></i></button>
                     <button onclick="openQRModal()" class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center"><i class="fas fa-qrcode"></i></button>
                     <button onclick="openMenuManager()" class="px-4 py-2 bg-slate-800 text-white rounded-full text-sm font-medium hover:bg-slate-700 shadow-lg flex items-center gap-2"><i class="fas fa-plus"></i> Manage Menu</button>
                 </div>
@@ -123,26 +134,17 @@
 
     <!-- MODALS -->
     
-    <!-- New: Staff Login Modal -->
     <div id="modal-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl animate-fade-in p-6 text-center">
             <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg">Staff Login</h3><button onclick="closeModal('modal-login')" class="text-slate-400"><i class="fas fa-times"></i></button></div>
-            <div class="mb-4">
-                <p class="text-sm text-slate-500 mb-2">Enter PIN Code (Default: 1234)</p>
-                <input type="password" id="staff-pin" class="border p-3 rounded-xl w-full text-center font-bold text-lg tracking-widest" placeholder="****">
-            </div>
+            <div class="mb-4"><p class="text-sm text-slate-500 mb-2">Enter PIN Code (Default: 1234)</p><input type="password" id="staff-pin" class="border p-3 rounded-xl w-full text-center font-bold text-lg tracking-widest" placeholder="****"></div>
             <button onclick="verifyPin()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold">Login to Kitchen</button>
         </div>
     </div>
-
-    <!-- New: Change PIN Modal -->
     <div id="modal-change-pin" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl animate-fade-in p-6 text-center">
             <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg">Change Admin PIN</h3><button onclick="closeModal('modal-change-pin')" class="text-slate-400"><i class="fas fa-times"></i></button></div>
-            <div class="mb-4">
-                <p class="text-sm text-slate-500 mb-2">New PIN (Minimum 4 digits)</p>
-                <input type="tel" id="new-pin-input" class="border p-3 rounded-xl w-full text-center font-bold text-lg tracking-widest" placeholder="****">
-            </div>
+            <div class="mb-4"><p class="text-sm text-slate-500 mb-2">New PIN (Minimum 4 digits)</p><input type="tel" id="new-pin-input" class="border p-3 rounded-xl w-full text-center font-bold text-lg tracking-widest" placeholder="****"></div>
             <button onclick="saveNewPin()" class="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-lg">Save New PIN</button>
         </div>
     </div>
@@ -153,14 +155,7 @@
             <div class="h-48 bg-slate-100 relative overflow-hidden"><img id="mp-img" src="" class="w-full h-full object-cover"><button onclick="closeModal('modal-product')" class="absolute top-4 right-4 w-8 h-8 bg-black/20 text-white rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button></div>
             <div class="p-6">
                 <div class="flex justify-between items-start mb-6"><h3 id="mp-name" class="text-2xl font-bold text-slate-800">Product</h3><span id="mp-price-display" class="bg-indigo-50 text-primary px-3 py-1 rounded-full text-sm font-bold">0 Ks</span></div>
-                <div class="space-y-3 mb-8">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Customization</p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="cursor-pointer"><input type="radio" name="spice_level" value="Normal" checked class="peer sr-only"><div class="border border-slate-200 peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-primary rounded-xl p-3 text-center"><span class="text-xs font-bold">Normal</span></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="spice_level" value="Less Spicy" class="peer sr-only"><div class="border border-slate-200 peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-primary rounded-xl p-3 text-center"><span class="text-xs font-bold">Less Spicy</span></div></label>
-                    </div>
-                    <label class="flex items-center justify-between p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50"><span class="text-sm font-medium text-slate-700">🚫 No MSG</span><input type="checkbox" id="mp-nomsg" value="No MSG" class="w-5 h-5 text-primary rounded"></label>
-                </div>
+                <div class="space-y-3 mb-8"><p class="text-xs font-bold text-slate-400 uppercase tracking-wider">ရွေးချယ်စရာများ (Options)</p><div id="dynamic-options" class="grid grid-cols-2 gap-3"></div></div>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center bg-slate-100 rounded-2xl p-1"><button onclick="updateQty(-1)" class="w-12 h-10 flex items-center justify-center text-slate-600 font-bold">-</button><span id="mp-qty" class="w-8 text-center font-bold text-lg">1</span><button onclick="updateQty(1)" class="w-12 h-10 flex items-center justify-center text-slate-600 font-bold">+</button></div>
                     <button onclick="addToCart()" class="flex-1 bg-primary text-white h-12 rounded-2xl font-bold shadow-lg">Add to Cart</button>
@@ -181,30 +176,59 @@
         </div>
     </div>
 
-    <!-- Menu Manager Modal -->
+    <!-- Menu Manager (Updated with Category Select) -->
     <div id="modal-menu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl animate-fade-in overflow-hidden h-[80vh] flex flex-col">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center"><h3 class="font-bold text-lg">Manage Menu</h3><button onclick="closeModal('modal-menu')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button></div>
             <div class="p-5 bg-slate-50 border-b border-slate-100">
-                <div class="flex flex-col md:flex-row gap-3">
-                    <input type="text" id="new-prod-name" placeholder="Item Name" class="flex-1 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
-                    <input type="number" id="new-prod-price" placeholder="Price" class="w-full md:w-32 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
-                    <input type="text" id="new-prod-img" placeholder="Img URL" class="w-full md:w-40 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
-                    <button onclick="addProduct()" class="bg-primary text-white p-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg">Add</button>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <input type="text" id="new-prod-name" placeholder="Item Name" class="p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <input type="number" id="new-prod-price" placeholder="Price" class="p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    
+                    <!-- NEW: Category Select -->
+                    <select id="new-prod-category" class="p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white">
+                        <option value="Fried">Fried (အကြော်)</option>
+                        <option value="Curry">Curry (ဟင်း)</option>
+                        <option value="Soup">Soup (ဟင်းချို)</option>
+                        <option value="Salad">Salad (အသုပ်)</option>
+                        <option value="Rice">Rice (ထမင်း)</option>
+                        <option value="Noodle">Noodle (ခေါက်ဆွဲ)</option>
+                        <option value="Dessert">Dessert (အချိုပွဲ)</option>
+                        <option value="Drink">Drink (အအေး)</option>
+                        <option value="Other">Other (အခြား)</option>
+                    </select>
+
+                    <button onclick="addProduct()" class="bg-primary text-white p-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg flex items-center justify-center"><i class="fas fa-plus mr-1"></i> Add</button>
+                </div>
+                <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input type="text" id="new-prod-img" placeholder="Img URL (optional)" class="p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <input type="text" id="new-prod-options" placeholder="Options: Spicy, Normal, No Ice (comma separated)" class="p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm">
                 </div>
             </div>
             <div class="flex-1 overflow-y-auto"><table class="w-full text-left text-sm"><tbody id="menu-table-body" class="divide-y divide-slate-100"></tbody></table></div>
         </div>
     </div>
 
-    <!-- Daily Report & QR Modals -->
+    <!-- Advanced Report Modal -->
     <div id="modal-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl animate-fade-in p-6 relative">
-            <button onclick="closeModal('modal-report')" class="absolute top-4 right-4 text-slate-300"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-bold text-slate-800 mb-6 text-center">Today's Sales</h3>
-            <div class="space-y-4"><div class="bg-purple-600 rounded-2xl p-6 text-white text-center"><p class="text-sm mb-1">Total</p><p class="text-3xl font-bold" id="rpt-total">0 Ks</p></div><div class="bg-white border rounded-2xl p-6 flex justify-between items-center"><span>Orders</span><span class="text-2xl font-bold" id="rpt-count">0</span></div></div>
+        <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl animate-fade-in flex flex-col h-[85vh]">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center"><h3 class="font-bold text-xl text-slate-800">Sales Analytics</h3><button onclick="closeModal('modal-report')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button></div>
+            <div class="flex border-b border-slate-200 bg-slate-50"><button onclick="switchReportTab('overview')" id="tab-overview" class="flex-1 py-3 text-sm font-medium transition tab-active">Overview</button><button onclick="switchReportTab('history')" id="tab-history" class="flex-1 py-3 text-sm font-medium transition tab-inactive">History</button><button onclick="switchReportTab('top')" id="tab-top" class="flex-1 py-3 text-sm font-medium transition tab-inactive">Top Selling</button></div>
+            <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                <div id="rpt-view-overview">
+                    <div class="flex items-center gap-3 mb-6 bg-white p-3 rounded-xl shadow-sm border border-slate-100 max-w-md"><span class="text-sm font-bold text-slate-500">Date:</span><input type="date" id="rpt-date-input" class="border-none outline-none font-bold text-slate-800 bg-transparent cursor-pointer flex-1" onchange="renderReportOverview()"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg"><p class="text-indigo-100 text-sm font-medium mb-1">Total Revenue</p><p class="text-4xl font-bold" id="rpt-ov-total">0 Ks</p></div><div class="bg-white border border-slate-200 rounded-2xl p-6 flex items-center justify-between shadow-sm"><div><p class="text-slate-400 text-xs font-bold uppercase">Total Orders</p><p class="text-3xl font-bold text-slate-800" id="rpt-ov-count">0</p></div><div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-xl"><i class="fas fa-receipt"></i></div></div></div>
+                </div>
+                <div id="rpt-view-history" class="hide h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-4"><h4 class="font-bold text-slate-700">Recent Orders</h4><button onclick="clearAllHistory()" class="text-red-500 text-xs font-bold hover:bg-red-50 px-3 py-1 rounded-lg transition border border-red-200">Delete All History</button></div>
+                    <div class="flex-1 overflow-y-auto bg-white rounded-xl border border-slate-200 shadow-sm"><table class="w-full text-left text-sm"><thead class="bg-slate-50 text-slate-500 border-b border-slate-200 sticky top-0"><tr><th class="p-3">Time</th><th class="p-3">Table</th><th class="p-3">Total</th><th class="p-3 text-right">Action</th></tr></thead><tbody id="rpt-history-body" class="divide-y divide-slate-100"></tbody></table></div>
+                </div>
+                <div id="rpt-view-top" class="hide"><h4 class="font-bold text-slate-700 mb-4">Best Selling Items</h4><div id="rpt-top-list" class="space-y-3"></div></div>
+            </div>
         </div>
     </div>
+
+    <!-- QR Modal -->
     <div id="modal-qr" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl animate-fade-in p-6 text-center">
             <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg">QR Code</h3><button onclick="closeModal('modal-qr')" class="text-slate-400"><i class="fas fa-times"></i></button></div>
@@ -244,7 +268,22 @@
         const db = getFirestore(app);
         const appId = 'pingpos-production'; 
 
-        let state = { user: null, tableId: 1, products: [], cart: [], orders: [], selectedProduct: null };
+        // Added activeCategory to state
+        let state = { user: null, tableId: 1, products: [], cart: [], orders: [], selectedProduct: null, activeCategory: 'All' };
+
+        const categories = ["All", "Fried", "Curry", "Soup", "Salad", "Rice", "Noodle", "Dessert", "Drink", "Other"];
+        const categoryLabels = {
+            "All": "All (အားလုံး)",
+            "Fried": "Fried (အကြော်)",
+            "Curry": "Curry (ဟင်း)",
+            "Soup": "Soup (ဟင်းချို)",
+            "Salad": "Salad (အသုပ်)",
+            "Rice": "Rice (ထမင်း)",
+            "Noodle": "Noodle (ခေါက်ဆွဲ)",
+            "Dessert": "Dessert (အချိုပွဲ)",
+            "Drink": "Drink (အအေး)",
+            "Other": "Other (အခြား)"
+        };
 
         async function init() {
             try {
@@ -254,14 +293,13 @@
                 console.error("Auth Failed:", error);
                 alert("Connection/Auth Error");
             }
-            
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.get('table')) state.tableId = urlParams.get('table');
             document.getElementById('display-table-id').innerText = state.tableId;
-
             setupListeners();
-            // Ensure we start in Customer Mode
             switchMode('customer');
+            renderCategoryBar(); // Render categories
+            document.getElementById('rpt-date-input').valueAsDate = new Date();
         }
 
         function setupListeners() {
@@ -270,7 +308,6 @@
                 snapshot.forEach(d => state.products.push({id: d.id, ...d.data()}));
                 renderMenu(); renderMenuManager();
             });
-
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), (snapshot) => {
                 state.orders = [];
                 snapshot.forEach(d => state.orders.push({id: d.id, ...d.data()}));
@@ -279,15 +316,36 @@
             });
         }
 
-        // RENDER FUNCTIONS
+        // NEW: Render Category Buttons
+        function renderCategoryBar() {
+            const container = document.getElementById('category-bar');
+            container.innerHTML = categories.map(cat => {
+                const isActive = state.activeCategory === cat;
+                const activeClass = isActive ? "cat-btn-active shadow-md" : "cat-btn-inactive hover:bg-slate-50";
+                return `<button onclick="window.filterCategory('${cat}')" class="px-5 py-2 rounded-full border text-sm font-bold whitespace-nowrap transition ${activeClass}">${categoryLabels[cat]}</button>`;
+            }).join('');
+        }
+
+        window.filterCategory = (cat) => {
+            state.activeCategory = cat;
+            renderCategoryBar(); // Re-render to update active style
+            renderMenu();
+        };
+
         function renderMenu() {
             const grid = document.getElementById('menu-grid');
             document.getElementById('menu-loading').classList.add('hide');
             grid.innerHTML = '';
-            if (state.products.length === 0) return document.getElementById('empty-menu-msg').classList.remove('hide');
+
+            // Filter Products
+            const filteredProducts = state.activeCategory === 'All' 
+                ? state.products 
+                : state.products.filter(p => p.category === state.activeCategory || (!p.category && state.activeCategory === 'Other'));
+
+            if (filteredProducts.length === 0) return document.getElementById('empty-menu-msg').classList.remove('hide');
             document.getElementById('empty-menu-msg').classList.add('hide');
 
-            state.products.forEach(p => {
+            filteredProducts.forEach(p => {
                 const imgHtml = (p.image && p.image.startsWith('http')) ? `<img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center text-6xl bg-slate-50">${p.image||'🍽️'}</div>`;
                 const el = document.createElement('div');
                 el.className = "bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-xl cursor-pointer overflow-hidden group flex flex-col";
@@ -306,19 +364,17 @@
                 let statusColor="bg-yellow-50 text-yellow-600", btnText="Start Cooking", nextSt="cooking", stText="Pending";
                 if(order.status==='cooking'){ statusColor="bg-blue-50 text-blue-600"; btnText="Complete"; nextSt="served"; stText="Cooking"; }
                 else if(order.status==='served'){ statusColor="bg-gray-50 text-gray-500"; btnText="Print"; nextSt="print"; stText="Served"; }
-                
                 let btnHtml = (nextSt==='print') ? `<button onclick="window.printReceipt('${order.id}')" class="flex-1 border border-slate-200 text-slate-600 py-2 rounded-xl text-sm font-bold">Print</button>` : `<button onclick="window.updateStatus('${order.id}', '${nextSt}')" class="flex-1 bg-slate-800 text-white py-2 rounded-xl text-sm font-bold">${btnText}</button>`;
-                
                 const div = document.createElement('div');
                 div.className = "bg-white rounded-2xl shadow-sm border p-5 flex flex-col gap-4";
-                div.innerHTML = `<div class="flex justify-between"><div><span class="text-xs font-bold text-slate-400 uppercase">Table</span><p class="text-2xl font-bold">${order.tableId}</p></div><span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">${stText}</span></div><div class="flex-1 overflow-y-auto max-h-40 space-y-2">${order.items.map(i=>`<div class="flex justify-between text-sm"><div><span class="font-bold text-primary">${i.qty}x</span> ${i.name}</div></div>`).join('')}</div><div class="pt-4 border-t mt-auto flex gap-2">${btnHtml}</div>`;
+                div.innerHTML = `<div class="flex justify-between"><div><span class="text-xs font-bold text-slate-400 uppercase">Table</span><p class="text-2xl font-bold">${order.tableId}</p></div><span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">${stText}</span></div><div class="flex-1 overflow-y-auto max-h-40 space-y-2">${order.items.map(i=>`<div class="flex justify-between text-sm"><div><span class="font-bold text-primary">${i.qty}x</span> ${i.name}</div><div class="text-[10px] text-slate-500 pl-4">${i.modifiers ? i.modifiers.join(', ') : ''}</div></div>`).join('')}</div><div class="pt-4 border-t mt-auto flex gap-2">${btnHtml}</div>`;
                 grid.appendChild(div);
             });
         }
 
         function renderMenuManager() {
             document.getElementById('menu-table-body').innerHTML = state.products.map(p => 
-                `<tr class="hover:bg-slate-50"><td class="p-4 font-bold text-slate-700">${p.name}</td><td class="p-4 text-slate-500">${p.price}</td><td class="p-4 text-right"><button onclick="window.deleteProduct('${p.id}')" class="text-red-400 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`
+                `<tr class="hover:bg-slate-50"><td class="p-4"><div class="font-bold text-slate-700">${p.name}</div><div class="text-[10px] text-slate-400 uppercase font-bold">${p.category || 'Uncategorized'}</div></td><td class="p-4 text-slate-500">${p.price}</td><td class="p-4 text-right"><button onclick="window.deleteProduct('${p.id}')" class="text-red-400 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`
             ).join('');
         }
 
@@ -327,12 +383,20 @@
             const n = document.getElementById('new-prod-name').value;
             const p = parseInt(document.getElementById('new-prod-price').value);
             const i = document.getElementById('new-prod-img').value;
+            const o = document.getElementById('new-prod-options').value;
+            const c = document.getElementById('new-prod-category').value; // Get Category
+            
             if(!n || !p) return alert("Name and Price required");
+            const optionsArray = o ? o.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
             try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), { name: n, price: p, image: i || '🍽️' });
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), { 
+                    name: n, price: p, image: i || '🍽️', options: optionsArray, category: c 
+                });
                 document.getElementById('new-prod-name').value = '';
                 document.getElementById('new-prod-price').value = '';
                 document.getElementById('new-prod-img').value = '';
+                document.getElementById('new-prod-options').value = '';
+                alert("Added!");
             } catch (e) {
                 console.error("Add Error:", e);
                 alert("Error Adding Item: " + e.message);
@@ -350,13 +414,24 @@
             document.getElementById('mp-qty').innerText = 1;
             const img = document.getElementById('mp-img');
             img.src = (p.image && p.image.startsWith('http')) ? p.image : 'https://placehold.co/600x400/f1f5f9/cbd5e1?text='+(p.image||'Food');
+            
+            const optionsContainer = document.getElementById('dynamic-options');
+            optionsContainer.innerHTML = '';
+            const optionsToRender = (p.options && p.options.length > 0) ? p.options : ["Normal Spicy", "Less Spicy", "No MSG"]; 
+            optionsToRender.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.innerHTML = `<label class="cursor-pointer relative"><input type="checkbox" name="prod_option" value="${opt}" class="peer sr-only"><div class="border border-slate-200 peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-primary rounded-xl p-3 text-center transition-all h-full flex items-center justify-center"><span class="text-xs font-bold">${opt}</span><i class="fas fa-check absolute top-2 right-2 text-xs opacity-0 peer-checked:opacity-100 text-primary"></i></div></label>`;
+                optionsContainer.appendChild(div);
+            });
             document.getElementById('modal-product').classList.remove('hide');
         };
+
         window.updateQty = (c) => { let q = state.selectedProduct.qty + c; if(q>=1) { state.selectedProduct.qty = q; document.getElementById('mp-qty').innerText = q; } };
+        
         window.addToCart = () => {
-            const spice = document.querySelector('input[name="spice_level"]:checked').value;
-            const noMsg = document.getElementById('mp-nomsg').checked ? "No MSG" : null;
-            state.cart.push({ ...state.selectedProduct, modifiers: [spice, noMsg].filter(Boolean), lineTotal: state.selectedProduct.price * state.selectedProduct.qty });
+            const checkboxes = document.querySelectorAll('input[name="prod_option"]:checked');
+            const selectedOptions = Array.from(checkboxes).map(cb => cb.value);
+            state.cart.push({ ...state.selectedProduct, modifiers: selectedOptions, lineTotal: state.selectedProduct.price * state.selectedProduct.qty });
             updateCartUI(); closeModal('modal-product');
         };
         function updateCartUI() {
@@ -384,68 +459,165 @@
         };
         window.updateStatus = async (id,s) => await updateDoc(doc(db,'artifacts',appId,'public','data','orders',id),{status:s});
 
-        // UTILS & NEW SECURITY LOGIC
+        // UTILS
         window.openLoginModal = () => document.getElementById('modal-login').classList.remove('hide');
         window.verifyPin = () => {
             const pinInput = document.getElementById('staff-pin').value;
-            // Get stored PIN or default to 1234
             const currentPin = localStorage.getItem('pingpos_admin_pin') || '1234';
-
-            if(pinInput === currentPin) {
-                switchMode('admin');
-                closeModal('modal-login');
-                document.getElementById('staff-pin').value = '';
-            } else {
-                alert("PIN မှားနေပါတယ် (Wrong PIN)");
-            }
+            if(pinInput === currentPin) { switchMode('admin'); closeModal('modal-login'); document.getElementById('staff-pin').value = ''; } 
+            else { alert("Wrong PIN"); }
         };
-
-        // NEW: Change PIN Logic
         window.openChangePinModal = () => document.getElementById('modal-change-pin').classList.remove('hide');
-        
         window.saveNewPin = () => {
             const newPin = document.getElementById('new-pin-input').value;
-            if(newPin && newPin.length >= 4) {
-                localStorage.setItem('pingpos_admin_pin', newPin);
-                alert("PIN နံပါတ် အသစ်ပြောင်းလဲလိုက်ပါပြီ (PIN Changed)");
-                closeModal('modal-change-pin');
-                document.getElementById('new-pin-input').value = '';
-            } else {
-                alert("PIN နံပါတ် အနည်းဆုံး ၄ လုံး ရှိရပါမည်");
+            if(newPin && newPin.length >= 4) { localStorage.setItem('pingpos_admin_pin', newPin); alert("PIN Changed"); closeModal('modal-change-pin'); } 
+            else { alert("Min 4 digits"); }
+        };
+        window.openMenuManager=()=>document.getElementById('modal-menu').classList.remove('hide');
+        window.closeModal=(id)=>document.getElementById(id).classList.add('hide');
+        window.switchMode=(m)=>{ if(m==='customer'){ document.getElementById('customer-view').classList.remove('hide'); document.getElementById('admin-view').classList.add('hide'); document.getElementById('nav-customer-controls').classList.remove('hide'); document.getElementById('nav-admin-controls').classList.add('hide'); } else { document.getElementById('customer-view').classList.add('hide'); document.getElementById('admin-view').classList.remove('hide'); document.getElementById('nav-customer-controls').classList.add('hide'); document.getElementById('nav-admin-controls').classList.remove('hide'); }};
+        
+        // NEW ADVANCED REPORT LOGIC
+        window.openReportModal = () => {
+            document.getElementById('modal-report').classList.remove('hide');
+            renderReportOverview();
+        };
+
+        window.switchReportTab = (tab) => {
+            // Hide all views
+            document.getElementById('rpt-view-overview').classList.add('hide');
+            document.getElementById('rpt-view-history').classList.add('hide');
+            document.getElementById('rpt-view-top').classList.add('hide');
+            
+            // Reset Tab Styles
+            ['overview', 'history', 'top'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.remove('tab-active');
+                document.getElementById(`tab-${t}`).classList.add('tab-inactive');
+            });
+
+            // Show selected
+            document.getElementById(`rpt-view-${tab}`).classList.remove('hide');
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            document.getElementById(`tab-${tab}`).classList.remove('tab-inactive');
+
+            if(tab === 'overview') renderReportOverview();
+            if(tab === 'history') renderSalesHistory();
+            if(tab === 'top') renderTopSelling();
+        };
+
+        window.renderReportOverview = () => {
+            const dateInput = document.getElementById('rpt-date-input').value;
+            const selectedDate = new Date(dateInput).toDateString();
+            
+            let count = 0, total = 0;
+            state.orders.forEach(o => {
+                // Filter by date
+                if(o.timestamp && new Date(o.timestamp.seconds*1000).toDateString() === selectedDate) {
+                    count++;
+                    total += o.totalPrice;
+                }
+            });
+            document.getElementById('rpt-ov-total').innerText = total + " Ks";
+            document.getElementById('rpt-ov-count').innerText = count;
+        };
+
+        window.renderSalesHistory = () => {
+            const tbody = document.getElementById('rpt-history-body');
+            tbody.innerHTML = '';
+            
+            // Show all completed orders (sorted desc)
+            const historyOrders = state.orders.filter(o => o.status === 'served' || o.status === 'cooking' || o.status === 'pending'); // Show all for now? Or just served? Let's show all for history log.
+            
+            if(historyOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">No history found</td></tr>';
+                return;
+            }
+
+            historyOrders.forEach(o => {
+                const date = o.timestamp ? new Date(o.timestamp.seconds*1000) : new Date();
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b border-slate-100 last:border-0';
+                tr.innerHTML = `
+                    <td class="p-3 text-xs text-slate-500">${dateStr}</td>
+                    <td class="p-3 font-bold">Table ${o.tableId}</td>
+                    <td class="p-3 font-bold text-slate-700">${o.totalPrice}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteOrder('${o.id}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.renderTopSelling = () => {
+            const counts = {};
+            // Aggregate all items from ALL orders
+            state.orders.forEach(o => {
+                if(o.items) {
+                    o.items.forEach(i => {
+                        counts[i.name] = (counts[i.name] || 0) + i.qty;
+                    });
+                }
+            });
+
+            // Sort
+            const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+            const container = document.getElementById('rpt-top-list');
+            container.innerHTML = '';
+
+            if(sorted.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-400 p-4">No data yet</p>';
+                return;
+            }
+
+            sorted.forEach(([name, count], idx) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl shadow-sm";
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-indigo-50 text-primary font-bold flex items-center justify-center text-xs">#${idx+1}</div>
+                        <span class="font-bold text-slate-700">${name}</span>
+                    </div>
+                    <span class="text-sm font-bold text-slate-500">${count} sold</span>
+                `;
+                container.appendChild(div);
+            });
+        };
+
+        window.deleteOrder = async (id) => {
+            if(confirm("Delete this order record permanently?")) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', id));
+                renderSalesHistory(); // Refresh list
             }
         };
 
-        window.openMenuManager=()=>document.getElementById('modal-menu').classList.remove('hide');
-        window.closeModal=(id)=>document.getElementById(id).classList.add('hide');
-        
-        window.switchMode=(m)=>{ 
-            if(m==='customer'){ 
-                document.getElementById('customer-view').classList.remove('hide'); 
-                document.getElementById('admin-view').classList.add('hide'); 
-                document.getElementById('nav-customer-controls').classList.remove('hide');
-                document.getElementById('nav-admin-controls').classList.add('hide');
-            }
-            else { 
-                document.getElementById('customer-view').classList.add('hide'); 
-                document.getElementById('admin-view').classList.remove('hide');
-                document.getElementById('nav-customer-controls').classList.add('hide');
-                document.getElementById('nav-admin-controls').classList.remove('hide');
+        window.clearAllHistory = async () => {
+            if(confirm("WARNING: This will delete ALL order history forever. Are you sure?")) {
+                const pin = prompt("Enter Admin PIN to confirm:");
+                const currentPin = localStorage.getItem('pingpos_admin_pin') || '1234';
+                
+                if(pin === currentPin) {
+                    // Delete one by one (Firestore limitation for client SDK without batching complexity)
+                    for(const o of state.orders) {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', o.id));
+                    }
+                    alert("History Cleared");
+                    renderSalesHistory();
+                } else {
+                    alert("Wrong PIN");
+                }
             }
         };
-        window.openReportModal=()=>{
-            const t = new Date().toDateString();
-            let c=0, tot=0;
-            state.orders.forEach(o=>{ if(o.timestamp && new Date(o.timestamp.seconds*1000).toDateString()===t){ c++; tot+=o.totalPrice; } });
-            document.getElementById('rpt-count').innerText=c; document.getElementById('rpt-total').innerText=tot+" Ks";
-            document.getElementById('modal-report').classList.remove('hide');
-        }
+
         window.openQRModal=()=>document.getElementById('modal-qr').classList.remove('hide');
         window.generateQR=()=>{ const t=document.getElementById('qr-table-num').value; document.getElementById('qr-container').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href.split('?')[0]+'?table='+t)}">`; };
         window.printQR=()=>{ const w=window.open('','','height=400,width=400'); w.document.write('<html><body style="text-align:center">'+document.getElementById('qr-container').innerHTML+'</body></html>'); w.document.close(); w.print(); };
         window.printReceipt=(id)=>{
             const o=state.orders.find(x=>x.id===id); if(!o)return;
             document.getElementById('rcp-id').innerText='#'+id.slice(0,4).toUpperCase(); document.getElementById('rcp-table').innerText=o.tableId; document.getElementById('rcp-date').innerText=new Date().toLocaleDateString();
-            document.getElementById('rcp-items').innerHTML=o.items.map(i=>`<tr><td class="py-1">${i.name} x${i.qty}</td><td class="py-1 text-right">${i.lineTotal}</td></tr>`).join('');
+            document.getElementById('rcp-items').innerHTML=o.items.map(i=>`<tr><td class="py-1">${i.name} x${i.qty}</td><td class="py-1 text-right">${i.lineTotal}</td></tr>${i.modifiers.length?`<tr><td colspan="2" class="text-[10px] text-gray-500 pb-1">(${i.modifiers.join(', ')})</td></tr>`:''}`).join('');
             document.getElementById('rcp-total').innerText=o.totalPrice; window.print();
         };
 
