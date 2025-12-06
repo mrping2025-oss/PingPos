@@ -28,233 +28,142 @@
     </script>
     <style>
         body { font-family: 'Inter', 'Padauk', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
         .hide { display: none !important; }
-        
-        /* Modern Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        /* Animations */
-        @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
         .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
         .animate-fade-in { animation: fadeIn 0.2s ease-out; }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        /* Loading Spinner */
-        .loader {
-            width: 48px; height: 48px;
-            border: 5px solid #e2e8f0;
-            border-bottom-color: #4f46e5;
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .loader { width: 48px; height: 48px; border: 5px solid #e2e8f0; border-bottom-color: #4f46e5; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Print Styles */
-        @media print {
-            body * { visibility: hidden; }
-            #receipt-print-area, #receipt-print-area * { visibility: visible; }
-            #receipt-print-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
-            .no-print { display: none !important; }
-        }
+        @media print { body * { visibility: hidden; } #receipt-print-area, #receipt-print-area * { visibility: visible; } #receipt-print-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; } .no-print { display: none !important; } }
     </style>
 </head>
 <body class="bg-slate-50 h-screen flex flex-col text-slate-800 overflow-hidden">
 
-    <!-- 3. Navigation Bar (App Header) -->
-    <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 h-16 flex items-center justify-between px-4 sm:px-6 shadow-sm z-50 no-print transition-all">
+    <!-- 3. Navigation Bar -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 h-16 flex items-center justify-between px-4 sm:px-6 shadow-sm z-50 no-print">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-primary/30 shadow-lg text-white">
-                <i class="fas fa-utensils text-sm"></i>
-            </div>
+            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg text-white"><i class="fas fa-utensils text-sm"></i></div>
             <h1 class="font-bold text-lg tracking-tight text-slate-900 hidden sm:block">PingPOS</h1>
         </div>
-
-        <!-- Modern Toggle Switch -->
-        <div class="bg-slate-100 p-1 rounded-xl flex items-center shadow-inner">
-            <button onclick="switchMode('customer')" id="btn-customer" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 shadow-sm bg-white text-primary">
-                Customer
+        
+        <!-- Updated: Staff Login Button (Only visible on Customer View) -->
+        <div id="nav-customer-controls">
+            <button onclick="openLoginModal()" class="text-slate-400 hover:text-primary text-sm font-medium transition flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50">
+                <i class="fas fa-lock"></i> <span class="hidden sm:inline">Staff Only</span>
             </button>
-            <button onclick="switchMode('admin')" id="btn-admin" class="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 transition-all duration-300">
-                Kitchen
+        </div>
+
+        <!-- Updated: Admin Controls (Only visible on Admin View) -->
+        <div id="nav-admin-controls" class="hide">
+            <button onclick="switchMode('customer')" class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-200 transition flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Logout
             </button>
         </div>
     </header>
 
-    <!-- 4. Main Content Area -->
+    <!-- 4. Main Content -->
     <main id="app-container" class="flex-1 overflow-hidden relative no-print">
-
-        <!-- === CUSTOMER VIEW === -->
+        
+        <!-- Customer View -->
         <div id="customer-view" class="h-full flex flex-col">
-            <!-- Hero / Welcome -->
             <div class="px-6 py-6 bg-gradient-to-r from-primary to-indigo-500 text-white shrink-0">
                 <div class="flex justify-between items-center max-w-5xl mx-auto w-full">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-1">မင်္ဂလာပါ (Welcome) 👋</h2>
-                        <p class="text-indigo-100 text-sm">Choose your favorite meal!</p>
-                    </div>
+                    <div><h2 class="text-2xl font-bold mb-1">မင်္ဂလာပါ (Welcome) 👋</h2><p class="text-indigo-100 text-sm">Choose your favorite meal!</p></div>
                     <div class="bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-2xl flex items-center shadow-lg">
-                        <span class="text-xs uppercase font-bold tracking-wider text-indigo-100 mr-2">Table</span>
-                        <span id="display-table-id" class="text-2xl font-bold">1</span>
+                        <span class="text-xs uppercase font-bold tracking-wider text-indigo-100 mr-2">Table</span><span id="display-table-id" class="text-2xl font-bold">1</span>
                     </div>
                 </div>
             </div>
-
-            <!-- Menu Grid -->
             <div class="flex-1 overflow-y-auto p-4 sm:p-6 pb-32">
                 <div class="max-w-5xl mx-auto">
-                    <div id="menu-loading" class="flex flex-col items-center justify-center py-20 opacity-60">
-                        <span class="loader mb-4"></span>
-                        <p class="text-slate-500 font-medium">Loading Menu...</p>
-                    </div>
-                    
-                    <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        <!-- Items injected here -->
-                    </div>
-
+                    <div id="menu-loading" class="flex flex-col items-center justify-center py-20 opacity-60"><span class="loader mb-4"></span><p class="text-slate-500">Loading Menu...</p></div>
+                    <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
                     <div id="empty-menu-msg" class="hide flex flex-col items-center justify-center py-20 text-slate-400">
-                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                            <i class="fas fa-hamburger text-3xl"></i>
-                        </div>
-                        <p class="font-medium">Menu is currently empty.</p>
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4"><i class="fas fa-hamburger text-3xl"></i></div><p>Menu is currently empty.</p>
                     </div>
                 </div>
             </div>
-
-            <!-- Floating Cart Bar -->
-            <div id="cart-bar" class="absolute bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 transform translate-y-[150%] transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) z-40">
-                <div class="glass-panel rounded-2xl p-4 shadow-2xl shadow-primary/20 flex flex-col gap-3">
+            <!-- Cart Bar -->
+            <div id="cart-bar" class="absolute bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 transform translate-y-[150%] transition-transform duration-500 z-40">
+                <div class="glass-panel rounded-2xl p-4 shadow-2xl flex flex-col gap-3">
                     <div class="flex justify-between items-center px-2">
                         <div class="flex items-center gap-3">
-                            <div class="bg-slate-900 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold shadow-lg" id="cart-count">0</div>
-                            <div class="flex flex-col">
-                                <span class="text-xs text-slate-500 font-bold uppercase">Total</span>
-                                <span class="text-lg font-bold text-slate-900" id="cart-total">0 Ks</span>
-                            </div>
+                            <div class="bg-slate-900 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold" id="cart-count">0</div>
+                            <div class="flex flex-col"><span class="text-xs text-slate-500 font-bold uppercase">Total</span><span class="text-lg font-bold text-slate-900" id="cart-total">0 Ks</span></div>
                         </div>
                     </div>
-                    <button onclick="openCheckoutModal()" class="w-full bg-primary hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-primary/30 transition active:scale-[0.98] flex justify-between items-center px-6">
-                        <span>View Order</span>
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
+                    <button onclick="openCheckoutModal()" class="w-full bg-primary text-white py-3.5 rounded-xl font-bold shadow-lg flex justify-between items-center px-6"><span>View Order</span><i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
 
-        <!-- === ADMIN / KITCHEN VIEW === -->
+        <!-- Admin View -->
         <div id="admin-view" class="h-full flex flex-col hide bg-slate-50">
-            <!-- Toolbar -->
             <div class="bg-white border-b border-slate-200 px-6 py-4 flex flex-wrap gap-4 justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <h2 class="font-bold text-xl text-slate-800">Kitchen Display</h2>
-                    <span id="connection-status" class="flex h-3 w-3 relative">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                    </span>
-                </div>
-                
+                <div class="flex items-center gap-3"><h2 class="font-bold text-xl text-slate-800">Kitchen Display</h2><span id="connection-status" class="flex h-3 w-3 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span></div>
                 <div class="flex gap-2">
-                    <button onclick="openReportModal()" class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 flex items-center justify-center transition" title="Reports">
-                        <i class="fas fa-chart-pie"></i>
-                    </button>
-                    <button onclick="openQRModal()" class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition" title="QR Code">
-                        <i class="fas fa-qrcode"></i>
-                    </button>
-                    <button onclick="openMenuManager()" class="px-4 py-2 bg-slate-800 text-white rounded-full text-sm font-medium hover:bg-slate-700 shadow-lg shadow-slate-300/50 transition flex items-center gap-2">
-                        <i class="fas fa-plus"></i> Manage Menu
-                    </button>
+                    <!-- Change PIN Button -->
+                    <button onclick="openChangePinModal()" class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 hover:bg-slate-300 flex items-center justify-center transition" title="Change PIN"><i class="fas fa-key"></i></button>
+                    <button onclick="openReportModal()" class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 flex items-center justify-center"><i class="fas fa-chart-pie"></i></button>
+                    <button onclick="openQRModal()" class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center"><i class="fas fa-qrcode"></i></button>
+                    <button onclick="openMenuManager()" class="px-4 py-2 bg-slate-800 text-white rounded-full text-sm font-medium hover:bg-slate-700 shadow-lg flex items-center gap-2"><i class="fas fa-plus"></i> Manage Menu</button>
                 </div>
             </div>
-
-            <!-- Kanban Board Style Orders -->
             <div class="flex-1 overflow-y-auto p-6">
-                <div id="orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start">
-                    <!-- Orders injected here -->
-                </div>
-                
-                <div id="no-orders-msg" class="hidden h-full flex flex-col items-center justify-center text-slate-400">
-                    <i class="fas fa-check-circle text-6xl mb-4 opacity-20"></i>
-                    <p class="text-lg font-medium">All caught up!</p>
-                </div>
+                <div id="orders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start"></div>
+                <div id="no-orders-msg" class="hidden h-full flex flex-col items-center justify-center text-slate-400"><i class="fas fa-check-circle text-6xl mb-4 opacity-20"></i><p>All caught up!</p></div>
             </div>
         </div>
-
     </main>
 
-    <!-- === MODALS === -->
+    <!-- MODALS -->
+    
+    <!-- New: Staff Login Modal -->
+    <div id="modal-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl animate-fade-in p-6 text-center">
+            <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg">Staff Login</h3><button onclick="closeModal('modal-login')" class="text-slate-400"><i class="fas fa-times"></i></button></div>
+            <div class="mb-4">
+                <p class="text-sm text-slate-500 mb-2">Enter PIN Code (Default: 1234)</p>
+                <input type="password" id="staff-pin" class="border p-3 rounded-xl w-full text-center font-bold text-lg tracking-widest" placeholder="****">
+            </div>
+            <button onclick="verifyPin()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold">Login to Kitchen</button>
+        </div>
+    </div>
+
+    <!-- New: Change PIN Modal -->
+    <div id="modal-change-pin" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl animate-fade-in p-6 text-center">
+            <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg">Change Admin PIN</h3><button onclick="closeModal('modal-change-pin')" class="text-slate-400"><i class="fas fa-times"></i></button></div>
+            <div class="mb-4">
+                <p class="text-sm text-slate-500 mb-2">New PIN (Minimum 4 digits)</p>
+                <input type="tel" id="new-pin-input" class="border p-3 rounded-xl w-full text-center font-bold text-lg tracking-widest" placeholder="****">
+            </div>
+            <button onclick="saveNewPin()" class="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-lg">Save New PIN</button>
+        </div>
+    </div>
 
     <!-- Product Modal -->
-    <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-end sm:items-center justify-center transition-all duration-300">
+    <div id="modal-product" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-end sm:items-center justify-center">
         <div class="bg-white w-full sm:w-[420px] sm:rounded-3xl rounded-t-3xl p-0 shadow-2xl animate-slide-up overflow-hidden">
-            <!-- Image Header -->
-            <div class="h-48 bg-slate-100 relative overflow-hidden">
-                <img id="mp-img" src="" class="w-full h-full object-cover">
-                <button onclick="closeModal('modal-product')" class="absolute top-4 right-4 w-8 h-8 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md flex items-center justify-center transition">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
+            <div class="h-48 bg-slate-100 relative overflow-hidden"><img id="mp-img" src="" class="w-full h-full object-cover"><button onclick="closeModal('modal-product')" class="absolute top-4 right-4 w-8 h-8 bg-black/20 text-white rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button></div>
             <div class="p-6">
-                <div class="flex justify-between items-start mb-6">
-                    <h3 id="mp-name" class="text-2xl font-bold text-slate-800 leading-tight">Product</h3>
-                    <span id="mp-price-display" class="bg-indigo-50 text-primary px-3 py-1 rounded-full text-sm font-bold">0 Ks</span>
-                </div>
-
-                <!-- Modifiers -->
+                <div class="flex justify-between items-start mb-6"><h3 id="mp-name" class="text-2xl font-bold text-slate-800">Product</h3><span id="mp-price-display" class="bg-indigo-50 text-primary px-3 py-1 rounded-full text-sm font-bold">0 Ks</span></div>
                 <div class="space-y-3 mb-8">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Customization</p>
-                    
                     <div class="grid grid-cols-2 gap-3">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="spice_level" value="Normal" checked class="peer sr-only">
-                            <div class="border border-slate-200 peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-primary rounded-xl p-3 text-center transition-all">
-                                <i class="fas fa-pepper-hot mb-1 block"></i>
-                                <span class="text-xs font-bold">Normal</span>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="spice_level" value="Less Spicy" class="peer sr-only">
-                            <div class="border border-slate-200 peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-primary rounded-xl p-3 text-center transition-all">
-                                <i class="fas fa-seedling mb-1 block"></i>
-                                <span class="text-xs font-bold">Less Spicy</span>
-                            </div>
-                        </label>
+                        <label class="cursor-pointer"><input type="radio" name="spice_level" value="Normal" checked class="peer sr-only"><div class="border border-slate-200 peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-primary rounded-xl p-3 text-center"><span class="text-xs font-bold">Normal</span></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="spice_level" value="Less Spicy" class="peer sr-only"><div class="border border-slate-200 peer-checked:border-primary peer-checked:bg-indigo-50 peer-checked:text-primary rounded-xl p-3 text-center"><span class="text-xs font-bold">Less Spicy</span></div></label>
                     </div>
-
-                    <label class="flex items-center justify-between p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
-                        <span class="text-sm font-medium text-slate-700">🚫 No MSG (အချိုမှုန့်မပါ)</span>
-                        <input type="checkbox" id="mp-nomsg" value="No MSG" class="w-5 h-5 text-primary rounded border-slate-300 focus:ring-primary">
-                    </label>
+                    <label class="flex items-center justify-between p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50"><span class="text-sm font-medium text-slate-700">🚫 No MSG</span><input type="checkbox" id="mp-nomsg" value="No MSG" class="w-5 h-5 text-primary rounded"></label>
                 </div>
-
-                <!-- Action Bar -->
                 <div class="flex items-center gap-4">
-                    <div class="flex items-center bg-slate-100 rounded-2xl p-1">
-                        <button onclick="updateQty(-1)" class="w-12 h-10 flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-sm rounded-xl transition text-lg font-bold">-</button>
-                        <span id="mp-qty" class="w-8 text-center font-bold text-lg">1</span>
-                        <button onclick="updateQty(1)" class="w-12 h-10 flex items-center justify-center text-slate-600 hover:bg-white hover:shadow-sm rounded-xl transition text-lg font-bold">+</button>
-                    </div>
-                    <button onclick="addToCart()" class="flex-1 bg-primary hover:bg-indigo-700 text-white h-12 rounded-2xl font-bold shadow-lg shadow-primary/30 active:scale-[0.98] transition">
-                        Add to Cart
-                    </button>
+                    <div class="flex items-center bg-slate-100 rounded-2xl p-1"><button onclick="updateQty(-1)" class="w-12 h-10 flex items-center justify-center text-slate-600 font-bold">-</button><span id="mp-qty" class="w-8 text-center font-bold text-lg">1</span><button onclick="updateQty(1)" class="w-12 h-10 flex items-center justify-center text-slate-600 font-bold">+</button></div>
+                    <button onclick="addToCart()" class="flex-1 bg-primary text-white h-12 rounded-2xl font-bold shadow-lg">Add to Cart</button>
                 </div>
             </div>
         </div>
@@ -263,23 +172,11 @@
     <!-- Checkout Modal -->
     <div id="modal-checkout" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl animate-fade-in overflow-hidden flex flex-col max-h-[85vh]">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-white z-10">
-                <h3 class="font-bold text-xl text-slate-800">Current Order</h3>
-                <button onclick="closeModal('modal-checkout')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div id="checkout-items" class="p-5 overflow-y-auto flex-1 space-y-4">
-                <!-- Items list -->
-            </div>
-
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-white z-10"><h3 class="font-bold text-xl text-slate-800">Order</h3><button onclick="closeModal('modal-checkout')" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500"><i class="fas fa-times"></i></button></div>
+            <div id="checkout-items" class="p-5 overflow-y-auto flex-1 space-y-4"></div>
             <div class="p-6 bg-slate-50 border-t border-slate-100">
-                <div class="flex justify-between items-end mb-6">
-                    <span class="text-sm font-medium text-slate-500">Total Amount</span>
-                    <span id="checkout-grand-total" class="text-2xl font-bold text-primary">0 Ks</span>
-                </div>
-                <button onclick="submitOrder()" class="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-bold shadow-xl shadow-green-600/20 active:scale-[0.98] transition text-lg">
-                    Confirm Order
-                </button>
+                <div class="flex justify-between items-end mb-6"><span class="text-sm font-medium text-slate-500">Total</span><span id="checkout-grand-total" class="text-2xl font-bold text-primary">0 Ks</span></div>
+                <button onclick="submitOrder()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold shadow-xl">Confirm Order</button>
             </div>
         </div>
     </div>
@@ -287,118 +184,51 @@
     <!-- Menu Manager Modal -->
     <div id="modal-menu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl animate-fade-in overflow-hidden h-[80vh] flex flex-col">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-bold text-lg">Manage Menu</h3>
-                <button onclick="closeModal('modal-menu')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-            </div>
-            
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center"><h3 class="font-bold text-lg">Manage Menu</h3><button onclick="closeModal('modal-menu')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button></div>
             <div class="p-5 bg-slate-50 border-b border-slate-100">
                 <div class="flex flex-col md:flex-row gap-3">
-                    <input type="text" id="new-prod-name" placeholder="Item Name" class="flex-1 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
-                    <input type="number" id="new-prod-price" placeholder="Price" class="w-full md:w-32 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
-                    <input type="text" id="new-prod-img" placeholder="Img URL" class="w-full md:w-40 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition">
-                    <button onclick="addProduct()" class="bg-primary text-white p-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-primary/20">Add</button>
+                    <input type="text" id="new-prod-name" placeholder="Item Name" class="flex-1 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <input type="number" id="new-prod-price" placeholder="Price" class="w-full md:w-32 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <input type="text" id="new-prod-img" placeholder="Img URL" class="w-full md:w-40 p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <button onclick="addProduct()" class="bg-primary text-white p-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg">Add</button>
                 </div>
             </div>
-
-            <div class="flex-1 overflow-y-auto">
-                <table class="w-full text-left text-sm">
-                    <tbody id="menu-table-body" class="divide-y divide-slate-100">
-                        <!-- Rows -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="p-3 bg-slate-50 border-t border-slate-200 text-center">
-                <button onclick="seedMenu()" class="text-xs text-primary font-medium hover:underline">Restore Default Items</button>
-            </div>
+            <div class="flex-1 overflow-y-auto"><table class="w-full text-left text-sm"><tbody id="menu-table-body" class="divide-y divide-slate-100"></tbody></table></div>
         </div>
     </div>
 
-    <!-- Daily Report Modal -->
+    <!-- Daily Report & QR Modals -->
     <div id="modal-report" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl animate-fade-in p-6 relative">
-            <button onclick="closeModal('modal-report')" class="absolute top-4 right-4 text-slate-300 hover:text-slate-500"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-bold text-slate-800 mb-6 text-center">Today's Performance</h3>
-            
-            <div class="space-y-4">
-                <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-500/20">
-                    <p class="text-indigo-100 text-sm font-medium mb-1">Total Revenue</p>
-                    <p class="text-3xl font-bold" id="rpt-total">0 Ks</p>
-                </div>
-                <div class="bg-white border border-slate-100 rounded-2xl p-6 flex justify-between items-center shadow-sm">
-                    <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase">Orders</p>
-                        <p class="text-2xl font-bold text-slate-800" id="rpt-count">0</p>
-                    </div>
-                    <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-400">
-                        <i class="fas fa-receipt"></i>
-                    </div>
-                </div>
-            </div>
+            <button onclick="closeModal('modal-report')" class="absolute top-4 right-4 text-slate-300"><i class="fas fa-times"></i></button>
+            <h3 class="text-xl font-bold text-slate-800 mb-6 text-center">Today's Sales</h3>
+            <div class="space-y-4"><div class="bg-purple-600 rounded-2xl p-6 text-white text-center"><p class="text-sm mb-1">Total</p><p class="text-3xl font-bold" id="rpt-total">0 Ks</p></div><div class="bg-white border rounded-2xl p-6 flex justify-between items-center"><span>Orders</span><span class="text-2xl font-bold" id="rpt-count">0</span></div></div>
         </div>
     </div>
-
-    <!-- QR Modal -->
     <div id="modal-qr" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl animate-fade-in p-6 text-center">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg">Table QR Code</h3>
-                <button onclick="closeModal('modal-qr')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div class="flex gap-2 mb-6">
-                <input type="number" id="qr-table-num" value="1" class="border border-slate-200 p-3 rounded-xl w-full text-center font-bold text-lg focus:ring-2 focus:ring-primary/20 outline-none transition">
-                <button onclick="generateQR()" class="bg-slate-800 text-white px-6 rounded-xl font-bold hover:bg-slate-700 transition">Gen</button>
-            </div>
-
-            <div id="qr-container" class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center min-h-[200px] mb-4 overflow-hidden">
-                <span class="text-slate-400 text-sm font-medium">QR Preview</span>
-            </div>
-            
-            <button onclick="printQR()" class="text-primary font-bold hover:underline text-sm py-2">Print Code</button>
+            <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg">QR Code</h3><button onclick="closeModal('modal-qr')" class="text-slate-400"><i class="fas fa-times"></i></button></div>
+            <div class="flex gap-2 mb-6"><input type="number" id="qr-table-num" value="1" class="border p-3 rounded-xl w-full text-center font-bold"><button onclick="generateQR()" class="bg-slate-800 text-white px-6 rounded-xl font-bold">Gen</button></div>
+            <div id="qr-container" class="bg-slate-50 border-2 border-dashed rounded-2xl flex items-center justify-center min-h-[200px] mb-4"></div>
+            <button onclick="printQR()" class="text-primary font-bold hover:underline">Print</button>
         </div>
     </div>
-
-    <!-- Hidden Receipt Template -->
-    <div id="receipt-print-area" class="hide font-mono text-sm p-4 text-black bg-white max-w-[300px]">
-        <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold uppercase tracking-widest mb-1">PingPOS</h2>
-            <p class="text-xs text-gray-500">Yangon, Myanmar</p>
-        </div>
-        
-        <div class="border-b-2 border-black pb-2 mb-2 flex justify-between text-xs font-bold">
-            <span id="rcp-id">#000</span>
-            <span id="rcp-date"></span>
-        </div>
-        <div class="text-center text-lg font-bold mb-4 border-b-2 border-black pb-2">
-            Table <span id="rcp-table"></span>
-        </div>
-
-        <table class="w-full text-left mb-4 text-xs">
-            <thead>
-                <tr class="border-b border-gray-400"><th class="py-1">Item</th><th class="py-1 text-right">Amt</th></tr>
-            </thead>
-            <tbody id="rcp-items" class="divide-y divide-gray-200"></tbody>
-        </table>
-
-        <div class="border-t-2 border-black pt-2 flex justify-between font-bold text-lg mt-4">
-            <span>TOTAL</span>
-            <span id="rcp-total"></span>
-        </div>
-        <div class="text-center mt-8 text-[10px] uppercase tracking-wider text-gray-500">
-            Thank you for dining with us
-        </div>
+    <!-- Receipt Hidden -->
+    <div id="receipt-print-area" class="hide font-mono text-sm p-4 bg-white max-w-[300px]">
+        <div class="text-center mb-6"><h2 class="text-2xl font-bold">PingPOS</h2></div>
+        <div class="border-b-2 border-black pb-2 mb-2 flex justify-between text-xs font-bold"><span id="rcp-id">#000</span><span id="rcp-date"></span></div>
+        <div class="text-center text-lg font-bold mb-4 border-b-2 border-black pb-2">Table <span id="rcp-table"></span></div>
+        <table class="w-full text-left mb-4 text-xs"><thead><tr class="border-b border-gray-400"><th class="py-1">Item</th><th class="py-1 text-right">Amt</th></tr></thead><tbody id="rcp-items"></tbody></table>
+        <div class="border-t-2 border-black pt-2 flex justify-between font-bold text-lg mt-4"><span>TOTAL</span><span id="rcp-total"></span></div>
     </div>
 
-    <!-- Logic -->
+    <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // =======================================================
-        // USER FIREBASE CONFIG (PingPOS)
-        // =======================================================
+        // Your provided Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyB0TsIVnLIWIOukeT_ddLwA9xMki50H1yE",
             authDomain: "pingpos.firebaseapp.com",
@@ -412,42 +242,35 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        // Fixed AppID for PingPOS
-        const appId = 'pingpos-production';
+        const appId = 'pingpos-production'; 
 
         let state = { user: null, tableId: 1, products: [], cart: [], orders: [], selectedProduct: null };
 
-        // Init
         async function init() {
             try {
-                await signInAnonymously(auth);
-                state.user = auth.currentUser;
-                console.log("Connected to PingPOS as", state.user.uid);
+                const result = await signInAnonymously(auth);
+                state.user = result.user;
             } catch (error) {
-                console.error("Auth Failed", error);
-                alert("Connection Error. Please refresh.");
+                console.error("Auth Failed:", error);
+                alert("Connection/Auth Error");
             }
             
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.get('table')) state.tableId = urlParams.get('table');
             document.getElementById('display-table-id').innerText = state.tableId;
 
-            setupProductListener();
-            setupOrderListener();
+            setupListeners();
+            // Ensure we start in Customer Mode
+            switchMode('customer');
         }
 
-        // Listeners
-        function setupProductListener() {
+        function setupListeners() {
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'products'), (snapshot) => {
                 state.products = [];
                 snapshot.forEach(d => state.products.push({id: d.id, ...d.data()}));
-                renderMenu();
-                renderMenuManager();
+                renderMenu(); renderMenuManager();
             });
-        }
 
-        function setupOrderListener() {
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), (snapshot) => {
                 state.orders = [];
                 snapshot.forEach(d => state.orders.push({id: d.id, ...d.data()}));
@@ -456,37 +279,20 @@
             });
         }
 
-        // Renders
+        // RENDER FUNCTIONS
         function renderMenu() {
             const grid = document.getElementById('menu-grid');
             document.getElementById('menu-loading').classList.add('hide');
             grid.innerHTML = '';
-            
             if (state.products.length === 0) return document.getElementById('empty-menu-msg').classList.remove('hide');
             document.getElementById('empty-menu-msg').classList.add('hide');
 
             state.products.forEach(p => {
-                const isUrl = p.image && (p.image.startsWith('http') || p.image.startsWith('data:'));
-                const imgHtml = isUrl 
-                    ? `<img src="${p.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">` 
-                    : `<div class="w-full h-full flex items-center justify-center text-6xl bg-slate-50 text-slate-300 group-hover:text-slate-400 transition">${p.image || '🍽️'}</div>`;
-
+                const imgHtml = (p.image && p.image.startsWith('http')) ? `<img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center text-6xl bg-slate-50">${p.image||'🍽️'}</div>`;
                 const el = document.createElement('div');
-                el.className = "bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 cursor-pointer overflow-hidden group flex flex-col";
+                el.className = "bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-xl cursor-pointer overflow-hidden group flex flex-col";
                 el.onclick = () => openProductModal(p.id);
-                el.innerHTML = `
-                    <div class="h-40 overflow-hidden relative">
-                        ${imgHtml}
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
-                    </div>
-                    <div class="p-5 flex-1 flex flex-col">
-                        <h3 class="font-bold text-slate-800 text-lg mb-1">${p.name}</h3>
-                        <div class="mt-auto flex justify-between items-center">
-                            <span class="text-primary font-bold bg-indigo-50 px-2 py-1 rounded-lg text-sm">${p.price} Ks</span>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition"><i class="fas fa-plus"></i></div>
-                        </div>
-                    </div>
-                `;
+                el.innerHTML = `<div class="h-40 overflow-hidden relative">${imgHtml}</div><div class="p-5 flex-1 flex flex-col"><h3 class="font-bold text-slate-800 text-lg mb-1">${p.name}</h3><div class="mt-auto flex justify-between items-center"><span class="text-primary font-bold bg-indigo-50 px-2 py-1 rounded-lg text-sm">${p.price} Ks</span><div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition"><i class="fas fa-plus"></i></div></div></div>`;
                 grid.appendChild(el);
             });
         }
@@ -496,251 +302,151 @@
             grid.innerHTML = '';
             if(state.orders.length === 0) return document.getElementById('no-orders-msg').classList.remove('hidden');
             document.getElementById('no-orders-msg').classList.add('hidden');
-
             state.orders.forEach(order => {
-                let statusColor = "bg-yellow-50 text-yellow-600 border-yellow-200";
-                let btnHtml = `<button onclick="window.updateStatus('${order.id}', 'cooking')" class="flex-1 bg-slate-800 text-white py-2 rounded-xl text-sm font-bold hover:bg-slate-700 transition">Start Cooking</button>`;
-                let statusText = "Pending";
-
-                if (order.status === 'cooking') {
-                    statusColor = "bg-blue-50 text-blue-600 border-blue-200";
-                    statusText = "Cooking";
-                    btnHtml = `<button onclick="window.updateStatus('${order.id}', 'served')" class="flex-1 bg-green-600 text-white py-2 rounded-xl text-sm font-bold hover:bg-green-700 transition">Complete</button>`;
-                } else if (order.status === 'served') {
-                    statusColor = "bg-gray-50 text-gray-500 border-gray-200";
-                    statusText = "Served";
-                    btnHtml = `<button onclick="window.printReceipt('${order.id}')" class="flex-1 border border-slate-200 text-slate-600 py-2 rounded-xl text-sm font-bold hover:bg-slate-50 transition"><i class="fas fa-print mr-2"></i>Print</button>`;
-                }
-
-                const timeStr = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-
-                const el = document.createElement('div');
-                el.className = "bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex flex-col gap-4 hover:shadow-md transition";
-                el.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Table</span>
-                            <p class="text-2xl font-bold text-slate-800">${order.tableId}</p>
-                        </div>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">${statusText}</span>
-                    </div>
-                    <div class="flex-1 overflow-y-auto max-h-40 space-y-2">
-                        ${order.items.map(i => `
-                            <div class="flex justify-between text-sm">
-                                <div>
-                                    <span class="font-bold text-primary">${i.qty}x</span> <span class="text-slate-700">${i.name}</span>
-                                    ${i.modifiers.length ? `<p class="text-[10px] text-slate-400 ml-5">${i.modifiers.join(', ')}</p>` : ''}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="pt-4 border-t border-slate-50 mt-auto">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-xs font-bold text-slate-400">Total</span>
-                            <span class="font-bold text-slate-800">${order.totalPrice} Ks</span>
-                        </div>
-                        <div class="flex gap-2 text-xs text-slate-400 mb-3"><i class="far fa-clock"></i> ${timeStr}</div>
-                        <div class="flex gap-2">${btnHtml}</div>
-                    </div>
-                `;
-                grid.appendChild(el);
+                let statusColor="bg-yellow-50 text-yellow-600", btnText="Start Cooking", nextSt="cooking", stText="Pending";
+                if(order.status==='cooking'){ statusColor="bg-blue-50 text-blue-600"; btnText="Complete"; nextSt="served"; stText="Cooking"; }
+                else if(order.status==='served'){ statusColor="bg-gray-50 text-gray-500"; btnText="Print"; nextSt="print"; stText="Served"; }
+                
+                let btnHtml = (nextSt==='print') ? `<button onclick="window.printReceipt('${order.id}')" class="flex-1 border border-slate-200 text-slate-600 py-2 rounded-xl text-sm font-bold">Print</button>` : `<button onclick="window.updateStatus('${order.id}', '${nextSt}')" class="flex-1 bg-slate-800 text-white py-2 rounded-xl text-sm font-bold">${btnText}</button>`;
+                
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-2xl shadow-sm border p-5 flex flex-col gap-4";
+                div.innerHTML = `<div class="flex justify-between"><div><span class="text-xs font-bold text-slate-400 uppercase">Table</span><p class="text-2xl font-bold">${order.tableId}</p></div><span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">${stText}</span></div><div class="flex-1 overflow-y-auto max-h-40 space-y-2">${order.items.map(i=>`<div class="flex justify-between text-sm"><div><span class="font-bold text-primary">${i.qty}x</span> ${i.name}</div></div>`).join('')}</div><div class="pt-4 border-t mt-auto flex gap-2">${btnHtml}</div>`;
+                grid.appendChild(div);
             });
         }
 
         function renderMenuManager() {
-            document.getElementById('menu-table-body').innerHTML = state.products.map(p => {
-                const imgDisplay = p.image.startsWith('http') 
-                    ? `<img src="${p.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-100">` 
-                    : `<div class="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-lg">${p.image}</div>`;
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4">${imgDisplay}</td>
-                        <td class="p-4 font-bold text-slate-700">${p.name}</td>
-                        <td class="p-4 text-slate-500">${p.price}</td>
-                        <td class="p-4 text-right">
-                            <button onclick="window.deleteProduct('${p.id}')" class="w-8 h-8 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `
-            }).join('');
+            document.getElementById('menu-table-body').innerHTML = state.products.map(p => 
+                `<tr class="hover:bg-slate-50"><td class="p-4 font-bold text-slate-700">${p.name}</td><td class="p-4 text-slate-500">${p.price}</td><td class="p-4 text-right"><button onclick="window.deleteProduct('${p.id}')" class="text-red-400 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`
+            ).join('');
         }
 
-        // Interaction Logic
-        window.openProductModal = (id) => {
-            const p = state.products.find(x => x.id === id);
-            if(!p) return;
-            state.selectedProduct = { ...p, qty: 1 };
-            
-            document.getElementById('mp-name').innerText = p.name;
-            document.getElementById('mp-price-display').innerText = p.price + ' Ks';
-            document.getElementById('mp-qty').innerText = 1;
-            
-            const img = document.getElementById('mp-img');
-            if(p.image.startsWith('http')) {
-                img.src = p.image;
-                img.classList.remove('hide');
-            } else {
-                img.src = 'https://placehold.co/600x400/f1f5f9/cbd5e1?text=' + (p.image || 'Food');
-            }
-
-            document.getElementById('modal-product').classList.remove('hide');
-        };
-
-        window.updateQty = (change) => {
-            if(!state.selectedProduct) return;
-            let newQ = state.selectedProduct.qty + change;
-            if(newQ < 1) newQ = 1;
-            state.selectedProduct.qty = newQ;
-            document.getElementById('mp-qty').innerText = newQ;
-        };
-
-        window.addToCart = () => {
-            const spice = document.querySelector('input[name="spice_level"]:checked').value;
-            const noMsg = document.getElementById('mp-nomsg').checked ? "No MSG" : null;
-            const mods = [spice];
-            if(noMsg) mods.push(noMsg);
-
-            state.cart.push({
-                ...state.selectedProduct,
-                modifiers: mods,
-                lineTotal: state.selectedProduct.price * state.selectedProduct.qty
-            });
-            updateCartUI();
-            closeModal('modal-product');
-        };
-
-        function updateCartUI() {
-            const count = state.cart.reduce((acc, i) => acc + i.qty, 0);
-            const total = state.cart.reduce((acc, i) => acc + i.lineTotal, 0);
-            
-            document.getElementById('cart-count').innerText = count;
-            document.getElementById('cart-total').innerText = total + " Ks";
-            
-            const bar = document.getElementById('cart-bar');
-            if(count > 0) bar.classList.remove('translate-y-[150%]');
-            else bar.classList.add('translate-y-[150%]');
-        }
-
-        window.openCheckoutModal = () => {
-            if(state.cart.length === 0) return;
-            const container = document.getElementById('checkout-items');
-            const total = state.cart.reduce((acc, i) => acc + i.lineTotal, 0);
-            
-            container.innerHTML = state.cart.map((item, idx) => `
-                <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center font-bold text-primary shadow-sm">${item.qty}x</div>
-                        <div>
-                            <p class="font-bold text-slate-800 text-sm">${item.name}</p>
-                            <p class="text-[10px] text-slate-400">${item.modifiers.join(', ')}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="font-bold text-slate-700 text-sm">${item.lineTotal}</span>
-                        <button onclick="window.removeFromCart(${idx})" class="text-slate-300 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
-            
-            document.getElementById('checkout-grand-total').innerText = total + " Ks";
-            document.getElementById('modal-checkout').classList.remove('hide');
-        };
-
-        window.removeFromCart = (idx) => {
-            state.cart.splice(idx, 1);
-            if(state.cart.length === 0) closeModal('modal-checkout');
-            else window.openCheckoutModal();
-            updateCartUI();
-        };
-
-        window.submitOrder = async () => {
-            if(!state.user) return;
-            const total = state.cart.reduce((acc, i) => acc + i.lineTotal, 0);
-            try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), {
-                    tableId: state.tableId,
-                    items: state.cart,
-                    totalPrice: total,
-                    status: 'pending',
-                    timestamp: serverTimestamp(),
-                    userId: state.user.uid
-                });
-                state.cart = [];
-                updateCartUI();
-                closeModal('modal-checkout');
-                alert("Order Sent!");
-            } catch (e) { console.error(e); }
-        };
-
-        window.updateStatus = async (id, st) => await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', id), {status: st});
-        
-        // Admin Features
-        window.openMenuManager = () => document.getElementById('modal-menu').classList.remove('hide');
-        window.closeModal = (id) => document.getElementById(id).classList.add('hide');
+        // --- ACTIONS ---
         window.addProduct = async () => {
             const n = document.getElementById('new-prod-name').value;
             const p = parseInt(document.getElementById('new-prod-price').value);
             const i = document.getElementById('new-prod-img').value;
-            if(n && p) {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), {name:n, price:p, image:i});
+            if(!n || !p) return alert("Name and Price required");
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), { name: n, price: p, image: i || '🍽️' });
                 document.getElementById('new-prod-name').value = '';
                 document.getElementById('new-prod-price').value = '';
                 document.getElementById('new-prod-img').value = '';
+            } catch (e) {
+                console.error("Add Error:", e);
+                alert("Error Adding Item: " + e.message);
             }
         };
+
         window.deleteProduct = async (id) => { if(confirm("Remove?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id)); };
-        window.seedMenu = async () => {
-            const defaults = [{name:"Shan Noodle",price:2500,image:"🍜"}, {name:"Cola",price:1000,image:"🥤"}];
-            for(const d of defaults) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), d);
-        };
-        
-        window.openReportModal = () => {
-            const today = new Date().toDateString();
-            let c = 0, inc = 0;
-            state.orders.forEach(o => {
-                if(o.timestamp && new Date(o.timestamp.seconds*1000).toDateString() === today) { c++; inc += o.totalPrice; }
-            });
-            document.getElementById('rpt-count').innerText = c;
-            document.getElementById('rpt-total').innerText = inc + " Ks";
-            document.getElementById('modal-report').classList.remove('hide');
-        };
 
-        window.openQRModal = () => document.getElementById('modal-qr').classList.remove('hide');
-        window.generateQR = () => {
-            const t = document.getElementById('qr-table-num').value;
-            const url = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href.split('?')[0] + '?table=' + t)}`;
-            document.getElementById('qr-container').innerHTML = `<img src="${url}">`;
+        window.openProductModal = (id) => {
+            const p = state.products.find(x => x.id === id);
+            if(!p) return;
+            state.selectedProduct = { ...p, qty: 1 };
+            document.getElementById('mp-name').innerText = p.name;
+            document.getElementById('mp-price-display').innerText = p.price + ' Ks';
+            document.getElementById('mp-qty').innerText = 1;
+            const img = document.getElementById('mp-img');
+            img.src = (p.image && p.image.startsWith('http')) ? p.image : 'https://placehold.co/600x400/f1f5f9/cbd5e1?text='+(p.image||'Food');
+            document.getElementById('modal-product').classList.remove('hide');
         };
-        window.printQR = () => {
-            const c = document.getElementById('qr-container').innerHTML;
-            const w = window.open('','','height=400,width=400');
-            w.document.write('<html><body style="text-align:center">'+c+'</body></html>');
-            w.document.close(); w.print();
+        window.updateQty = (c) => { let q = state.selectedProduct.qty + c; if(q>=1) { state.selectedProduct.qty = q; document.getElementById('mp-qty').innerText = q; } };
+        window.addToCart = () => {
+            const spice = document.querySelector('input[name="spice_level"]:checked').value;
+            const noMsg = document.getElementById('mp-nomsg').checked ? "No MSG" : null;
+            state.cart.push({ ...state.selectedProduct, modifiers: [spice, noMsg].filter(Boolean), lineTotal: state.selectedProduct.price * state.selectedProduct.qty });
+            updateCartUI(); closeModal('modal-product');
         };
+        function updateCartUI() {
+            const c = state.cart.reduce((a,i)=>a+i.qty,0);
+            document.getElementById('cart-count').innerText = c;
+            document.getElementById('cart-total').innerText = state.cart.reduce((a,i)=>a+i.lineTotal,0) + " Ks";
+            const bar = document.getElementById('cart-bar');
+            if(c>0) bar.classList.remove('translate-y-[150%]'); else bar.classList.add('translate-y-[150%]');
+        }
+        window.openCheckoutModal = () => {
+            if(state.cart.length===0) return;
+            document.getElementById('checkout-items').innerHTML = state.cart.map((item,i)=>`<div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl"><div class="flex items-center gap-3"><div class="font-bold text-primary">${item.qty}x</div><div><p class="font-bold text-sm">${item.name}</p><p class="text-xs text-slate-400">${item.modifiers.join(', ')}</p></div></div><div class="flex gap-4"><span class="font-bold text-slate-700">${item.lineTotal}</span><button onclick="window.removeFromCart(${i})" class="text-red-400"><i class="fas fa-trash"></i></button></div></div>`).join('');
+            document.getElementById('checkout-grand-total').innerText = state.cart.reduce((a,i)=>a+i.lineTotal,0) + " Ks";
+            document.getElementById('modal-checkout').classList.remove('hide');
+        };
+        window.removeFromCart = (i) => { state.cart.splice(i,1); if(state.cart.length===0) closeModal('modal-checkout'); else window.openCheckoutModal(); updateCartUI(); };
+        window.submitOrder = async () => {
+            if(!state.user) return alert("Not Connected");
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), {
+                    tableId: state.tableId, items: state.cart, totalPrice: state.cart.reduce((a,i)=>a+i.lineTotal,0), status: 'pending', timestamp: serverTimestamp(), userId: state.user.uid
+                });
+                state.cart=[]; updateCartUI(); closeModal('modal-checkout'); alert("Order Sent!");
+            } catch(e){ console.error(e); alert("Failed to send order"); }
+        };
+        window.updateStatus = async (id,s) => await updateDoc(doc(db,'artifacts',appId,'public','data','orders',id),{status:s});
 
-        window.printReceipt = (oid) => {
-            const o = state.orders.find(x => x.id === oid);
-            if(!o) return;
-            document.getElementById('rcp-id').innerText = '#'+oid.slice(0,4).toUpperCase();
-            document.getElementById('rcp-date').innerText = new Date().toLocaleDateString();
-            document.getElementById('rcp-table').innerText = o.tableId;
-            document.getElementById('rcp-items').innerHTML = o.items.map(i => `<tr><td class="py-1">${i.name} <span class="text-xs">x${i.qty}</span></td><td class="py-1 text-right">${i.qty*i.price}</td></tr>`).join('');
-            document.getElementById('rcp-total').innerText = o.totalPrice;
-            window.print();
-        };
+        // UTILS & NEW SECURITY LOGIC
+        window.openLoginModal = () => document.getElementById('modal-login').classList.remove('hide');
+        window.verifyPin = () => {
+            const pinInput = document.getElementById('staff-pin').value;
+            // Get stored PIN or default to 1234
+            const currentPin = localStorage.getItem('pingpos_admin_pin') || '1234';
 
-        window.switchMode = (m) => {
-            if(m === 'customer') {
-                document.getElementById('customer-view').classList.remove('hide');
-                document.getElementById('admin-view').classList.add('hide');
-                document.getElementById('btn-customer').classList.add('bg-white','text-primary','shadow-sm');
-                document.getElementById('btn-admin').classList.remove('bg-white','text-primary','shadow-sm');
+            if(pinInput === currentPin) {
+                switchMode('admin');
+                closeModal('modal-login');
+                document.getElementById('staff-pin').value = '';
             } else {
-                document.getElementById('customer-view').classList.add('hide');
-                document.getElementById('admin-view').classList.remove('hide');
-                document.getElementById('btn-admin').classList.add('bg-white','text-primary','shadow-sm');
-                document.getElementById('btn-customer').classList.remove('bg-white','text-primary','shadow-sm');
+                alert("PIN မှားနေပါတယ် (Wrong PIN)");
             }
+        };
+
+        // NEW: Change PIN Logic
+        window.openChangePinModal = () => document.getElementById('modal-change-pin').classList.remove('hide');
+        
+        window.saveNewPin = () => {
+            const newPin = document.getElementById('new-pin-input').value;
+            if(newPin && newPin.length >= 4) {
+                localStorage.setItem('pingpos_admin_pin', newPin);
+                alert("PIN နံပါတ် အသစ်ပြောင်းလဲလိုက်ပါပြီ (PIN Changed)");
+                closeModal('modal-change-pin');
+                document.getElementById('new-pin-input').value = '';
+            } else {
+                alert("PIN နံပါတ် အနည်းဆုံး ၄ လုံး ရှိရပါမည်");
+            }
+        };
+
+        window.openMenuManager=()=>document.getElementById('modal-menu').classList.remove('hide');
+        window.closeModal=(id)=>document.getElementById(id).classList.add('hide');
+        
+        window.switchMode=(m)=>{ 
+            if(m==='customer'){ 
+                document.getElementById('customer-view').classList.remove('hide'); 
+                document.getElementById('admin-view').classList.add('hide'); 
+                document.getElementById('nav-customer-controls').classList.remove('hide');
+                document.getElementById('nav-admin-controls').classList.add('hide');
+            }
+            else { 
+                document.getElementById('customer-view').classList.add('hide'); 
+                document.getElementById('admin-view').classList.remove('hide');
+                document.getElementById('nav-customer-controls').classList.add('hide');
+                document.getElementById('nav-admin-controls').classList.remove('hide');
+            }
+        };
+        window.openReportModal=()=>{
+            const t = new Date().toDateString();
+            let c=0, tot=0;
+            state.orders.forEach(o=>{ if(o.timestamp && new Date(o.timestamp.seconds*1000).toDateString()===t){ c++; tot+=o.totalPrice; } });
+            document.getElementById('rpt-count').innerText=c; document.getElementById('rpt-total').innerText=tot+" Ks";
+            document.getElementById('modal-report').classList.remove('hide');
+        }
+        window.openQRModal=()=>document.getElementById('modal-qr').classList.remove('hide');
+        window.generateQR=()=>{ const t=document.getElementById('qr-table-num').value; document.getElementById('qr-container').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href.split('?')[0]+'?table='+t)}">`; };
+        window.printQR=()=>{ const w=window.open('','','height=400,width=400'); w.document.write('<html><body style="text-align:center">'+document.getElementById('qr-container').innerHTML+'</body></html>'); w.document.close(); w.print(); };
+        window.printReceipt=(id)=>{
+            const o=state.orders.find(x=>x.id===id); if(!o)return;
+            document.getElementById('rcp-id').innerText='#'+id.slice(0,4).toUpperCase(); document.getElementById('rcp-table').innerText=o.tableId; document.getElementById('rcp-date').innerText=new Date().toLocaleDateString();
+            document.getElementById('rcp-items').innerHTML=o.items.map(i=>`<tr><td class="py-1">${i.name} x${i.qty}</td><td class="py-1 text-right">${i.lineTotal}</td></tr>`).join('');
+            document.getElementById('rcp-total').innerText=o.totalPrice; window.print();
         };
 
         init();
