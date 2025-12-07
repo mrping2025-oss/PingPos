@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>PingPOS - Restaurant</title>
+    <title>Ping-Restaurant</title>
     
     <!-- 1. Libraries & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,6 +42,16 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+
+        /* Fix for date input icon on dark background (Admin View) */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
 
         /* Animations */
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -82,7 +92,7 @@
                 <i class="fas fa-utensils text-xs"></i>
             </div>
             <div>
-                <h1 class="font-bold text-base leading-none text-white tracking-wide">Ping Restaurant</h1>
+                <h1 class="font-bold text-base leading-none text-white tracking-wide">Ping-Restaurant</h1>
             </div>
         </div>
         
@@ -437,7 +447,7 @@
             });
         }
 
-        function renderAdminOrders() {
+        window.renderAdminOrders = () => {
             const grid = document.getElementById('orders-grid');
             grid.innerHTML = '';
             if(state.orders.length === 0) return document.getElementById('no-orders-msg').classList.remove('hidden');
@@ -447,14 +457,34 @@
                 if(order.status==='cooking'){ statusColor="bg-blue-900/20 text-blue-400 border-blue-900/50"; btnText="Serve"; nextSt="served"; stText="Cooking"; }
                 else if(order.status==='served'){ statusColor="bg-gray-700/50 text-gray-400 border-gray-700"; btnText="Print"; nextSt="print"; stText="Served"; }
                 
-                let btnHtml = (nextSt==='print') ? `<button onclick="window.printReceipt('${order.id}')" class="flex-1 border border-dark-700 text-dark-muted py-2 rounded-xl text-xs font-bold hover:bg-dark-700 hover:text-white transition">Print</button>` : `<button onclick="window.updateStatus('${order.id}', '${nextSt}')" class="flex-1 bg-white text-dark-900 py-2 rounded-xl text-xs font-bold hover:bg-gray-200 transition">${btnText}</button>`;
+                let btnHtml = (nextSt==='print') ? `<button onclick="window.printReceipt('${order.id}')" class="flex-1 border border-dark-700 text-gray-300 py-2 rounded-xl text-xs font-bold hover:bg-dark-700 hover:text-white transition">Print</button>` : `<button onclick="window.updateStatus('${order.id}', '${nextSt}')" class="flex-1 bg-white text-dark-900 py-2 rounded-xl text-xs font-bold hover:bg-gray-200 transition">${btnText}</button>`;
                 
+                // Updated Text Colors for better visibility
                 const div = document.createElement('div');
                 div.className = "bg-dark-800 rounded-2xl shadow-lg border border-dark-700 p-4 flex flex-col gap-3";
-                div.innerHTML = `<div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-dark-900 flex items-center justify-center font-bold text-white border border-dark-700">${order.tableId}</div><span class="text-xs font-bold text-dark-muted">#${order.id.slice(0,4)}</span></div><span class="px-2 py-1 rounded-lg text-[10px] font-bold border ${statusColor}">${stText}</span></div><div class="flex-1 overflow-y-auto max-h-32 space-y-2 py-2 border-t border-b border-dark-700 custom-scroll">${order.items.map(i=>`<div class="flex justify-between text-xs text-dark-muted"><span class="font-bold text-gray-300">${i.qty}x ${i.name}</span><span class="text-[10px]">${i.modifiers.length?'('+i.modifiers.join(',')+')':''}</span></div>`).join('')}</div><div class="flex gap-2 items-center pt-1"><span class="font-bold text-sm text-white">${order.totalPrice}</span>${btnHtml}</div>`;
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-dark-900 flex items-center justify-center font-bold text-white border border-dark-700 shadow-inner">${order.tableId}</div>
+                            <span class="text-xs font-bold text-gray-400">#${order.id.slice(0,4)}</span>
+                        </div>
+                        <span class="px-2 py-1 rounded-lg text-[10px] font-bold border ${statusColor}">${stText}</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto max-h-32 space-y-2 py-2 border-t border-b border-dark-700 custom-scroll">
+                        ${order.items.map(i=>`
+                            <div class="flex justify-between text-xs">
+                                <span class="font-bold text-white text-sm">${i.qty}x ${i.name}</span>
+                                <span class="text-[10px] text-gray-400">${i.modifiers.length?'('+i.modifiers.join(',')+')':''}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="flex gap-2 items-center pt-1">
+                        <span class="font-bold text-base text-white">${order.totalPrice}</span>
+                        ${btnHtml}
+                    </div>`;
                 grid.appendChild(div);
             });
-        }
+        };
 
         function renderMenuManager() {
             document.getElementById('menu-table-body').innerHTML = state.products.map(p => 
