@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Ping-Restaurant</title>
-    
+    <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=P&background=FF4757&color=fff">
     <!-- 1. Libraries & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Added Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
 
@@ -151,7 +153,7 @@
                 </div>
             </div>
 
-            <!-- SCROLL TO TOP BUTTON (New) -->
+            <!-- SCROLL TO TOP BUTTON -->
             <button id="scroll-top-btn" onclick="scrollToTop()" class="fixed bottom-28 right-4 w-10 h-10 bg-dark-800 border border-dark-700 text-white rounded-full shadow-xl flex items-center justify-center z-40 transition-all duration-300 opacity-0 translate-y-10 pointer-events-none hover:bg-dark-700 hover:border-primary">
                 <i class="fas fa-arrow-up text-sm"></i>
             </button>
@@ -353,6 +355,13 @@
                              <p class="text-3xl font-extrabold text-white" id="rpt-ov-count">0</p>
                          </div>
                      </div>
+                     <!-- CHART CONTAINER -->
+                     <div class="mt-6 bg-dark-900 p-4 rounded-2xl border border-dark-700">
+                         <h4 class="text-sm font-bold text-dark-muted mb-4 uppercase tracking-wider" data-i18n="hourly_sales">Hourly Sales</h4>
+                         <div class="relative h-64 w-full">
+                             <canvas id="salesChart"></canvas>
+                         </div>
+                     </div>
                 </div>
                 <div id="rpt-view-history" class="hide">
                     <div class="flex justify-between mb-4 mt-2">
@@ -390,13 +399,17 @@
         </div>
     </div>
 
-    <!-- Hidden Receipt -->
+    <!-- Hidden Receipt (Updated for Dynamic Printing) -->
     <div id="receipt-print-area" class="hide font-mono text-sm p-4 bg-white max-w-[300px]">
-        <div class="text-center mb-6"><h2 class="text-2xl font-bold text-black">PingPOS</h2></div>
-        <div class="border-b-2 border-black pb-2 mb-2 flex justify-between text-xs font-bold text-black"><span id="rcp-id">#000</span><span id="rcp-date"></span></div>
+        <div class="text-center mb-2"><h2 class="text-xl font-bold text-black" id="rcp-title">PingPOS</h2></div>
+        <div class="text-center mb-4 border-b-2 border-black pb-2"><h3 class="text-lg font-bold text-black" id="rcp-type">RECEIPT</h3></div>
+        <div class="border-b border-black pb-2 mb-2 flex justify-between text-xs font-bold text-black"><span id="rcp-id">#000</span><span id="rcp-date"></span></div>
         <div class="text-center text-lg font-bold mb-4 border-b-2 border-black pb-2 text-black">Table <span id="rcp-table"></span></div>
-        <table class="w-full text-left mb-4 text-xs text-black"><thead><tr class="border-b border-gray-400"><th class="py-1">Item</th><th class="py-1 text-right">Amt</th></tr></thead><tbody id="rcp-items"></tbody></table>
-        <div class="border-t-2 border-black pt-2 flex justify-between font-bold text-lg mt-4 text-black"><span>TOTAL</span><span id="rcp-total"></span></div>
+        <table class="w-full text-left mb-4 text-xs text-black">
+            <thead><tr class="border-b border-gray-400"><th class="py-1">Item</th><th class="py-1 text-right" id="rcp-th-amt">Amt</th></tr></thead>
+            <tbody id="rcp-items"></tbody>
+        </table>
+        <div id="rcp-footer" class="border-t-2 border-black pt-2 flex justify-between font-bold text-lg mt-4 text-black"><span>TOTAL</span><span id="rcp-total"></span></div>
     </div>
 
     <!-- SCRIPT -->
@@ -468,6 +481,7 @@
                 print_qr: "Print QR Code",
                 close: "Close",
                 more: "More",
+                hourly_sales: "Hourly Sales",
                 Fried: "Fried", Curry: "Curry", Soup: "Soup", Salad: "Salad", Rice: "Rice", Noodle: "Noodle", Dessert: "Dessert", Drink: "Drink", Other: "Other", All: "All"
             },
             cn: {
@@ -515,12 +529,13 @@
                 print_qr: "打印二维码",
                 close: "关闭",
                 more: "更多",
+                hourly_sales: "每小时销售额",
                 Fried: "炸物", Curry: "咖喱", Soup: "汤类", Salad: "沙拉", Rice: "米饭", Noodle: "面条", Dessert: "甜点", Drink: "饮料", Other: "其他", All: "全部"
             }
         };
 
         // Added language to state
-        let state = { user: null, tableId: 1, products: [], cart: [], orders: [], selectedProduct: null, activeCategory: 'All', editingProductId: null, lang: 'en' };
+        let state = { user: null, tableId: 1, products: [], cart: [], orders: [], selectedProduct: null, activeCategory: 'All', editingProductId: null, lang: 'en', chartInstance: null };
         let isInitialLoad = true; 
 
         const categories = ["All", "Fried", "Curry", "Soup", "Salad", "Rice", "Noodle", "Dessert", "Drink", "Other"];
@@ -718,12 +733,25 @@
             grid.innerHTML = '';
             if(state.orders.length === 0) return document.getElementById('no-orders-msg').classList.remove('hidden');
             document.getElementById('no-orders-msg').classList.add('hidden');
+            
             state.orders.forEach(order => {
-                let statusColor="bg-yellow-900/20 text-yellow-400 border-yellow-900/50", btnText="Start", nextSt="cooking", stText="Pending";
-                if(order.status==='cooking'){ statusColor="bg-blue-900/20 text-blue-400 border-blue-900/50"; btnText="Serve"; nextSt="served"; stText="Cooking"; }
-                else if(order.status==='served'){ statusColor="bg-gray-700/50 text-gray-400 border-gray-700"; btnText="Print"; nextSt="print"; stText="Served"; }
+                let statusColor, btnHtml, stText;
                 
-                let btnHtml = (nextSt==='print') ? `<button onclick="window.printReceipt('${order.id}')" class="flex-1 border border-dark-700 text-gray-300 py-2 rounded-xl text-xs font-bold hover:bg-dark-700 hover:text-white transition">Print</button>` : `<button onclick="window.updateStatus('${order.id}', '${nextSt}')" class="flex-1 bg-white text-dark-900 py-2 rounded-xl text-xs font-bold hover:bg-gray-200 transition">${btnText}</button>`;
+                if (order.status === 'pending') {
+                    statusColor = "bg-yellow-900/20 text-yellow-400 border-yellow-900/50";
+                    stText = "Pending";
+                    // START BUTTON: Now calls startOrder (Update Status + Print KOT)
+                    btnHtml = `<button onclick="window.startOrder('${order.id}')" class="flex-1 bg-white text-dark-900 py-2 rounded-xl text-xs font-bold hover:bg-gray-200 transition">Start</button>`;
+                } else if (order.status === 'cooking') {
+                    statusColor = "bg-blue-900/20 text-blue-400 border-blue-900/50";
+                    stText = "Cooking";
+                    btnHtml = `<button onclick="window.updateStatus('${order.id}', 'served')" class="flex-1 bg-white text-dark-900 py-2 rounded-xl text-xs font-bold hover:bg-gray-200 transition">Serve</button>`;
+                } else if (order.status === 'served') {
+                    statusColor = "bg-gray-700/50 text-gray-400 border-gray-700";
+                    stText = "Served";
+                    // PRINT RECEIPT BUTTON: Calls normal printTicket with 'customer' type
+                    btnHtml = `<button onclick="window.printTicket('${order.id}', 'customer')" class="flex-1 border border-dark-700 text-gray-300 py-2 rounded-xl text-xs font-bold hover:bg-dark-700 hover:text-white transition">Print</button>`;
+                }
                 
                 const div = document.createElement('div');
                 div.className = "bg-dark-800 rounded-2xl shadow-lg border border-dark-700 p-4 flex flex-col gap-3";
@@ -749,6 +777,14 @@
                     </div>`;
                 grid.appendChild(div);
             });
+        };
+
+        // NEW: Start Order Action (Update Status + Print KOT)
+        window.startOrder = async (id) => {
+             try {
+                 await updateDoc(doc(db,'artifacts',appId,'public','data','orders',id),{status: 'cooking'});
+                 window.printTicket(id, 'kitchen');
+             } catch(e) { console.error(e); alert("Error starting order"); }
         };
 
         // --- NEW MENU MANAGER WITH EDIT SUPPORT ---
@@ -949,8 +985,83 @@
             const d = document.getElementById('rpt-date-input').value;
             const sd = new Date(d).toDateString();
             let c=0, t=0;
-            state.orders.forEach(o => { if(o.timestamp && new Date(o.timestamp.seconds*1000).toDateString()===sd){ c++; t+=o.totalPrice; }});
-            document.getElementById('rpt-ov-total').innerText = t; document.getElementById('rpt-ov-count').innerText = c;
+            const hours = new Array(24).fill(0); // Hourly data array
+
+            state.orders.forEach(o => { 
+                if(o.timestamp) {
+                    const dateObj = new Date(o.timestamp.seconds*1000);
+                    if (dateObj.toDateString() === sd) {
+                        c++; 
+                        t+=o.totalPrice;
+                        // Populate hourly data
+                        const h = dateObj.getHours();
+                        hours[h] += o.totalPrice;
+                    }
+                }
+            });
+            document.getElementById('rpt-ov-total').innerText = t; 
+            document.getElementById('rpt-ov-count').innerText = c;
+            
+            // Render Chart
+            renderSalesChart(hours);
+        };
+
+        window.renderSalesChart = (data) => {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            // Create Gradient (Blueish)
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, '#60A5FA'); // Light Blue
+            gradient.addColorStop(1, '#2563EB'); // Darker Blue
+
+            // Destroy existing chart if any
+            if (state.chartInstance) {
+                state.chartInstance.destroy();
+            }
+
+            state.chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    datasets: [{
+                        label: 'Sales (Ks)',
+                        data: data,
+                        backgroundColor: gradient, // Use gradient
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#3B82F6' // Solid Blue on hover
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#374151' },
+                            ticks: { color: '#9CA3AF' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9CA3AF', maxTicksLimit: 12 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1F2937',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' Ks';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         };
 
         window.renderSalesHistory = () => {
@@ -996,12 +1107,50 @@
         window.openQRModal=()=>document.getElementById('modal-qr').classList.remove('hide');
         window.generateQR=()=>{ const t=document.getElementById('qr-table-num').value; document.getElementById('qr-container').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href.split('?')[0]+'?table='+t)}">`; };
         window.printQR=()=>{ const w=window.open('','','height=400,width=400'); w.document.write('<html><body style="text-align:center">'+document.getElementById('qr-container').innerHTML+'</body></html>'); w.document.close(); w.print(); };
-        window.printReceipt=(id)=>{
-            const o=state.orders.find(x=>x.id===id); if(!o)return;
-            document.getElementById('rcp-id').innerText='#'+id.slice(0,4).toUpperCase(); document.getElementById('rcp-table').innerText=o.tableId; document.getElementById('rcp-date').innerText=new Date().toLocaleDateString();
-            document.getElementById('rcp-items').innerHTML=o.items.map(i=>`<tr><td class="py-1">${i.name} x${i.qty}</td><td class="py-1 text-right">${i.lineTotal}</td></tr>${i.modifiers.length?`<tr><td colspan="2" class="text-[10px] text-gray-500 pb-1">(${i.modifiers.join(', ')})</td></tr>`:''}`).join('');
-            document.getElementById('rcp-total').innerText=o.totalPrice; window.print();
+        
+        // --- UPDATED PRINT LOGIC ---
+        window.printTicket = (id, type) => {
+            const o = state.orders.find(x => x.id === id); if(!o) return;
+            
+            document.getElementById('rcp-id').innerText = '#' + id.slice(0,4).toUpperCase();
+            document.getElementById('rcp-table').innerText = o.tableId;
+            document.getElementById('rcp-date').innerText = new Date().toLocaleDateString();
+            
+            if (type === 'kitchen') {
+                document.getElementById('rcp-type').innerText = "KITCHEN TICKET";
+                document.getElementById('rcp-th-amt').classList.add('hide'); // Hide Amt header
+                document.getElementById('rcp-footer').classList.add('hide'); // Hide Total footer
+                
+                // Show items without price
+                document.getElementById('rcp-items').innerHTML = o.items.map(i => 
+                    `<tr>
+                        <td class="py-1 font-bold" colspan="2" style="font-size: 1.1em">${i.name} x${i.qty}</td>
+                     </tr>
+                     ${i.modifiers.length ? `<tr><td colspan="2" class="text-[10px] text-gray-500 pb-2">(${i.modifiers.join(', ')})</td></tr>` : '<tr><td colspan="2" class="pb-2"></td></tr>'}`
+                ).join('');
+                
+            } else {
+                // Customer Receipt
+                document.getElementById('rcp-type').innerText = "RECEIPT";
+                document.getElementById('rcp-th-amt').classList.remove('hide');
+                document.getElementById('rcp-footer').classList.remove('hide');
+                document.getElementById('rcp-total').innerText = o.totalPrice + ' Ks';
+                
+                // Show items with price
+                document.getElementById('rcp-items').innerHTML = o.items.map(i => 
+                    `<tr>
+                        <td class="py-1">${i.name} x${i.qty}</td>
+                        <td class="py-1 text-right">${i.lineTotal}</td>
+                     </tr>
+                     ${i.modifiers.length ? `<tr><td colspan="2" class="text-[10px] text-gray-500 pb-1">(${i.modifiers.join(', ')})</td></tr>` : ''}`
+                ).join('');
+            }
+            
+            setTimeout(() => window.print(), 100);
         };
+        
+        // Old printReceipt forwarded to new function
+        window.printReceipt = (id) => window.printTicket(id, 'customer');
 
         init();
     </script>
