@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Ping-Restaurant</title>
     <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=P&background=FF4757&color=fff">
+
     <!-- 1. Libraries & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Added Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
@@ -44,6 +44,9 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+        
+        /* Sold Out Grayscale Effect */
+        .sold-out-filter { filter: grayscale(100%); opacity: 0.5; pointer-events: none; }
 
         /* Fix for date input icon */
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.8; }
@@ -62,6 +65,13 @@
         .cat-btn-active { background-color: #FF4757; color: white; box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4); transform: scale(1.05); border: none; }
         .cat-btn-inactive { background-color: #1F2937; color: #9CA3AF; border: 1px solid #374151; }
 
+        /* Table Map Draggable */
+        .table-node { position: absolute; touch-action: none; user-select: none; transition: box-shadow 0.2s, transform 0.1s; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .table-node:active { cursor: grabbing; }
+        .table-node.editing { border: 2px dashed rgba(255,255,255,0.3); cursor: move; }
+        .table-node.editing:hover { border-color: white; }
+        .table-node.selected { border: 2px solid #34D399; box-shadow: 0 0 15px rgba(52, 211, 153, 0.5); z-index: 50; }
+
         /* Print Styles */
         @media print { 
             body * { visibility: hidden; } 
@@ -73,22 +83,15 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden selection:bg-primary selection:text-white">
 
-    <!-- Notification Sound -->
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
     <!-- 3. Navigation Bar -->
     <header class="glass-nav h-14 flex items-center justify-between px-4 z-50 no-print sticky top-0 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-primary to-red-700 rounded-lg flex items-center justify-center text-white shadow-lg shadow-red-500/30">
-                <i class="fas fa-utensils text-xs"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-base leading-none text-white tracking-wide">Ping-Restaurant</h1>
-            </div>
+            <img src="https://placehold.co/150x50/FF4757/FFFFFF?text=Ping+POS&font=roboto" alt="Ping-Restaurant Logo" class="h-9 w-auto object-contain rounded-md shadow-lg shadow-red-500/20">
         </div>
         
         <div class="flex items-center gap-3">
-            <!-- Language Toggle -->
             <button onclick="toggleLanguage()" class="bg-dark-800 border border-dark-700 text-white px-2 py-1 rounded-lg text-xs font-bold hover:bg-dark-700 transition flex items-center gap-1">
                 <i class="fas fa-globe text-dark-muted"></i>
                 <span id="lang-display">EN</span>
@@ -112,8 +115,23 @@
     <main id="app-container" class="flex-1 overflow-hidden relative no-print">
         
         <!-- === CUSTOMER VIEW === -->
-        <div id="customer-view" class="h-full flex flex-col bg-dark-900">
+        <div id="customer-view" class="h-full flex flex-col bg-dark-900 relative">
             
+            <!-- POS MODE FLOATING HEADER -->
+            <div id="pos-mode-header" class="hide absolute top-0 left-0 right-0 z-[60] bg-orange-600 text-white shadow-lg flex justify-between items-center px-4 py-2">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-xs uppercase tracking-widest"><i class="fas fa-cash-register mr-1"></i> POS Mode</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <!-- NEW: Auto Return Toggle -->
+                    <label class="flex items-center gap-2 text-xs font-bold cursor-pointer select-none bg-orange-700/50 px-2 py-1 rounded-lg hover:bg-orange-700">
+                        <input type="checkbox" id="chk-auto-return" class="accent-white w-4 h-4" checked>
+                        <span>Auto Return</span>
+                    </label>
+                    <button onclick="exitPOSMode()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-xs font-bold transition">Back to Admin</button>
+                </div>
+            </div>
+
             <!-- Hero Section -->
             <div class="px-4 pt-4 pb-2 shrink-0">
                 <div class="flex justify-between items-center">
@@ -138,7 +156,6 @@
             </div>
 
             <!-- Product Grid -->
-            <!-- ADDED ID: main-scroll-container -->
             <div id="main-scroll-container" class="flex-1 overflow-y-auto px-4 pb-32 pt-1 scrollbar-hide scroll-smooth">
                 <div id="menu-loading" class="flex flex-col items-center justify-center py-20 opacity-60">
                     <span class="loader mb-4"></span>
@@ -166,7 +183,6 @@
                         <span class="text-[10px] text-dark-700 font-bold uppercase tracking-wider" data-i18n="total">Total</span>
                         <span class="text-lg font-extrabold leading-none" id="cart-total">0 Ks</span>
                     </div>
-                    <!-- View Order Button -->
                     <div class="flex items-center gap-2 bg-accent px-4 py-2.5 rounded-full ml-auto hover:brightness-110 transition shadow-lg shadow-green-500/20 z-10">
                         <span class="text-xs font-bold uppercase tracking-wide text-dark-900" data-i18n="view_order">View Order</span>
                         <i class="fas fa-chevron-right text-xs text-dark-900"></i>
@@ -183,6 +199,9 @@
                     <span id="live-indicator" class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
                 </div>
                 <div class="flex gap-2">
+                     <button onclick="openTableMap()" class="px-3 py-1 bg-orange-600 text-white rounded-full text-xs font-bold hover:bg-orange-500 shadow-lg flex items-center gap-1 transition">
+                        <i class="fas fa-th"></i> <span data-i18n="pos_mode">POS</span>
+                    </button>
                     <button onclick="openChangePinModal()" class="w-9 h-9 rounded-full bg-dark-700 text-dark-muted hover:bg-dark-600 hover:text-white flex items-center justify-center transition"><i class="fas fa-key text-xs"></i></button>
                     <button onclick="openReportModal()" class="w-9 h-9 rounded-full bg-purple-900/30 text-purple-400 hover:bg-purple-900/50 flex items-center justify-center transition"><i class="fas fa-chart-bar text-xs"></i></button>
                     <button onclick="openQRModal()" class="w-9 h-9 rounded-full bg-blue-900/30 text-blue-400 hover:bg-blue-900/50 flex items-center justify-center transition"><i class="fas fa-qrcode text-xs"></i></button>
@@ -197,6 +216,89 @@
     </main>
 
     <!-- === MODALS === -->
+    
+    <!-- NEW: Table Map Modal (POS & Edit Layout) -->
+    <div id="modal-table-map" class="fixed inset-0 bg-black/90 z-[100] hide flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-dark-800 w-full max-w-5xl rounded-3xl shadow-2xl h-[90vh] flex flex-col animate-slide-up border border-dark-700 relative overflow-hidden">
+             
+             <!-- Header -->
+             <div class="p-4 border-b border-dark-700 flex justify-between items-center bg-dark-800 z-10 shrink-0">
+                <div>
+                    <h3 class="font-bold text-white text-xl flex items-center gap-2">
+                        <i class="fas fa-store text-orange-500"></i> <span data-i18n="table_map">Table Layout</span>
+                    </h3>
+                    <p class="text-xs text-dark-muted mt-1" id="table-map-subtitle" data-i18n="select_table_msg">Select a table to take order</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <!-- Edit Mode Controls -->
+                    <div id="layout-edit-controls" class="hide flex items-center gap-2 mr-2 bg-dark-900/50 p-1 rounded-lg border border-dark-700">
+                         <!-- Shape Select & Add -->
+                         <div class="flex items-center gap-1">
+                             <select id="new-table-shape" class="bg-dark-800 text-white text-xs border border-dark-600 rounded px-2 py-1.5 focus:border-primary outline-none">
+                                 <option value="round">Round ⚪</option>
+                                 <option value="rect">Square ⬜</option>
+                             </select>
+                             <button onclick="addNewTable()" class="bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500 shadow flex items-center gap-1">
+                                 <i class="fas fa-plus"></i> Add
+                             </button>
+                         </div>
+                         <div class="w-px h-6 bg-dark-600 mx-1"></div>
+                        <!-- FIX: Added specific ID for reliable targeting -->
+                        <button id="btn-save-layout" onclick="saveLayout()" class="bg-primary text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-600 shadow flex items-center gap-1"><i class="fas fa-save"></i> Save</button>
+                    </div>
+                    
+                    <!-- Toggle Edit Mode -->
+                    <button id="btn-edit-layout" onclick="toggleLayoutEdit()" class="border border-dark-600 text-dark-muted hover:text-white hover:bg-dark-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                        <i class="fas fa-pen mr-1"></i> Edit
+                    </button>
+
+                    <button onclick="closeModal('modal-table-map')" class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-dark-muted hover:text-white hover:bg-dark-600 transition"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div onclick="deselectTable()" class="flex-1 overflow-auto bg-dark-900 relative cursor-grab active:cursor-grabbing" id="table-map-container" style="background-image: radial-gradient(#374151 1px, transparent 1px); background-size: 20px 20px;">
+                <!-- Tables will be rendered here absolutely -->
+            </div>
+            
+            <!-- Bottom Panel (Legend OR Properties) -->
+            <div id="map-bottom-panel" class="p-4 bg-dark-800 border-t border-dark-700 z-10 min-h-[70px] flex justify-center items-center">
+                <!-- Default Legend -->
+                <div id="map-legend" class="flex gap-6 text-xs font-bold text-dark-muted">
+                    <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-500"></span> Free</span>
+                    <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span> Occupied</span>
+                    <span id="edit-hint" class="hide text-orange-400 ml-4"><i class="fas fa-mouse-pointer"></i> Select a table to edit</span>
+                </div>
+
+                <!-- Table Properties (Shown when selected in Edit Mode) -->
+                <div id="table-properties" class="hide w-full flex justify-between items-center max-w-2xl animate-slide-up">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-dark-900 px-3 py-1 rounded-lg border border-dark-700">
+                             <span class="text-[10px] text-dark-muted uppercase font-bold">Selected</span>
+                             <p class="text-white font-bold text-lg" id="prop-id">T-1</p>
+                        </div>
+                        
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] text-dark-muted uppercase font-bold">Shape</span>
+                            <div class="flex bg-dark-900 rounded-lg p-0.5 border border-dark-700">
+                                <button onclick="updateTableProperty('shape', 'round')" class="px-3 py-1 rounded-md text-xs font-bold transition hover:bg-dark-700 text-dark-muted" id="btn-shape-round"><i class="fas fa-circle"></i></button>
+                                <button onclick="updateTableProperty('shape', 'rect')" class="px-3 py-1 rounded-md text-xs font-bold transition hover:bg-dark-700 text-dark-muted" id="btn-shape-rect"><i class="fas fa-square"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-1 w-32">
+                             <span class="text-[10px] text-dark-muted uppercase font-bold">Size</span>
+                             <input type="range" min="0.5" max="2" step="0.1" id="prop-size" oninput="updateTableProperty('size', this.value)" class="accent-primary h-2 bg-dark-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+
+                    <button onclick="deleteSelectedTable()" class="bg-red-900/20 text-red-500 border border-red-900/50 hover:bg-red-900/40 hover:text-red-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition">
+                        <i class="fas fa-trash"></i> Delete Table
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Category Modal -->
     <div id="modal-category" class="fixed inset-0 bg-black/80 z-[100] hide flex items-end sm:items-center justify-center">
@@ -416,7 +518,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase Config
         const firebaseConfig = {
@@ -482,6 +584,13 @@
                 close: "Close",
                 more: "More",
                 hourly_sales: "Hourly Sales",
+                sold_out: "SOLD OUT",
+                available: "Available",
+                pos_mode: "POS Mode",
+                table_map: "Table Layout",
+                select_table_msg: "Select a table to take order",
+                free: "Free",
+                occupied: "Occupied",
                 Fried: "Fried", Curry: "Curry", Soup: "Soup", Salad: "Salad", Rice: "Rice", Noodle: "Noodle", Dessert: "Dessert", Drink: "Drink", Other: "Other", All: "All"
             },
             cn: {
@@ -530,12 +639,35 @@
                 close: "关闭",
                 more: "更多",
                 hourly_sales: "每小时销售额",
+                sold_out: "已售完",
+                available: "有货",
+                pos_mode: "POS 模式",
+                table_map: "桌台布局",
+                select_table_msg: "选择桌号进行点餐",
+                free: "空闲",
+                occupied: "占用",
                 Fried: "炸物", Curry: "咖喱", Soup: "汤类", Salad: "沙拉", Rice: "米饭", Noodle: "面条", Dessert: "甜点", Drink: "饮料", Other: "其他", All: "全部"
             }
         };
 
         // Added language to state
-        let state = { user: null, tableId: 1, products: [], cart: [], orders: [], selectedProduct: null, activeCategory: 'All', editingProductId: null, lang: 'en', chartInstance: null };
+        let state = { 
+            user: null, 
+            tableId: 1, 
+            products: [], 
+            cart: [], 
+            orders: [], 
+            selectedProduct: null, 
+            activeCategory: 'All', 
+            editingProductId: null, 
+            lang: 'en', 
+            chartInstance: null, 
+            isPOSMode: false,
+            tables: [], // { id, x, y, shape: 'round'|'rect', size: 1 }
+            isLayoutEdit: false,
+            dragItem: null,
+            selectedTableId: null
+        };
         let isInitialLoad = true; 
 
         const categories = ["All", "Fried", "Curry", "Soup", "Salad", "Rice", "Noodle", "Dessert", "Drink", "Other"];
@@ -544,10 +676,25 @@
             try {
                 const result = await signInAnonymously(auth);
                 state.user = result.user;
+                
+                // Fetch Layout Config
+                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config_tables');
+                const configSnap = await getDoc(configRef);
+                if (configSnap.exists()) {
+                    state.tables = configSnap.data().tables || [];
+                } else {
+                    // Default tables
+                    generateDefaultTables();
+                }
             } catch (error) { console.error(error); alert("Auth Error"); }
             
             // Load saved language
             state.lang = localStorage.getItem('pingpos_lang') || 'en';
+            
+            // Load Auto Return Preference
+            const autoRet = localStorage.getItem('pingpos_auto_return');
+            if(autoRet !== null) document.getElementById('chk-auto-return').checked = (autoRet === 'true');
+
             updateContent();
             
             const urlParams = new URLSearchParams(window.location.search);
@@ -559,6 +706,11 @@
             renderCategoryBar();
             document.getElementById('rpt-date-input').valueAsDate = new Date();
 
+            // Setup Auto Return Listener
+            document.getElementById('chk-auto-return').addEventListener('change', (e) => {
+                localStorage.setItem('pingpos_auto_return', e.target.checked);
+            });
+
             // SCROLL LISTENER Setup
             const scrollContainer = document.getElementById('main-scroll-container');
             const scrollBtn = document.getElementById('scroll-top-btn');
@@ -569,6 +721,22 @@
                     } else {
                         scrollBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
                     }
+                });
+            }
+        }
+
+        function generateDefaultTables() {
+            state.tables = [];
+            for(let i=1; i<=12; i++) {
+                // Initial Grid Layout Logic
+                const col = (i-1) % 4;
+                const row = Math.floor((i-1) / 4);
+                state.tables.push({
+                    id: String(i),
+                    x: 10 + (col * 22), // Percent
+                    y: 10 + (row * 22), // Percent
+                    shape: 'round',
+                    size: 1
                 });
             }
         }
@@ -703,22 +871,32 @@
                     `<img src="${p.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">` : 
                     `<div class="w-full h-full flex items-center justify-center text-4xl text-dark-700"><i class="fas fa-utensils"></i></div>`;
                 
+                // SOLD OUT LOGIC
+                const isSoldOut = p.isSoldOut === true;
+                const containerClass = isSoldOut ? "relative h-52 rounded-[24px] shadow-lg border border-dark-700/50 overflow-hidden bg-dark-800" : "relative h-52 rounded-[24px] shadow-lg border border-dark-700/50 cursor-pointer overflow-hidden group active:scale-[0.95] transition-all bg-dark-800";
+                const contentFilter = isSoldOut ? "sold-out-filter" : "";
+                const clickAction = isSoldOut ? "" : `onclick="openProductModal('${p.id}')"`;
+                const soldOutBadge = isSoldOut ? `<div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"><span class="bg-red-600/90 text-white border-2 border-white font-black text-xl px-6 py-2 transform -rotate-12 shadow-2xl tracking-widest rounded-lg">${resources[state.lang]['sold_out']}</span></div>` : "";
+
                 const el = document.createElement('div');
-                el.className = "relative h-52 rounded-[24px] shadow-lg border border-dark-700/50 cursor-pointer overflow-hidden group active:scale-[0.95] transition-all bg-dark-800";
-                el.onclick = () => openProductModal(p.id);
+                el.className = containerClass;
+                if(!isSoldOut) el.onclick = () => openProductModal(p.id);
                 
                 el.innerHTML = `
-                    <div class="absolute inset-0 w-full h-full">
-                        ${imgHtml}
-                    </div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-4 flex flex-col justify-end h-full pointer-events-none">
-                        <div class="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                            <h3 class="font-bold text-white text-[15px] leading-tight mb-1 line-clamp-2 drop-shadow-md">${p.name}</h3>
-                            <div class="flex justify-between items-center mt-1">
-                                <p class="text-primary font-extrabold text-sm drop-shadow-md">${p.price} Ks</p>
-                                <div class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-colors shadow-lg">
-                                    <i class="fas fa-plus text-xs"></i>
+                    ${soldOutBadge}
+                    <div class="${contentFilter} w-full h-full">
+                        <div class="absolute inset-0 w-full h-full">
+                            ${imgHtml}
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 flex flex-col justify-end h-full pointer-events-none">
+                            <div class="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                <h3 class="font-bold text-white text-[15px] leading-tight mb-1 line-clamp-2 drop-shadow-md">${p.name}</h3>
+                                <div class="flex justify-between items-center mt-1">
+                                    <p class="text-primary font-extrabold text-sm drop-shadow-md">${p.price} Ks</p>
+                                    <div class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-colors shadow-lg">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -789,13 +967,22 @@
 
         // --- NEW MENU MANAGER WITH EDIT SUPPORT ---
         function renderMenuManager() {
-            document.getElementById('menu-table-body').innerHTML = state.products.map(p => 
-                `<tr class="hover:bg-dark-700 border-b border-dark-700 transition">
+            document.getElementById('menu-table-body').innerHTML = state.products.map(p => {
+                const isSoldOut = p.isSoldOut === true;
+                const stockBtnClass = isSoldOut ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-green-500/20 text-green-400 border-green-500/30";
+                const stockIcon = isSoldOut ? "fa-toggle-off" : "fa-toggle-on";
+                
+                return `<tr class="hover:bg-dark-700 border-b border-dark-700 transition">
                     <td class="p-3">
-                        <div class="font-bold text-white">${p.name}</div>
+                        <div class="font-bold text-white ${isSoldOut ? 'opacity-50 line-through decoration-red-500' : ''}">${p.name}</div>
                         <div class="text-[10px] text-dark-muted uppercase font-bold bg-dark-900 inline-block px-2 py-0.5 rounded border border-dark-700 mt-1">${resources[state.lang][p.category] || p.category || 'N/A'}</div>
                     </td>
                     <td class="p-3 text-right flex items-center justify-end gap-2">
+                        <!-- Stock Toggle Button -->
+                        <button onclick="window.toggleStock('${p.id}', ${isSoldOut})" class="w-10 h-8 rounded-full border ${stockBtnClass} hover:brightness-125 transition flex items-center justify-center" title="Toggle Stock">
+                            <i class="fas ${stockIcon} text-lg"></i>
+                        </button>
+                        
                         <!-- Edit Button -->
                         <button onclick="window.editProduct('${p.id}')" class="text-white hover:bg-dark-600 bg-dark-700 w-8 h-8 rounded-full transition flex items-center justify-center">
                             <i class="fas fa-pen text-xs"></i>
@@ -805,9 +992,16 @@
                             <i class="fas fa-trash text-xs"></i>
                         </button>
                     </td>
-                </tr>`
-            ).join('');
+                </tr>`;
+            }).join('');
         }
+
+        window.toggleStock = async (id, currentStatus) => {
+            try {
+                // If currentStatus is true (Sold Out), we make it false (Available). And vice versa.
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id), { isSoldOut: !currentStatus });
+            } catch(e) { console.error(e); alert("Error updating stock"); }
+        };
 
         window.editProduct = (id) => {
             const p = state.products.find(x => x.id === id);
@@ -918,11 +1112,22 @@
                     tableId: state.tableId, items: state.cart, totalPrice: state.cart.reduce((a,i)=>a+i.lineTotal,0), status: 'pending', timestamp: serverTimestamp(), userId: state.user.uid
                 });
                 state.cart=[]; updateCartUI(); closeModal('modal-checkout'); 
+                
+                // Show success
                 const div = document.createElement('div');
                 div.className = "fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-xl z-[200] font-bold text-sm animate-slide-up flex items-center gap-2";
                 div.innerHTML = '<i class="fas fa-check-circle"></i> Order Sent Successfully!';
                 document.body.appendChild(div);
                 setTimeout(()=>div.remove(), 3000);
+
+                // CHECK AUTO RETURN
+                if (state.isPOSMode) {
+                    const autoReturn = document.getElementById('chk-auto-return').checked;
+                    if (autoReturn) {
+                        setTimeout(() => exitPOSMode(), 1000);
+                    }
+                }
+
             } catch(e){ console.error(e); alert("Failed"); }
         };
         window.updateStatus = async (id,s) => await updateDoc(doc(db,'artifacts',appId,'public','data','orders',id),{status:s});
@@ -955,7 +1160,7 @@
             }
         };
 
-        // Report Logic Updated
+        // Report Logic Updated (REVERTED TO BASIC)
         window.openReportModal = () => { document.getElementById('modal-report').classList.remove('hide'); renderReportOverview(); };
         
         window.refreshReport = () => {
@@ -1151,6 +1356,350 @@
         
         // Old printReceipt forwarded to new function
         window.printReceipt = (id) => window.printTicket(id, 'customer');
+
+        // --- NEW POS TABLE MAP & EDIT LOGIC ---
+        
+        const getOccupiedTables = () => {
+            const busy = new Set();
+            state.orders.forEach(o => {
+                if (o.status === 'pending' || o.status === 'cooking') busy.add(String(o.tableId));
+            });
+            return busy;
+        };
+
+        window.openTableMap = () => {
+            renderTableMap();
+            document.getElementById('modal-table-map').classList.remove('hide');
+        };
+
+        window.renderTableMap = () => {
+            const busyTables = getOccupiedTables();
+            const container = document.getElementById('table-map-container');
+            container.innerHTML = '';
+            
+            // Clean up state if edit mode was turned off but we were selecting
+            if(!state.isLayoutEdit && state.selectedTableId) {
+                state.selectedTableId = null;
+                updatePropertiesPanel();
+            }
+
+            state.tables.forEach(t => {
+                const isBusy = busyTables.has(t.id);
+                const isSelected = state.selectedTableId === t.id;
+                
+                // Styles
+                const shapeClass = t.shape === 'rect' ? 'rounded-lg aspect-square' : 'rounded-full aspect-square';
+                const colorClass = isBusy ? "bg-red-500 shadow-red-500/50" : "bg-green-500 shadow-green-500/50";
+                
+                let borderClass = "cursor-pointer hover:brightness-110";
+                if (state.isLayoutEdit) {
+                    borderClass = "cursor-move border-2 border-dashed border-white/30";
+                    if(isSelected) borderClass = "selected cursor-move";
+                }
+                
+                // Size
+                const sizeScale = t.size || 1;
+                const baseSize = 80; // px
+                const sizePx = baseSize * sizeScale;
+
+                // Create Node
+                const div = document.createElement('div');
+                div.className = `table-node flex flex-col items-center justify-center text-white font-bold shadow-lg ${shapeClass} ${colorClass} ${borderClass}`;
+                div.style.left = t.x + '%';
+                div.style.top = t.y + '%';
+                div.style.width = sizePx + 'px';
+                div.style.height = sizePx + 'px';
+                // Adjust font size based on scale
+                div.style.fontSize = (16 * sizeScale) + 'px';
+                
+                div.id = `table-${t.id}`;
+                
+                div.innerHTML = `
+                    <i class="fas ${t.shape==='rect'?'fa-square':'fa-circle'} mb-1 opacity-50 pointer-events-none" style="font-size: 1.2em"></i>
+                    <span class="pointer-events-none">T-${t.id}</span>
+                `;
+
+                // Events
+                if (state.isLayoutEdit) {
+                    div.addEventListener('mousedown', (e) => startDrag(e, t.id));
+                    div.addEventListener('touchstart', (e) => startDrag(e, t.id), {passive: false});
+                    div.onclick = (e) => { e.stopPropagation(); selectTable(t.id); };
+                } else {
+                    div.onclick = () => window.startPOSMode(t.id);
+                }
+
+                container.appendChild(div);
+            });
+            
+            updatePropertiesPanel();
+        };
+
+        window.selectTable = (id) => {
+            if(!state.isLayoutEdit) return;
+            state.selectedTableId = id;
+            renderTableMap(); // Re-render to show selection border
+        };
+
+        window.deselectTable = () => {
+            if(state.selectedTableId) {
+                state.selectedTableId = null;
+                renderTableMap();
+            }
+        };
+
+        window.updatePropertiesPanel = () => {
+            const panel = document.getElementById('table-properties');
+            const legend = document.getElementById('map-legend');
+            
+            if (state.isLayoutEdit && state.selectedTableId) {
+                const t = state.tables.find(x => x.id === state.selectedTableId);
+                if(t) {
+                    legend.classList.add('hide');
+                    panel.classList.remove('hide');
+                    
+                    document.getElementById('prop-id').innerText = "T-" + t.id;
+                    document.getElementById('prop-size').value = t.size || 1;
+                    
+                    // Highlight active shape button
+                    const btnRound = document.getElementById('btn-shape-round');
+                    const btnRect = document.getElementById('btn-shape-rect');
+                    if(t.shape === 'rect') {
+                        btnRect.classList.add('bg-primary','text-white'); btnRect.classList.remove('text-dark-muted');
+                        btnRound.classList.remove('bg-primary','text-white'); btnRound.classList.add('text-dark-muted');
+                    } else {
+                        btnRound.classList.add('bg-primary','text-white'); btnRound.classList.remove('text-dark-muted');
+                        btnRect.classList.remove('bg-primary','text-white'); btnRect.classList.add('text-dark-muted');
+                    }
+                }
+            } else {
+                legend.classList.remove('hide');
+                panel.classList.add('hide');
+            }
+        };
+
+        window.updateTableProperty = (key, val) => {
+            if(!state.selectedTableId) return;
+            const t = state.tables.find(x => x.id === state.selectedTableId);
+            if(t) {
+                t[key] = (key === 'size') ? parseFloat(val) : val;
+                renderTableMap();
+            }
+        };
+
+        window.deleteSelectedTable = () => {
+            if(!state.selectedTableId) return;
+            if(confirm(`Delete Table ${state.selectedTableId}?`)) {
+                state.tables = state.tables.filter(t => t.id !== state.selectedTableId);
+                state.selectedTableId = null;
+                renderTableMap();
+            }
+        };
+
+        // DRAG LOGIC
+        window.startDrag = (e, tId) => {
+            if(!state.isLayoutEdit) return;
+            // Only start drag if not strictly clicking controls (handled by mousedown/touch default)
+            // But we need stopPropagation on click to prevent deselect. Handled in onclick.
+            e.preventDefault();
+            
+            // Auto select on drag start
+            if(state.selectedTableId !== tId) {
+                state.selectedTableId = tId;
+                renderTableMap();
+            }
+
+            const table = state.tables.find(t => t.id === tId);
+            const el = document.getElementById(`table-${tId}`); 
+            const container = document.getElementById('table-map-container');
+            
+            const startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            const rect = el.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            // Offset within the element
+            const offsetX = startX - rect.left;
+            const offsetY = startY - rect.top;
+
+            state.dragItem = { tId, offsetX, offsetY, containerRect };
+
+            const moveHandler = (moveEvent) => {
+                const clientX = moveEvent.type.includes('mouse') ? moveEvent.clientX : moveEvent.touches[0].clientX;
+                const clientY = moveEvent.type.includes('mouse') ? moveEvent.clientY : moveEvent.touches[0].clientY;
+
+                // Calc new position relative to container
+                let newLeft = clientX - state.dragItem.containerRect.left - state.dragItem.offsetX;
+                let newTop = clientY - state.dragItem.containerRect.top - state.dragItem.offsetY;
+
+                // Convert to percentage
+                let percentX = (newLeft / state.dragItem.containerRect.width) * 100;
+                let percentY = (newTop / state.dragItem.containerRect.height) * 100;
+
+                // Boundaries (0-90%)
+                percentX = Math.max(0, Math.min(90, percentX));
+                percentY = Math.max(0, Math.min(90, percentY));
+
+                el.style.left = percentX + '%';
+                el.style.top = percentY + '%';
+                
+                // Update State (temporary)
+                table.x = percentX;
+                table.y = percentY;
+            };
+
+            const upHandler = () => {
+                document.removeEventListener('mousemove', moveHandler);
+                document.removeEventListener('mouseup', upHandler);
+                document.removeEventListener('touchmove', moveHandler);
+                document.removeEventListener('touchend', upHandler);
+                state.dragItem = null;
+            };
+
+            document.addEventListener('mousemove', moveHandler);
+            document.addEventListener('mouseup', upHandler);
+            document.addEventListener('touchmove', moveHandler, {passive: false});
+            document.addEventListener('touchend', upHandler);
+        };
+
+        // EDIT MODE CONTROLS
+        window.toggleLayoutEdit = () => {
+            state.isLayoutEdit = !state.isLayoutEdit;
+            const btn = document.getElementById('btn-edit-layout');
+            const controls = document.getElementById('layout-edit-controls');
+            // const hint = document.getElementById('edit-hint'); // Removed old hint
+            
+            state.selectedTableId = null; // Clear selection on toggle
+
+            if(state.isLayoutEdit) {
+                btn.classList.add('bg-dark-700', 'text-white');
+                controls.classList.remove('hide');
+                document.getElementById('table-map-subtitle').innerText = "Select table to edit properties.";
+            } else {
+                btn.classList.remove('bg-dark-700', 'text-white');
+                controls.classList.add('hide');
+                document.getElementById('table-map-subtitle').innerText = "Select a table to take order";
+            }
+            renderTableMap();
+        };
+
+        window.addNewTable = () => {
+            // FIX: Ensure ID is always unique by checking existing IDs
+            const maxId = state.tables.reduce((max, t) => Math.max(max, parseInt(t.id) || 0), 0);
+            const newId = String(maxId + 1);
+            
+            const shapeSelect = document.getElementById('new-table-shape');
+            const shape = shapeSelect ? shapeSelect.value : 'round';
+
+            // Add to center of screen (45%, 45%) so it's visible
+            state.tables.push({ id: newId, x: 45, y: 45, shape: shape, size: 1 });
+            renderTableMap();
+            
+            // Auto select the new table
+            state.selectedTableId = newId;
+            renderTableMap();
+            showToast(`Table ${newId} Added!`, "success");
+        };
+
+        // --- IMPROVED SAVE LAYOUT FUNCTION ---
+        window.saveLayout = async () => {
+            const btn = document.getElementById('btn-save-layout');
+            // Fallback: If ID isn't found, try finding by parent
+            const targetBtn = btn || document.querySelector('#layout-edit-controls button:last-child');
+            
+            if(!targetBtn) return alert("Error: Save button not found. Please refresh the page.");
+
+            const originalContent = targetBtn.innerHTML;
+            targetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            targetBtn.disabled = true;
+            targetBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            try {
+                // Data cleaning: Ensure only necessary fields are saved and types are correct
+                const cleanTables = state.tables.map(t => ({
+                    id: String(t.id),
+                    x: Number(t.x) || 0,
+                    y: Number(t.y) || 0,
+                    shape: t.shape || 'round',
+                    size: Number(t.size) || 1
+                }));
+                
+                console.log("Saving tables:", cleanTables); // For debugging
+
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config_tables'), { 
+                    tables: cleanTables,
+                    updatedAt: serverTimestamp() 
+                });
+                
+                showToast("Layout Saved Successfully!", "success");
+                
+                // Exit edit mode after a short delay
+                setTimeout(() => {
+                    if(state.isLayoutEdit) window.toggleLayoutEdit(); 
+                }, 500);
+
+            } catch(e) { 
+                console.error("Save failed:", e); 
+                showToast("Save failed. Check console.", "error"); 
+            } finally {
+                // Restore button state
+                if(targetBtn) {
+                    targetBtn.innerHTML = originalContent;
+                    targetBtn.disabled = false;
+                    targetBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                }
+            }
+        };
+
+        // NEW: Toast Notification Function
+        window.showToast = (msg, type='success') => {
+            const div = document.createElement('div');
+            const color = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+            
+            div.className = `fixed top-6 left-1/2 transform -translate-x-1/2 ${color} text-white px-6 py-3 rounded-full shadow-2xl z-[200] font-bold text-sm animate-slide-up flex items-center gap-3 border border-white/20`;
+            div.innerHTML = `<i class="fas ${icon} text-lg"></i> <span>${msg}</span>`;
+            
+            document.body.appendChild(div);
+            
+            // Play notification sound if successful
+            if(type === 'success') {
+                const audio = document.getElementById('notif-sound');
+                if(audio) audio.play().catch(()=>{});
+            }
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                div.style.transition = 'opacity 0.5s, transform 0.5s';
+                div.style.opacity = '0';
+                div.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => div.remove(), 500);
+            }, 3000);
+        };
+        
+        // REMOVED OLD editTableProperties due to new UI
+
+        window.startPOSMode = (tId) => {
+            state.tableId = tId;
+            state.isPOSMode = true;
+            document.getElementById('display-table-id').innerText = tId;
+            
+            closeModal('modal-table-map');
+            switchMode('customer');
+            document.getElementById('pos-mode-header').classList.remove('hide');
+            document.getElementById('nav-customer-controls').classList.add('hide'); 
+            
+            state.cart = [];
+            updateCartUI();
+        };
+
+        window.exitPOSMode = () => {
+            state.isPOSMode = false;
+            state.tableId = "1"; 
+            document.getElementById('pos-mode-header').classList.add('hide');
+            switchMode('admin');
+        };
+
+        // --- END POS LOGIC ---
 
         init();
     </script>
