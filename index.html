@@ -123,7 +123,7 @@
                     <span class="font-bold text-xs uppercase tracking-widest"><i class="fas fa-cash-register mr-1"></i> POS Mode</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <!-- NEW: Auto Return Toggle -->
+                    <!-- Auto Return Toggle -->
                     <label class="flex items-center gap-2 text-xs font-bold cursor-pointer select-none bg-orange-700/50 px-2 py-1 rounded-lg hover:bg-orange-700">
                         <input type="checkbox" id="chk-auto-return" class="accent-white w-4 h-4" checked>
                         <span>Auto Return</span>
@@ -217,7 +217,7 @@
 
     <!-- === MODALS === -->
     
-    <!-- NEW: Table Map Modal (POS & Edit Layout) -->
+    <!-- Table Map Modal (POS & Edit Layout) -->
     <div id="modal-table-map" class="fixed inset-0 bg-black/90 z-[100] hide flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-dark-800 w-full max-w-5xl rounded-3xl shadow-2xl h-[90vh] flex flex-col animate-slide-up border border-dark-700 relative overflow-hidden">
              
@@ -243,7 +243,6 @@
                              </button>
                          </div>
                          <div class="w-px h-6 bg-dark-600 mx-1"></div>
-                        <!-- FIX: Added specific ID for reliable targeting -->
                         <button id="btn-save-layout" onclick="saveLayout()" class="bg-primary text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-600 shadow flex items-center gap-1"><i class="fas fa-save"></i> Save</button>
                     </div>
                     
@@ -350,7 +349,11 @@
             <div class="p-6 overflow-y-auto bg-dark-800 flex-1">
                 <div class="mb-4">
                     <p class="text-[10px] font-bold text-dark-muted uppercase tracking-widest mb-3" data-i18n="customize">Customize Order</p>
-                    <div id="dynamic-options" class="grid grid-cols-2 gap-3"></div>
+                    <div id="dynamic-options" class="grid grid-cols-2 gap-3 mb-4"></div>
+                    
+                    <!-- NEW: Custom Remark Input -->
+                    <p class="text-[10px] font-bold text-dark-muted uppercase tracking-widest mb-2" data-i18n="remarks">Special Requests</p>
+                    <textarea id="prod-remark" class="w-full bg-dark-900 border border-dark-700 rounded-xl p-3 text-white text-sm focus:border-primary outline-none resize-none placeholder-dark-700 transition focus:ring-1 focus:ring-primary" rows="2" placeholder="e.g., Less oil, Allergy info..."></textarea>
                 </div>
             </div>
 
@@ -380,14 +383,27 @@
                 </div>
                 <button onclick="closeModal('modal-checkout')" class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-dark-muted hover:text-white hover:bg-dark-600 transition"><i class="fas fa-times"></i></button>
             </div>
-            <div id="checkout-items" class="p-4 overflow-y-auto flex-1 space-y-3 bg-dark-900"></div>
+            
+            <!-- NEW: Order Type Toggle -->
+            <div class="px-5 pt-4 pb-0">
+                <div class="bg-dark-900 p-1 rounded-xl flex border border-dark-700 relative">
+                    <button onclick="setOrderType('dine_in')" id="btn-type-dine" class="flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 bg-primary text-white shadow-md">
+                        <i class="fas fa-utensils"></i> <span data-i18n="dine_in">Dine In</span>
+                    </button>
+                    <button onclick="setOrderType('takeaway')" id="btn-type-take" class="flex-1 py-2.5 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition flex items-center justify-center gap-2">
+                        <i class="fas fa-shopping-bag"></i> <span data-i18n="takeaway">Takeaway</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="checkout-items" class="p-4 overflow-y-auto flex-1 space-y-3 bg-dark-900 mt-2"></div>
             <div class="p-6 bg-dark-800 border-t border-dark-700 pb-8 sm:pb-6">
+                <!-- ... existing footer ... -->
                 <div class="flex justify-between items-center mb-6">
                     <span class="text-xs font-bold text-dark-muted uppercase tracking-wider" data-i18n="total_amount">Total Amount</span>
                     <span id="checkout-grand-total" class="text-3xl font-bold text-white">0 Ks</span>
                 </div>
                 
-                <!-- Buttons Layout -->
                 <div class="flex gap-3">
                     <button onclick="closeModal('modal-checkout')" class="flex-1 bg-dark-700 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-dark-600 transition active:scale-[0.98]" data-i18n="cancel">
                         Cancel
@@ -423,7 +439,7 @@
         </div>
     </div>
 
-    <!-- REPORT MODAL -->
+    <!-- REPORT MODAL (ADVANCED WITH CATEGORY & PROGRESS BARS) -->
     <div id="modal-report" class="fixed inset-0 bg-black/80 z-[100] hide flex items-center justify-center p-4">
         <div class="bg-dark-800 w-full max-w-4xl rounded-3xl h-[90vh] flex flex-col animate-slide-up border border-dark-700">
             <div class="p-5 border-b border-dark-700 flex justify-between items-center">
@@ -437,11 +453,21 @@
                 <button onclick="switchReportTab('top')" id="tab-top" class="flex-1 py-2 rounded-lg font-bold text-sm text-dark-muted hover:text-white transition" data-i18n="top_items">Top Items</button>
             </div>
 
-            <!-- Global Date Picker -->
-            <div class="px-5 pb-2">
+            <!-- Global Date Picker & Range Selector -->
+            <div class="px-5 pb-2 flex flex-wrap gap-3">
                  <div class="flex items-center gap-3 bg-dark-900 p-3 rounded-xl border border-dark-700 max-w-xs">
                     <span class="text-sm font-bold text-dark-muted" data-i18n="date">Date:</span>
                     <input type="date" id="rpt-date-input" class="bg-transparent font-bold outline-none text-white invert-calendar" onchange="window.refreshReport()">
+                </div>
+
+                <!-- Range Selector -->
+                <div class="flex items-center gap-2 bg-dark-900 p-1 rounded-xl border border-dark-700">
+                    <select id="rpt-range-select" onchange="window.refreshReport()" class="bg-transparent text-white font-bold text-sm outline-none px-3 py-2 cursor-pointer">
+                        <option value="daily" class="bg-dark-800">Daily</option>
+                        <option value="weekly" class="bg-dark-800">Weekly</option>
+                        <option value="monthly" class="bg-dark-800">Monthly</option>
+                        <option value="yearly" class="bg-dark-800">Yearly</option>
+                    </select>
                 </div>
             </div>
 
@@ -451,29 +477,41 @@
                          <div class="bg-gradient-to-br from-primary to-red-600 text-white p-6 rounded-2xl shadow-lg">
                              <p class="text-xs opacity-70 mb-1 font-bold uppercase tracking-wider" data-i18n="total_revenue">Total Revenue</p>
                              <p class="text-3xl font-extrabold" id="rpt-ov-total">0</p>
+                             <p class="text-[10px] mt-1 opacity-60" id="rpt-period-label">Today</p>
                          </div>
                          <div class="border border-dark-700 bg-dark-900 p-6 rounded-2xl">
                              <p class="text-xs text-dark-muted mb-1 font-bold uppercase tracking-wider" data-i18n="total_orders">Total Orders</p>
                              <p class="text-3xl font-extrabold text-white" id="rpt-ov-count">0</p>
                          </div>
                      </div>
-                     <!-- CHART CONTAINER -->
-                     <div class="mt-6 bg-dark-900 p-4 rounded-2xl border border-dark-700">
-                         <h4 class="text-sm font-bold text-dark-muted mb-4 uppercase tracking-wider" data-i18n="hourly_sales">Hourly Sales</h4>
-                         <div class="relative h-64 w-full">
-                             <canvas id="salesChart"></canvas>
+                     
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                         <!-- Sales Trend Chart -->
+                         <div class="bg-dark-900 p-4 rounded-2xl border border-dark-700">
+                             <h4 class="text-sm font-bold text-dark-muted mb-4 uppercase tracking-wider" data-i18n="hourly_sales">Sales Trend</h4>
+                             <div class="relative h-64 w-full">
+                                 <canvas id="salesChart"></canvas>
+                             </div>
+                         </div>
+                         <!-- Category Sales Chart (NEW) -->
+                         <div class="bg-dark-900 p-4 rounded-2xl border border-dark-700">
+                             <h4 class="text-sm font-bold text-dark-muted mb-4 uppercase tracking-wider" data-i18n="category_sales">Category Sales</h4>
+                             <div class="relative h-64 w-full flex justify-center">
+                                 <canvas id="categoryChart"></canvas>
+                             </div>
                          </div>
                      </div>
                 </div>
+                
                 <div id="rpt-view-history" class="hide">
                     <div class="flex justify-between mb-4 mt-2">
-                        <h4 class="font-bold text-white" data-i18n="orders_selected">Orders for Selected Date</h4>
+                        <h4 class="font-bold text-white" data-i18n="orders_selected">Orders for Selected Period</h4>
                         <button onclick="clearAllHistory()" class="text-red-400 text-xs font-bold border border-red-900/30 bg-red-900/10 px-3 py-1 rounded-lg hover:bg-red-900/30 transition" data-i18n="clear_all">Clear All</button>
                     </div>
                     <table class="w-full text-sm text-left text-dark-muted">
                         <thead class="bg-dark-900 text-dark-700 uppercase text-xs">
                             <tr>
-                                <th class="p-3 rounded-l-lg" data-i18n="time">Time</th>
+                                <th class="p-3 rounded-l-lg" data-i18n="time">Date/Time</th>
                                 <th class="p-3" data-i18n="table">Table</th>
                                 <th class="p-3" data-i18n="total">Total</th>
                                 <th class="rounded-r-lg"></th>
@@ -482,9 +520,10 @@
                         <tbody id="rpt-history-body" class="divide-y divide-dark-700"></tbody>
                     </table>
                 </div>
+                
                 <div id="rpt-view-top" class="hide">
-                    <h4 class="font-bold text-white mb-4 mt-2" data-i18n="top_selected">Top Items for Selected Date</h4>
-                    <div id="rpt-top-list" class="space-y-2"></div>
+                    <h4 class="font-bold text-white mb-4 mt-2" data-i18n="top_selected">Top Items for Selected Period</h4>
+                    <div id="rpt-top-list" class="space-y-3"></div>
                 </div>
             </div>
         </div>
@@ -501,7 +540,7 @@
         </div>
     </div>
 
-    <!-- Hidden Receipt (Updated for Dynamic Printing) -->
+    <!-- Hidden Receipt -->
     <div id="receipt-print-area" class="hide font-mono text-sm p-4 bg-white max-w-[300px]">
         <div class="text-center mb-2"><h2 class="text-xl font-bold text-black" id="rcp-title">PingPOS</h2></div>
         <div class="text-center mb-4 border-b-2 border-black pb-2"><h3 class="text-lg font-bold text-black" id="rcp-type">RECEIPT</h3></div>
@@ -539,6 +578,8 @@
         // TRANSLATION DATA
         const resources = {
             en: {
+                dine_in: "Dine In",
+                takeaway: "Takeaway",
                 hero_title: "Hungry? 😋",
                 hero_subtitle: "Order something good!",
                 table: "TABLE",
@@ -584,6 +625,7 @@
                 close: "Close",
                 more: "More",
                 hourly_sales: "Hourly Sales",
+                category_sales: "Category Sales",
                 sold_out: "SOLD OUT",
                 available: "Available",
                 pos_mode: "POS Mode",
@@ -591,9 +633,13 @@
                 select_table_msg: "Select a table to take order",
                 free: "Free",
                 occupied: "Occupied",
+                remarks: "Special Requests",
+                daily: "Daily", weekly: "Weekly", monthly: "Monthly", yearly: "Yearly",
                 Fried: "Fried", Curry: "Curry", Soup: "Soup", Salad: "Salad", Rice: "Rice", Noodle: "Noodle", Dessert: "Dessert", Drink: "Drink", Other: "Other", All: "All"
             },
             cn: {
+                dine_in: "堂食",
+                takeaway: "打包",
                 hero_title: "饿了吗？😋",
                 hero_subtitle: "点份好吃的吧！",
                 table: "桌号",
@@ -639,6 +685,7 @@
                 close: "关闭",
                 more: "更多",
                 hourly_sales: "每小时销售额",
+                category_sales: "分类销售占比",
                 sold_out: "已售完",
                 available: "有货",
                 pos_mode: "POS 模式",
@@ -646,11 +693,13 @@
                 select_table_msg: "选择桌号进行点餐",
                 free: "空闲",
                 occupied: "占用",
+                remarks: "特殊要求",
+                daily: "每日", weekly: "每周", monthly: "每月", yearly: "每年",
                 Fried: "炸物", Curry: "咖喱", Soup: "汤类", Salad: "沙拉", Rice: "米饭", Noodle: "面条", Dessert: "甜点", Drink: "饮料", Other: "其他", All: "全部"
             }
         };
 
-        // Added language to state
+        // GLOBAL STATE - Declared exactly once
         let state = { 
             user: null, 
             tableId: 1, 
@@ -662,11 +711,13 @@
             editingProductId: null, 
             lang: 'en', 
             chartInstance: null, 
+            categoryChartInstance: null,
             isPOSMode: false,
-            tables: [], // { id, x, y, shape: 'round'|'rect', size: 1 }
+            tables: [], 
             isLayoutEdit: false,
             dragItem: null,
-            selectedTableId: null
+            selectedTableId: null,
+            orderType: 'dine_in'
         };
         let isInitialLoad = true; 
 
@@ -677,21 +728,19 @@
                 const result = await signInAnonymously(auth);
                 state.user = result.user;
                 
-                // Fetch Layout Config
-                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config_tables');
+                // FIXED: Using 6 segments path for config_tables
+                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config_tables', 'main_layout');
                 const configSnap = await getDoc(configRef);
+                
                 if (configSnap.exists()) {
                     state.tables = configSnap.data().tables || [];
                 } else {
-                    // Default tables
                     generateDefaultTables();
                 }
-            } catch (error) { console.error(error); alert("Auth Error"); }
+            } catch (error) { console.error("Init Error:", error); generateDefaultTables(); } 
             
-            // Load saved language
             state.lang = localStorage.getItem('pingpos_lang') || 'en';
             
-            // Load Auto Return Preference
             const autoRet = localStorage.getItem('pingpos_auto_return');
             if(autoRet !== null) document.getElementById('chk-auto-return').checked = (autoRet === 'true');
 
@@ -706,12 +755,10 @@
             renderCategoryBar();
             document.getElementById('rpt-date-input').valueAsDate = new Date();
 
-            // Setup Auto Return Listener
             document.getElementById('chk-auto-return').addEventListener('change', (e) => {
                 localStorage.setItem('pingpos_auto_return', e.target.checked);
             });
 
-            // SCROLL LISTENER Setup
             const scrollContainer = document.getElementById('main-scroll-container');
             const scrollBtn = document.getElementById('scroll-top-btn');
             if(scrollContainer && scrollBtn) {
@@ -728,7 +775,6 @@
         function generateDefaultTables() {
             state.tables = [];
             for(let i=1; i<=12; i++) {
-                // Initial Grid Layout Logic
                 const col = (i-1) % 4;
                 const row = Math.floor((i-1) / 4);
                 state.tables.push({
@@ -741,31 +787,25 @@
             }
         }
 
-        // SCROLL TO TOP FUNCTION
         window.scrollToTop = () => {
             document.getElementById('main-scroll-container').scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // LANGUAGE FUNCTIONS
         window.toggleLanguage = () => {
             state.lang = state.lang === 'en' ? 'cn' : 'en';
             localStorage.setItem('pingpos_lang', state.lang);
             updateContent();
-            renderCategoryBar(); // Re-render categories for translation
+            renderCategoryBar(); 
         };
 
         function updateContent() {
             document.getElementById('lang-display').innerText = state.lang.toUpperCase();
-            
-            // Update all elements with data-i18n attribute
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (resources[state.lang][key]) {
                     el.innerText = resources[state.lang][key];
                 }
             });
-
-            // Update placeholders if needed
             document.getElementById('new-prod-name').placeholder = state.lang === 'cn' ? "商品名称" : "Item Name";
             document.getElementById('new-prod-price').placeholder = state.lang === 'cn' ? "价格" : "Price";
             document.getElementById('new-prod-options').placeholder = state.lang === 'cn' ? "选项 (如: 加辣, 少糖)" : "Options (e.g., Spicy, No Onion)";
@@ -791,19 +831,15 @@
                     });
                 }
                 isInitialLoad = false;
-                
                 renderAdminOrders();
             });
         }
         
         function playSound() {
             const audio = document.getElementById('notif-sound');
-            if(audio) {
-                audio.play().catch(e => console.log("Audio autoplay blocked by browser (user needs to interact first)"));
-            }
+            if(audio) audio.play().catch(e => console.log("Audio autoplay blocked by browser"));
         }
 
-        // --- UPDATED CATEGORY BAR LOGIC FOR MOBILE & TRANSLATION ---
         function renderCategoryBar() {
             const container = document.getElementById('category-bar');
             const isMobile = window.innerWidth < 640; 
@@ -828,7 +864,6 @@
         function generateCatBtnHTML(cat) {
             const isActive = state.activeCategory === cat;
             const activeClass = isActive ? "cat-btn-active" : "cat-btn-inactive";
-            // Get translated label
             const label = resources[state.lang][cat] || cat;
             return `<button onclick="window.filterCategory('${cat}')" class="px-5 py-2 rounded-full text-[11px] font-bold whitespace-nowrap transition-all duration-300 ${activeClass}">${label}</button>`;
         }
@@ -838,7 +873,6 @@
             grid.innerHTML = categories.map(cat => {
                 const isActive = state.activeCategory === cat;
                 const bgClass = isActive ? "bg-primary text-white border-primary shadow-lg shadow-primary/30" : "bg-dark-900 text-dark-muted border-dark-700 hover:border-gray-500 hover:text-white";
-                // Get translated label
                 const label = resources[state.lang][cat] || cat;
                 return `<button onclick="selectCategoryFromModal('${cat}')" class="p-4 rounded-xl font-bold text-sm border ${bgClass} transition flex items-center justify-center">${label}</button>`;
             }).join('');
@@ -871,11 +905,9 @@
                     `<img src="${p.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">` : 
                     `<div class="w-full h-full flex items-center justify-center text-4xl text-dark-700"><i class="fas fa-utensils"></i></div>`;
                 
-                // SOLD OUT LOGIC
                 const isSoldOut = p.isSoldOut === true;
                 const containerClass = isSoldOut ? "relative h-52 rounded-[24px] shadow-lg border border-dark-700/50 overflow-hidden bg-dark-800" : "relative h-52 rounded-[24px] shadow-lg border border-dark-700/50 cursor-pointer overflow-hidden group active:scale-[0.95] transition-all bg-dark-800";
                 const contentFilter = isSoldOut ? "sold-out-filter" : "";
-                const clickAction = isSoldOut ? "" : `onclick="openProductModal('${p.id}')"`;
                 const soldOutBadge = isSoldOut ? `<div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"><span class="bg-red-600/90 text-white border-2 border-white font-black text-xl px-6 py-2 transform -rotate-12 shadow-2xl tracking-widest rounded-lg">${resources[state.lang]['sold_out']}</span></div>` : "";
 
                 const el = document.createElement('div');
@@ -918,7 +950,6 @@
                 if (order.status === 'pending') {
                     statusColor = "bg-yellow-900/20 text-yellow-400 border-yellow-900/50";
                     stText = "Pending";
-                    // START BUTTON: Now calls startOrder (Update Status + Print KOT)
                     btnHtml = `<button onclick="window.startOrder('${order.id}')" class="flex-1 bg-white text-dark-900 py-2 rounded-xl text-xs font-bold hover:bg-gray-200 transition">Start</button>`;
                 } else if (order.status === 'cooking') {
                     statusColor = "bg-blue-900/20 text-blue-400 border-blue-900/50";
@@ -927,10 +958,12 @@
                 } else if (order.status === 'served') {
                     statusColor = "bg-gray-700/50 text-gray-400 border-gray-700";
                     stText = "Served";
-                    // PRINT RECEIPT BUTTON: Calls normal printTicket with 'customer' type
                     btnHtml = `<button onclick="window.printTicket('${order.id}', 'customer')" class="flex-1 border border-dark-700 text-gray-300 py-2 rounded-xl text-xs font-bold hover:bg-dark-700 hover:text-white transition">Print</button>`;
                 }
                 
+                const isTakeaway = order.orderType === 'takeaway';
+                const typeBadge = isTakeaway ? `<span class="bg-purple-900/50 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded text-[10px] font-bold ml-2 animate-pulse"><i class="fas fa-shopping-bag mr-1"></i>TAKEAWAY</span>` : '';
+
                 const div = document.createElement('div');
                 div.className = "bg-dark-800 rounded-2xl shadow-lg border border-dark-700 p-4 flex flex-col gap-3";
                 div.innerHTML = `
@@ -939,13 +972,21 @@
                             <div class="w-8 h-8 rounded-full bg-dark-900 flex items-center justify-center font-bold text-white border border-dark-700 shadow-inner">${order.tableId}</div>
                             <span class="text-xs font-bold text-gray-400">#${order.id.slice(0,4)}</span>
                         </div>
-                        <span class="px-2 py-1 rounded-lg text-[10px] font-bold border ${statusColor}">${stText}</span>
+                        <div class="flex items-center">
+                            ${typeBadge}
+                            <span class="px-2 py-1 rounded-lg text-[10px] font-bold border ${statusColor} ml-2">${stText}</span>
+                        </div>
                     </div>
                     <div class="flex-1 overflow-y-auto max-h-32 space-y-2 py-2 border-t border-b border-dark-700 custom-scroll">
                         ${order.items.map(i=>`
-                            <div class="flex justify-between text-xs">
-                                <span class="font-bold text-white text-sm">${i.qty}x ${i.name}</span>
-                                <span class="text-[10px] text-gray-400">${i.modifiers.length?'('+i.modifiers.join(',')+')':''}</span>
+                            <div class="flex flex-col text-xs">
+                                <div class="flex justify-between">
+                                    <span class="font-bold text-white text-sm">${i.qty}x ${i.name}</span>
+                                </div>
+                                <div class="pl-2">
+                                     ${i.modifiers && i.modifiers.length ? `<span class="text-[10px] text-gray-400 block">• ${i.modifiers.join(', ')}</span>` : ''}
+                                     ${i.remarks ? `<span class="text-[10px] text-orange-400 font-bold block italic">" ${i.remarks} "</span>` : ''}
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -957,7 +998,6 @@
             });
         };
 
-        // NEW: Start Order Action (Update Status + Print KOT)
         window.startOrder = async (id) => {
              try {
                  await updateDoc(doc(db,'artifacts',appId,'public','data','orders',id),{status: 'cooking'});
@@ -965,7 +1005,6 @@
              } catch(e) { console.error(e); alert("Error starting order"); }
         };
 
-        // --- NEW MENU MANAGER WITH EDIT SUPPORT ---
         function renderMenuManager() {
             document.getElementById('menu-table-body').innerHTML = state.products.map(p => {
                 const isSoldOut = p.isSoldOut === true;
@@ -978,16 +1017,12 @@
                         <div class="text-[10px] text-dark-muted uppercase font-bold bg-dark-900 inline-block px-2 py-0.5 rounded border border-dark-700 mt-1">${resources[state.lang][p.category] || p.category || 'N/A'}</div>
                     </td>
                     <td class="p-3 text-right flex items-center justify-end gap-2">
-                        <!-- Stock Toggle Button -->
                         <button onclick="window.toggleStock('${p.id}', ${isSoldOut})" class="w-10 h-8 rounded-full border ${stockBtnClass} hover:brightness-125 transition flex items-center justify-center" title="Toggle Stock">
                             <i class="fas ${stockIcon} text-lg"></i>
                         </button>
-                        
-                        <!-- Edit Button -->
                         <button onclick="window.editProduct('${p.id}')" class="text-white hover:bg-dark-600 bg-dark-700 w-8 h-8 rounded-full transition flex items-center justify-center">
                             <i class="fas fa-pen text-xs"></i>
                         </button>
-                        <!-- Delete Button -->
                         <button onclick="window.deleteProduct('${p.id}')" class="text-red-400 hover:text-white hover:bg-red-500/80 bg-red-900/20 w-8 h-8 rounded-full transition flex items-center justify-center">
                             <i class="fas fa-trash text-xs"></i>
                         </button>
@@ -998,7 +1033,6 @@
 
         window.toggleStock = async (id, currentStatus) => {
             try {
-                // If currentStatus is true (Sold Out), we make it false (Available). And vice versa.
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id), { isSoldOut: !currentStatus });
             } catch(e) { console.error(e); alert("Error updating stock"); }
         };
@@ -1013,7 +1047,6 @@
             document.getElementById('new-prod-category').value = p.category || 'Other';
             document.getElementById('new-prod-options').value = p.options ? p.options.join(', ') : '';
 
-            // Use translation resource for button text
             document.getElementById('btn-save-prod').innerText = resources[state.lang]['update_item'];
             document.getElementById('btn-save-prod').classList.remove('bg-primary', 'hover:bg-red-600');
             document.getElementById('btn-save-prod').classList.add('bg-green-600', 'hover:bg-green-500');
@@ -1027,7 +1060,6 @@
             document.getElementById('new-prod-img').value = '';
             document.getElementById('new-prod-options').value = '';
             
-            // Use translation resource for button text
             document.getElementById('btn-save-prod').innerText = resources[state.lang]['add_item'];
             document.getElementById('btn-save-prod').classList.add('bg-primary', 'hover:bg-red-600');
             document.getElementById('btn-save-prod').classList.remove('bg-green-600', 'hover:bg-green-500');
@@ -1063,14 +1095,14 @@
 
         window.deleteProduct = async (id) => { if(confirm("Remove?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id)); };
 
-        // --- END MENU MANAGER UPDATE ---
-
+        // ... existing POS/Cart functions ...
         window.openProductModal = (id) => {
             const p = state.products.find(x => x.id === id); if(!p) return;
             state.selectedProduct = { ...p, qty: 1 };
             document.getElementById('mp-name').innerText = p.name;
             document.getElementById('mp-price-display').innerText = p.price + ' Ks';
             document.getElementById('mp-qty').innerText = 1;
+            document.getElementById('prod-remark').value = ''; 
             const img = document.getElementById('mp-img');
             img.src = (p.image && p.image.startsWith('http')) ? p.image : 'https://placehold.co/600x400/1F2937/9CA3AF?text='+(p.image||'Food');
             
@@ -1088,7 +1120,14 @@
         window.updateQty = (c) => { let q = state.selectedProduct.qty + c; if(q>=1) { state.selectedProduct.qty = q; document.getElementById('mp-qty').innerText = q; } };
         window.addToCart = () => {
             const checkboxes = document.querySelectorAll('input[name="prod_option"]:checked');
-            state.cart.push({ ...state.selectedProduct, modifiers: Array.from(checkboxes).map(cb=>cb.value), lineTotal: state.selectedProduct.price * state.selectedProduct.qty });
+            const remark = document.getElementById('prod-remark').value.trim(); 
+            
+            state.cart.push({ 
+                ...state.selectedProduct, 
+                modifiers: Array.from(checkboxes).map(cb=>cb.value), 
+                remarks: remark, 
+                lineTotal: state.selectedProduct.price * state.selectedProduct.qty 
+            });
             updateCartUI(); closeModal('modal-product');
         };
         function updateCartUI() {
@@ -1098,9 +1137,45 @@
             const bar = document.getElementById('cart-bar');
             if(c>0) bar.classList.remove('translate-y-[200%]'); else bar.classList.add('translate-y-[200%]');
         }
+        
+        window.setOrderType = (type) => {
+            state.orderType = type;
+            const btnDine = document.getElementById('btn-type-dine');
+            const btnTake = document.getElementById('btn-type-take');
+            
+            if(type === 'dine_in') {
+                btnDine.classList.remove('text-dark-muted', 'hover:text-white');
+                btnDine.classList.add('bg-primary', 'text-white', 'shadow-md');
+                
+                btnTake.classList.add('text-dark-muted', 'hover:text-white');
+                btnTake.classList.remove('bg-purple-600', 'text-white', 'shadow-md'); 
+            } else {
+                btnDine.classList.add('text-dark-muted', 'hover:text-white');
+                btnDine.classList.remove('bg-primary', 'text-white', 'shadow-md');
+                
+                btnTake.classList.remove('text-dark-muted', 'hover:text-white');
+                btnTake.classList.add('bg-purple-600', 'text-white', 'shadow-md');
+            }
+        };
+
         window.openCheckoutModal = () => {
             if(state.cart.length===0) return;
-            document.getElementById('checkout-items').innerHTML = state.cart.map((item,i)=>`<div class="flex justify-between items-start bg-dark-800 p-3 rounded-2xl border border-dark-700 shadow-sm"><div class="flex gap-3"><div class="font-bold bg-dark-900 w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs border border-dark-700">${item.qty}x</div><div><p class="font-bold text-sm text-white">${item.name}</p><p class="text-[10px] text-dark-muted mt-0.5">${item.modifiers.join(', ')}</p></div></div><div class="flex flex-col items-end gap-2"><span class="font-bold text-sm text-white">${item.lineTotal}</span><button onclick="window.removeFromCart(${i})" class="text-red-400 text-xs bg-red-900/20 px-2 py-1 rounded-md hover:bg-red-900/40 transition"><i class="fas fa-trash"></i></button></div></div>`).join('');
+            window.setOrderType('dine_in');
+            document.getElementById('checkout-items').innerHTML = state.cart.map((item,i)=>`
+                <div class="flex justify-between items-start bg-dark-800 p-3 rounded-2xl border border-dark-700 shadow-sm">
+                    <div class="flex gap-3">
+                        <div class="font-bold bg-dark-900 w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs border border-dark-700">${item.qty}x</div>
+                        <div>
+                            <p class="font-bold text-sm text-white">${item.name}</p>
+                            <p class="text-[10px] text-dark-muted mt-0.5">${item.modifiers.join(', ')}</p>
+                            ${item.remarks ? `<p class="text-[10px] text-orange-400 italic mt-0.5">"${item.remarks}"</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <span class="font-bold text-sm text-white">${item.lineTotal}</span>
+                        <button onclick="window.removeFromCart(${i})" class="text-red-400 text-xs bg-red-900/20 px-2 py-1 rounded-md hover:bg-red-900/40 transition"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`).join('');
             document.getElementById('checkout-grand-total').innerText = state.cart.reduce((a,i)=>a+i.lineTotal,0) + " Ks";
             document.getElementById('modal-checkout').classList.remove('hide');
         };
@@ -1109,18 +1184,22 @@
             if(!state.user) return alert("Not Connected");
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), {
-                    tableId: state.tableId, items: state.cart, totalPrice: state.cart.reduce((a,i)=>a+i.lineTotal,0), status: 'pending', timestamp: serverTimestamp(), userId: state.user.uid
+                    tableId: state.tableId, 
+                    items: state.cart, 
+                    totalPrice: state.cart.reduce((a,i)=>a+i.lineTotal,0), 
+                    status: 'pending', 
+                    timestamp: serverTimestamp(), 
+                    userId: state.user.uid,
+                    orderType: state.orderType 
                 });
                 state.cart=[]; updateCartUI(); closeModal('modal-checkout'); 
                 
-                // Show success
                 const div = document.createElement('div');
                 div.className = "fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-xl z-[200] font-bold text-sm animate-slide-up flex items-center gap-2";
                 div.innerHTML = '<i class="fas fa-check-circle"></i> Order Sent Successfully!';
                 document.body.appendChild(div);
                 setTimeout(()=>div.remove(), 3000);
 
-                // CHECK AUTO RETURN
                 if (state.isPOSMode) {
                     const autoReturn = document.getElementById('chk-auto-return').checked;
                     if (autoReturn) {
@@ -1160,15 +1239,7 @@
             }
         };
 
-        // Report Logic Updated (REVERTED TO BASIC)
-        window.openReportModal = () => { document.getElementById('modal-report').classList.remove('hide'); renderReportOverview(); };
-        
-        window.refreshReport = () => {
-             if(!document.getElementById('rpt-view-overview').classList.contains('hide')) renderReportOverview();
-             else if(!document.getElementById('rpt-view-history').classList.contains('hide')) renderSalesHistory();
-             else renderTopSelling();
-        };
-
+        // --- ENHANCED REPORT LOGIC ---
         window.switchReportTab = (tab) => {
             document.getElementById('rpt-view-overview').classList.add('hide');
             document.getElementById('rpt-view-history').classList.add('hide');
@@ -1176,8 +1247,13 @@
             
             ['overview', 'history', 'top'].forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
-                if(t===tab) { el.classList.remove('text-dark-muted'); el.classList.add('bg-dark-700','text-white','shadow-sm'); }
-                else { el.classList.add('text-dark-muted'); el.classList.remove('bg-dark-700','text-white','shadow-sm'); }
+                if(t === tab) {
+                    el.classList.remove('text-dark-muted');
+                    el.classList.add('bg-dark-700', 'text-white', 'shadow-sm');
+                } else {
+                    el.classList.add('text-dark-muted');
+                    el.classList.remove('bg-dark-700', 'text-white', 'shadow-sm');
+                }
             });
 
             document.getElementById(`rpt-view-${tab}`).classList.remove('hide');
@@ -1186,124 +1262,239 @@
             if(tab === 'top') renderTopSelling();
         };
 
+        window.openReportModal = () => { document.getElementById('modal-report').classList.remove('hide'); renderReportOverview(); };
+        
+        window.refreshReport = () => {
+             if(!document.getElementById('rpt-view-overview').classList.contains('hide')) renderReportOverview();
+             else if(!document.getElementById('rpt-view-history').classList.contains('hide')) renderSalesHistory();
+             else renderTopSelling();
+        };
+
+        function isDateInRange(dateObj, range, selectedDate) {
+            const d = new Date(dateObj); 
+            const s = new Date(selectedDate); 
+            
+            d.setHours(0,0,0,0);
+            const sMidnight = new Date(s);
+            sMidnight.setHours(0,0,0,0);
+
+            if (range === 'daily') {
+                return d.getTime() === sMidnight.getTime();
+            } 
+            else if (range === 'weekly') {
+                const day = sMidnight.getDay();
+                const diff = sMidnight.getDate() - day + (day === 0 ? -6 : 1);
+                const monday = new Date(sMidnight.setDate(diff));
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+                return d >= monday && d <= sunday;
+            }
+            else if (range === 'monthly') {
+                return d.getMonth() === s.getMonth() && d.getFullYear() === s.getFullYear();
+            }
+            else if (range === 'yearly') {
+                return d.getFullYear() === s.getFullYear();
+            }
+            return false;
+        }
+
         window.renderReportOverview = () => {
-            const d = document.getElementById('rpt-date-input').value;
-            const sd = new Date(d).toDateString();
+            const dateInput = document.getElementById('rpt-date-input').value;
+            const range = document.getElementById('rpt-range-select').value;
             let c=0, t=0;
-            const hours = new Array(24).fill(0); // Hourly data array
+            
+            let chartLabels = [];
+            let chartData = [];
+            let categoryStats = {}; // To store category totals
+            
+            if(range === 'daily') {
+                chartLabels = Array.from({length: 24}, (_, i) => `${i}:00`);
+                chartData = new Array(24).fill(0);
+                document.getElementById('rpt-period-label').innerText = new Date(dateInput).toDateString();
+            } else if (range === 'weekly') {
+                chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                chartData = new Array(7).fill(0);
+                document.getElementById('rpt-period-label').innerText = "Selected Week";
+            } else if (range === 'monthly') {
+                const daysInMonth = new Date(new Date(dateInput).getFullYear(), new Date(dateInput).getMonth() + 1, 0).getDate();
+                chartLabels = Array.from({length: daysInMonth}, (_, i) => `${i+1}`);
+                chartData = new Array(daysInMonth).fill(0);
+                document.getElementById('rpt-period-label').innerText = new Date(dateInput).toLocaleDateString(state.lang==='cn'?'zh-CN':'en-US', {month: 'long', year: 'numeric'});
+            } else if (range === 'yearly') {
+                chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                chartData = new Array(12).fill(0);
+                document.getElementById('rpt-period-label').innerText = new Date(dateInput).getFullYear();
+            }
 
             state.orders.forEach(o => { 
                 if(o.timestamp) {
                     const dateObj = new Date(o.timestamp.seconds*1000);
-                    if (dateObj.toDateString() === sd) {
+                    
+                    if (isDateInRange(dateObj, range, dateInput)) {
                         c++; 
                         t+=o.totalPrice;
-                        // Populate hourly data
-                        const h = dateObj.getHours();
-                        hours[h] += o.totalPrice;
+                        
+                        // Populate Chart Data
+                        if(range === 'daily') {
+                            chartData[dateObj.getHours()] += o.totalPrice;
+                        } else if (range === 'weekly') {
+                            const day = dateObj.getDay(); 
+                            const index = day === 0 ? 6 : day - 1; 
+                            chartData[index] += o.totalPrice;
+                        } else if (range === 'monthly') {
+                            chartData[dateObj.getDate() - 1] += o.totalPrice;
+                        } else if (range === 'yearly') {
+                            chartData[dateObj.getMonth()] += o.totalPrice;
+                        }
+
+                        // Calculate Category Sales
+                        if(o.items && Array.isArray(o.items)) {
+                            o.items.forEach(item => {
+                                const cat = item.category || 'Other';
+                                categoryStats[cat] = (categoryStats[cat] || 0) + item.lineTotal;
+                            });
+                        }
                     }
                 }
             });
-            document.getElementById('rpt-ov-total').innerText = t; 
+            document.getElementById('rpt-ov-total').innerText = t.toLocaleString(); 
             document.getElementById('rpt-ov-count').innerText = c;
             
-            // Render Chart
-            renderSalesChart(hours);
+            // Render Sales Trend Chart
+            renderSalesChart(chartLabels, chartData);
+
+            // Render Category Chart (FIXED)
+            const catLabels = Object.keys(categoryStats);
+            const catData = Object.values(categoryStats);
+            if(catLabels.length > 0) {
+                 renderCategoryChart(catLabels, catData);
+            } else {
+                 // Clear chart if no data
+                 renderCategoryChart([], []); 
+            }
         };
 
-        window.renderSalesChart = (data) => {
+        window.renderSalesChart = (labels, data) => {
             const ctx = document.getElementById('salesChart').getContext('2d');
-            
-            // Create Gradient (Blueish)
             let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, '#60A5FA'); // Light Blue
-            gradient.addColorStop(1, '#2563EB'); // Darker Blue
+            gradient.addColorStop(0, '#60A5FA'); gradient.addColorStop(1, '#2563EB');
 
-            // Destroy existing chart if any
-            if (state.chartInstance) {
-                state.chartInstance.destroy();
-            }
+            if (state.chartInstance) state.chartInstance.destroy();
 
             state.chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    labels: labels,
                     datasets: [{
                         label: 'Sales (Ks)',
                         data: data,
-                        backgroundColor: gradient, // Use gradient
+                        backgroundColor: gradient,
                         borderRadius: 4,
-                        hoverBackgroundColor: '#3B82F6' // Solid Blue on hover
+                        hoverBackgroundColor: '#3B82F6'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#374151' },
-                            ticks: { color: '#9CA3AF' }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#9CA3AF', maxTicksLimit: 12 }
+                        y: { beginAtZero: true, grid: { color: '#374151' }, ticks: { color: '#9CA3AF' } },
+                        x: { grid: { display: false }, ticks: { color: '#9CA3AF', maxTicksLimit: 12 } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        };
+
+        // NEW: Render Category Chart Logic
+        window.renderCategoryChart = (categories, data) => {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+
+            if (state.categoryChartInstance) {
+                state.categoryChartInstance.destroy();
+            }
+
+            state.categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#FF4757', '#34D399', '#FBBF24', '#60A5FA', '#A78BFA', '#F472B6', '#9CA3AF', '#EC4899', '#6366f1'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'right', 
+                            labels: { color: '#9CA3AF', font: { size: 10 }, boxWidth: 10 } 
                         }
                     },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#1F2937',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            padding: 10,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y + ' Ks';
-                                }
-                            }
-                        }
-                    }
+                    cutout: '70%'
                 }
             });
         };
 
         window.renderSalesHistory = () => {
             const dateInput = document.getElementById('rpt-date-input').value;
-            const selectedDate = new Date(dateInput).toDateString();
+            const range = document.getElementById('rpt-range-select').value;
             const b = document.getElementById('rpt-history-body'); b.innerHTML = '';
             
-            // Filter by date AND status
             const h = state.orders.filter(o => {
-                const orderDate = o.timestamp ? new Date(o.timestamp.seconds*1000).toDateString() : new Date().toDateString();
-                return ['served','cooking','pending'].includes(o.status) && orderDate === selectedDate;
+                if(!o.timestamp) return false;
+                const d = new Date(o.timestamp.seconds*1000);
+                return ['served','cooking','pending'].includes(o.status) && isDateInRange(d, range, dateInput);
             });
 
-            if(h.length===0) { b.innerHTML='<tr><td colspan="4" class="p-4 text-center text-xs text-dark-700">No records found for this date</td></tr>'; return; }
+            if(h.length===0) { b.innerHTML='<tr><td colspan="4" class="p-4 text-center text-xs text-dark-700">No records found for this period</td></tr>'; return; }
             h.forEach(o => {
                 const d = o.timestamp ? new Date(o.timestamp.seconds*1000) : new Date();
-                b.innerHTML += `<tr class="border-b border-dark-700 last:border-0 hover:bg-dark-800 transition"><td class="p-3 text-xs text-dark-muted">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td><td class="p-3 font-bold text-white">T-${o.tableId}</td><td class="p-3 font-bold text-primary">${o.totalPrice}</td><td class="p-3 text-right"><button onclick="deleteOrder('${o.id}')" class="text-red-500 hover:text-red-400 bg-red-500/10 p-2 rounded-lg transition"><i class="fas fa-trash"></i></button></td></tr>`;
+                let dateStr = d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+                if(range !== 'daily') dateStr = `${d.getDate()}/${d.getMonth()+1} ${dateStr}`;
+
+                b.innerHTML += `<tr class="border-b border-dark-700 last:border-0 hover:bg-dark-800 transition"><td class="p-3 text-xs text-dark-muted">${dateStr}</td><td class="p-3 font-bold text-white">T-${o.tableId}</td><td class="p-3 font-bold text-primary">${o.totalPrice}</td><td class="p-3 text-right"><button onclick="deleteOrder('${o.id}')" class="text-red-500 hover:text-red-400 bg-red-500/10 p-2 rounded-lg transition"><i class="fas fa-trash"></i></button></td></tr>`;
             });
         };
 
         window.renderTopSelling = () => {
             const dateInput = document.getElementById('rpt-date-input').value;
-            const selectedDate = new Date(dateInput).toDateString();
+            const range = document.getElementById('rpt-range-select').value;
             const c={}; 
             
-            // Filter orders by date first
             const filteredOrders = state.orders.filter(o => {
-                 const orderDate = o.timestamp ? new Date(o.timestamp.seconds*1000).toDateString() : new Date().toDateString();
-                 return orderDate === selectedDate;
+                 if(!o.timestamp) return false;
+                 const d = new Date(o.timestamp.seconds*1000);
+                 return isDateInRange(d, range, dateInput);
             });
 
             filteredOrders.forEach(o=>{ if(o.items) o.items.forEach(i=>{ c[i.name]=(c[i.name]||0)+i.qty; }); });
             
             const s=Object.entries(c).sort((a,b)=>b[1]-a[1]);
             const ct=document.getElementById('rpt-top-list'); ct.innerHTML='';
-            if(s.length===0) ct.innerHTML='<p class="text-center text-dark-700 p-4 text-xs">No sales data for this date</p>';
-            s.forEach(([n,q],i)=>{ ct.innerHTML+=`<div class="flex justify-between p-3 bg-dark-800 rounded-xl border border-dark-700 mb-2"><div class="flex gap-3"><span class="font-bold text-primary w-5">#${i+1}</span><span class="font-bold text-white text-sm">${n}</span></div><span class="text-xs font-bold text-dark-muted">${q} sold</span></div>`; });
+            if(s.length===0) ct.innerHTML='<p class="text-center text-dark-700 p-4 text-xs">No sales data for this period</p>';
+            
+            // Progress bar logic
+            const maxVal = s.length > 0 ? s[0][1] : 1;
+            
+            s.forEach(([n,q],i)=>{ 
+                const percent = (q / maxVal) * 100;
+                ct.innerHTML+=`
+                <div class="p-3 bg-dark-800 rounded-xl border border-dark-700 relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 bottom-0 bg-primary/10 transition-all duration-500" style="width: ${percent}%"></div>
+                    <div class="relative flex justify-between items-center z-10">
+                        <div class="flex gap-3 items-center">
+                            <span class="font-bold text-primary w-5 text-sm">#${i+1}</span>
+                            <span class="font-bold text-white text-sm">${n}</span>
+                        </div>
+                        <span class="text-xs font-bold text-white bg-dark-900 px-2 py-1 rounded-lg border border-dark-600">${q} sold</span>
+                    </div>
+                </div>`; 
+            });
         };
 
         window.deleteOrder = async(id) => { if(confirm("Delete?")) { await deleteDoc(doc(db,'artifacts',appId,'public','data','orders',id)); renderSalesHistory(); }};
@@ -1313,7 +1504,6 @@
         window.generateQR=()=>{ const t=document.getElementById('qr-table-num').value; document.getElementById('qr-container').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href.split('?')[0]+'?table='+t)}">`; };
         window.printQR=()=>{ const w=window.open('','','height=400,width=400'); w.document.write('<html><body style="text-align:center">'+document.getElementById('qr-container').innerHTML+'</body></html>'); w.document.close(); w.print(); };
         
-        // --- UPDATED PRINT LOGIC ---
         window.printTicket = (id, type) => {
             const o = state.orders.find(x => x.id === id); if(!o) return;
             
@@ -1321,44 +1511,45 @@
             document.getElementById('rcp-table').innerText = o.tableId;
             document.getElementById('rcp-date').innerText = new Date().toLocaleDateString();
             
+            let headerExtra = "";
+            if (o.orderType === 'takeaway') {
+                headerExtra = "<br><span style='font-size: 1.2em; font-weight: 800; border: 2px solid black; padding: 2px 5px; display: inline-block; margin-top: 5px;'>[ TAKEAWAY ]</span>";
+            }
+
             if (type === 'kitchen') {
-                document.getElementById('rcp-type').innerText = "KITCHEN TICKET";
-                document.getElementById('rcp-th-amt').classList.add('hide'); // Hide Amt header
-                document.getElementById('rcp-footer').classList.add('hide'); // Hide Total footer
+                document.getElementById('rcp-type').innerHTML = "KITCHEN TICKET" + headerExtra;
+                document.getElementById('rcp-th-amt').classList.add('hide'); 
+                document.getElementById('rcp-footer').classList.add('hide'); 
                 
-                // Show items without price
                 document.getElementById('rcp-items').innerHTML = o.items.map(i => 
                     `<tr>
                         <td class="py-1 font-bold" colspan="2" style="font-size: 1.1em">${i.name} x${i.qty}</td>
                      </tr>
-                     ${i.modifiers.length ? `<tr><td colspan="2" class="text-[10px] text-gray-500 pb-2">(${i.modifiers.join(', ')})</td></tr>` : '<tr><td colspan="2" class="pb-2"></td></tr>'}`
+                     ${i.modifiers.length ? `<tr><td colspan="2" class="text-[10px] text-gray-500 pb-2">(${i.modifiers.join(', ')})</td></tr>` : ''}
+                     ${i.remarks ? `<tr><td colspan="2" class="text-xs font-bold italic pb-2">** ${i.remarks} **</td></tr>` : '<tr><td colspan="2" class="pb-2"></td></tr>'}`
                 ).join('');
                 
             } else {
-                // Customer Receipt
-                document.getElementById('rcp-type').innerText = "RECEIPT";
+                document.getElementById('rcp-type').innerHTML = "RECEIPT" + headerExtra;
                 document.getElementById('rcp-th-amt').classList.remove('hide');
                 document.getElementById('rcp-footer').classList.remove('hide');
                 document.getElementById('rcp-total').innerText = o.totalPrice + ' Ks';
                 
-                // Show items with price
                 document.getElementById('rcp-items').innerHTML = o.items.map(i => 
                     `<tr>
                         <td class="py-1">${i.name} x${i.qty}</td>
                         <td class="py-1 text-right">${i.lineTotal}</td>
                      </tr>
-                     ${i.modifiers.length ? `<tr><td colspan="2" class="text-[10px] text-gray-500 pb-1">(${i.modifiers.join(', ')})</td></tr>` : ''}`
+                     ${i.modifiers.length ? `<tr><td colspan="2" class="text-[10px] text-gray-500 pb-1">(${i.modifiers.join(', ')})</td></tr>` : ''}
+                     ${i.remarks ? `<tr><td colspan="2" class="text-[10px] italic pb-1">Note: ${i.remarks}</td></tr>` : ''}`
                 ).join('');
             }
             
             setTimeout(() => window.print(), 100);
         };
         
-        // Old printReceipt forwarded to new function
         window.printReceipt = (id) => window.printTicket(id, 'customer');
 
-        // --- NEW POS TABLE MAP & EDIT LOGIC ---
-        
         const getOccupiedTables = () => {
             const busy = new Set();
             state.orders.forEach(o => {
@@ -1377,7 +1568,6 @@
             const container = document.getElementById('table-map-container');
             container.innerHTML = '';
             
-            // Clean up state if edit mode was turned off but we were selecting
             if(!state.isLayoutEdit && state.selectedTableId) {
                 state.selectedTableId = null;
                 updatePropertiesPanel();
@@ -1387,7 +1577,6 @@
                 const isBusy = busyTables.has(t.id);
                 const isSelected = state.selectedTableId === t.id;
                 
-                // Styles
                 const shapeClass = t.shape === 'rect' ? 'rounded-lg aspect-square' : 'rounded-full aspect-square';
                 const colorClass = isBusy ? "bg-red-500 shadow-red-500/50" : "bg-green-500 shadow-green-500/50";
                 
@@ -1397,19 +1586,16 @@
                     if(isSelected) borderClass = "selected cursor-move";
                 }
                 
-                // Size
                 const sizeScale = t.size || 1;
-                const baseSize = 80; // px
+                const baseSize = 80; 
                 const sizePx = baseSize * sizeScale;
 
-                // Create Node
                 const div = document.createElement('div');
                 div.className = `table-node flex flex-col items-center justify-center text-white font-bold shadow-lg ${shapeClass} ${colorClass} ${borderClass}`;
                 div.style.left = t.x + '%';
                 div.style.top = t.y + '%';
                 div.style.width = sizePx + 'px';
                 div.style.height = sizePx + 'px';
-                // Adjust font size based on scale
                 div.style.fontSize = (16 * sizeScale) + 'px';
                 
                 div.id = `table-${t.id}`;
@@ -1419,7 +1605,6 @@
                     <span class="pointer-events-none">T-${t.id}</span>
                 `;
 
-                // Events
                 if (state.isLayoutEdit) {
                     div.addEventListener('mousedown', (e) => startDrag(e, t.id));
                     div.addEventListener('touchstart', (e) => startDrag(e, t.id), {passive: false});
@@ -1437,7 +1622,7 @@
         window.selectTable = (id) => {
             if(!state.isLayoutEdit) return;
             state.selectedTableId = id;
-            renderTableMap(); // Re-render to show selection border
+            renderTableMap(); 
         };
 
         window.deselectTable = () => {
@@ -1460,7 +1645,6 @@
                     document.getElementById('prop-id').innerText = "T-" + t.id;
                     document.getElementById('prop-size').value = t.size || 1;
                     
-                    // Highlight active shape button
                     const btnRound = document.getElementById('btn-shape-round');
                     const btnRect = document.getElementById('btn-shape-rect');
                     if(t.shape === 'rect') {
@@ -1495,14 +1679,10 @@
             }
         };
 
-        // DRAG LOGIC
         window.startDrag = (e, tId) => {
             if(!state.isLayoutEdit) return;
-            // Only start drag if not strictly clicking controls (handled by mousedown/touch default)
-            // But we need stopPropagation on click to prevent deselect. Handled in onclick.
             e.preventDefault();
             
-            // Auto select on drag start
             if(state.selectedTableId !== tId) {
                 state.selectedTableId = tId;
                 renderTableMap();
@@ -1517,7 +1697,6 @@
             const rect = el.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
 
-            // Offset within the element
             const offsetX = startX - rect.left;
             const offsetY = startY - rect.top;
 
@@ -1527,22 +1706,18 @@
                 const clientX = moveEvent.type.includes('mouse') ? moveEvent.clientX : moveEvent.touches[0].clientX;
                 const clientY = moveEvent.type.includes('mouse') ? moveEvent.clientY : moveEvent.touches[0].clientY;
 
-                // Calc new position relative to container
                 let newLeft = clientX - state.dragItem.containerRect.left - state.dragItem.offsetX;
                 let newTop = clientY - state.dragItem.containerRect.top - state.dragItem.offsetY;
 
-                // Convert to percentage
                 let percentX = (newLeft / state.dragItem.containerRect.width) * 100;
                 let percentY = (newTop / state.dragItem.containerRect.height) * 100;
 
-                // Boundaries (0-90%)
                 percentX = Math.max(0, Math.min(90, percentX));
                 percentY = Math.max(0, Math.min(90, percentY));
 
                 el.style.left = percentX + '%';
                 el.style.top = percentY + '%';
                 
-                // Update State (temporary)
                 table.x = percentX;
                 table.y = percentY;
             };
@@ -1561,14 +1736,12 @@
             document.addEventListener('touchend', upHandler);
         };
 
-        // EDIT MODE CONTROLS
         window.toggleLayoutEdit = () => {
             state.isLayoutEdit = !state.isLayoutEdit;
             const btn = document.getElementById('btn-edit-layout');
             const controls = document.getElementById('layout-edit-controls');
-            // const hint = document.getElementById('edit-hint'); // Removed old hint
             
-            state.selectedTableId = null; // Clear selection on toggle
+            state.selectedTableId = null;
 
             if(state.isLayoutEdit) {
                 btn.classList.add('bg-dark-700', 'text-white');
@@ -1583,27 +1756,22 @@
         };
 
         window.addNewTable = () => {
-            // FIX: Ensure ID is always unique by checking existing IDs
             const maxId = state.tables.reduce((max, t) => Math.max(max, parseInt(t.id) || 0), 0);
             const newId = String(maxId + 1);
             
             const shapeSelect = document.getElementById('new-table-shape');
             const shape = shapeSelect ? shapeSelect.value : 'round';
 
-            // Add to center of screen (45%, 45%) so it's visible
             state.tables.push({ id: newId, x: 45, y: 45, shape: shape, size: 1 });
             renderTableMap();
             
-            // Auto select the new table
             state.selectedTableId = newId;
             renderTableMap();
             showToast(`Table ${newId} Added!`, "success");
         };
 
-        // --- IMPROVED SAVE LAYOUT FUNCTION ---
         window.saveLayout = async () => {
             const btn = document.getElementById('btn-save-layout');
-            // Fallback: If ID isn't found, try finding by parent
             const targetBtn = btn || document.querySelector('#layout-edit-controls button:last-child');
             
             if(!targetBtn) return alert("Error: Save button not found. Please refresh the page.");
@@ -1614,7 +1782,6 @@
             targetBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
             try {
-                // Data cleaning: Ensure only necessary fields are saved and types are correct
                 const cleanTables = state.tables.map(t => ({
                     id: String(t.id),
                     x: Number(t.x) || 0,
@@ -1623,16 +1790,14 @@
                     size: Number(t.size) || 1
                 }));
                 
-                console.log("Saving tables:", cleanTables); // For debugging
-
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config_tables'), { 
+                // FIXED: Used 6 segments path here as well
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config_tables', 'main_layout'), { 
                     tables: cleanTables,
                     updatedAt: serverTimestamp() 
                 });
                 
                 showToast("Layout Saved Successfully!", "success");
                 
-                // Exit edit mode after a short delay
                 setTimeout(() => {
                     if(state.isLayoutEdit) window.toggleLayoutEdit(); 
                 }, 500);
@@ -1641,7 +1806,6 @@
                 console.error("Save failed:", e); 
                 showToast("Save failed. Check console.", "error"); 
             } finally {
-                // Restore button state
                 if(targetBtn) {
                     targetBtn.innerHTML = originalContent;
                     targetBtn.disabled = false;
@@ -1650,7 +1814,6 @@
             }
         };
 
-        // NEW: Toast Notification Function
         window.showToast = (msg, type='success') => {
             const div = document.createElement('div');
             const color = type === 'success' ? 'bg-green-600' : 'bg-red-600';
@@ -1661,13 +1824,11 @@
             
             document.body.appendChild(div);
             
-            // Play notification sound if successful
             if(type === 'success') {
                 const audio = document.getElementById('notif-sound');
                 if(audio) audio.play().catch(()=>{});
             }
 
-            // Remove after 3 seconds
             setTimeout(() => {
                 div.style.transition = 'opacity 0.5s, transform 0.5s';
                 div.style.opacity = '0';
@@ -1676,8 +1837,6 @@
             }, 3000);
         };
         
-        // REMOVED OLD editTableProperties due to new UI
-
         window.startPOSMode = (tId) => {
             state.tableId = tId;
             state.isPOSMode = true;
@@ -1698,8 +1857,6 @@
             document.getElementById('pos-mode-header').classList.add('hide');
             switchMode('admin');
         };
-
-        // --- END POS LOGIC ---
 
         init();
     </script>
