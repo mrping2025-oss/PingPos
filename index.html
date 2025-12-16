@@ -75,11 +75,30 @@
         .table-node.editing:hover { border-color: white; }
         .table-node.selected { border: 2px solid #34D399; box-shadow: 0 0 15px rgba(52, 211, 153, 0.5); z-index: 50; }
 
-        /* Print Styles */
+        /* Print Styles - OPTIMIZED FOR ALL DEVICES */
         @media print { 
-            body * { visibility: hidden; } 
-            #receipt-print-area, #receipt-print-area * { visibility: visible; } 
-            #receipt-print-area { position: absolute; left: 0; top: 0; width: 100% !important; display: block !important; margin: 0; padding: 0; background-color: white; color: black; } 
+            @page { margin: 0; size: auto; }
+            body, html { height: auto; background-color: white !important; overflow: visible !important; }
+            
+            /* Hide EVERYTHING by default */
+            body * { visibility: hidden; }
+            #app-container, #main-nav, #bg-canvas, .fixed, .page-view, #modal-qr, #modal-checkout { display: none !important; }
+            
+            /* Only show the print area */
+            #receipt-print-area { 
+                display: block !important; 
+                visibility: visible !important; 
+                position: absolute !important; 
+                left: 0 !important; 
+                top: 0 !important; 
+                width: 100% !important; 
+                margin: 0 !important; 
+                padding: 10px !important; 
+                background-color: white !important; 
+                color: black !important; 
+                z-index: 9999;
+            }
+            #receipt-print-area * { visibility: visible !important; color: black !important; }
             .no-print { display: none !important; } 
         }
         
@@ -293,7 +312,6 @@
         </div>
 
         <!-- === SCREEN: ANALYTICS (FULL PAGE) === -->
-        <!-- ... Analytics HTML (Retained) ... -->
         <div id="screen-analytics" class="page-view hide animate-slide-in">
              <div class="p-4 border-b border-dark-700 flex justify-between items-center bg-dark-800 sticky top-0 z-20">
                 <div class="flex items-center gap-3">
@@ -330,7 +348,7 @@
                      <p class="text-[10px] uppercase font-bold text-dark-muted mb-4 tracking-widest"><i class="fas fa-calendar-alt mr-1"></i> <span id="rpt-period-label">Today</span></p>
                      
                      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <!-- Net Profit (Hero Card) - Transparent & Glowing -->
+                         <!-- Net Profit (Hero Card) - Transparent & Glowing -->
                          <div class="col-span-2 bg-emerald-900/30 backdrop-blur-md rounded-[2rem] p-6 shadow-[0_0_20px_rgba(16,185,129,0.4)] border border-emerald-500/50 relative overflow-hidden group transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.6)]">
                              <div class="absolute right-[-20px] bottom-[-20px] opacity-20 transform rotate-12 transition group-hover:scale-110 duration-700">
                                  <i class="fas fa-wallet text-9xl text-emerald-400"></i>
@@ -881,19 +899,7 @@
 
     <!-- Hidden Receipt -->
     <div id="receipt-print-area" class="hide font-mono text-sm p-4 bg-white max-w-[300px]">
-        <div class="text-center mb-2"><h2 class="text-xl font-bold text-black" id="rcp-title">PingPOS</h2></div>
-        <div class="text-center mb-4 border-b-2 border-black pb-2"><h3 class="text-lg font-bold text-black" id="rcp-type">RECEIPT</h3></div>
-        <div class="border-b border-black pb-2 mb-2 flex justify-between text-xs font-bold text-black"><span id="rcp-id">#000</span><span id="rcp-date"></span></div>
-        <div class="text-center text-lg font-bold mb-4 border-b-2 border-black pb-2 text-black">Table <span id="rcp-table"></span></div>
-        <table class="w-full text-left mb-4 text-xs text-black">
-            <thead><tr class="border-b border-gray-400"><th class="py-1">Item</th><th class="py-1 text-right" id="rcp-th-amt">Amt</th></tr></thead>
-            <tbody id="rcp-items"></tbody>
-        </table>
-        <!-- RECEIPT SUMMARY -->
-        <div id="rcp-footer-section" class="border-t-2 border-black pt-2 text-black">
-             <div id="rcp-calc-lines" class="text-xs mb-2 flex flex-col items-end"></div>
-             <div class="flex justify-between font-bold text-lg border-t border-black pt-2"><span>TOTAL</span><span id="rcp-total"></span></div>
-        </div>
+        <!-- Receipt Content Injected via JS -->
     </div>
     
     <!-- === MODAL: ANALYTICS DETAIL (New Modal) === -->
@@ -1453,6 +1459,9 @@
                 }
                 isInitialLoad = false;
                 renderAdminOrders();
+                
+                // Refresh table map if active so status changes (red->green) show immediately
+                if(!document.getElementById('screen-tables').classList.contains('hide')) window.renderTableMap();
             });
             
              onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'expenses'), (snapshot) => {
@@ -2734,73 +2743,158 @@
         };
         
         window.generateQR=()=>{ const t=document.getElementById('qr-table-num').value; document.getElementById('qr-container').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href.split('?')[0]+'?table='+t)}">`; };
-        window.printQR=()=>{ const w=window.open('','','height=400,width=400'); w.document.write('<html><body style="text-align:center">'+document.getElementById('qr-container').innerHTML+'</body></html>'); w.document.close(); w.print(); };
+        
+        // --- PRINTING FUNCTIONS UPDATE ---
+        
+        // Updated Print QR
+        window.printQR = () => { 
+            const qrContent = document.getElementById('qr-container').innerHTML;
+            const tableNum = document.getElementById('qr-table-num').value;
+            
+            const printArea = document.getElementById('receipt-print-area');
+            
+            // Build a simple layout for the QR print inside the main receipt area
+            printArea.innerHTML = `
+                <div style="text-align:center; padding-top: 20px; font-family: sans-serif;">
+                    <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">PingPOS</h1>
+                    <h2 style="font-size: 18px; margin-bottom: 20px;">Table ${tableNum}</h2>
+                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">${qrContent}</div>
+                    <p style="margin-top: 20px; font-size: 12px;">Scan to Order</p>
+                </div>
+            `;
+            
+            triggerPrint();
+        };
+
+        // Updated Print Ticket
         window.printTicket = (id, type) => {
             const o = state.orders.find(x => x.id === id); if(!o) return;
             
-            document.getElementById('rcp-id').innerText = '#' + id.slice(0,4).toUpperCase();
-            document.getElementById('rcp-table').innerText = o.tableId;
-            document.getElementById('rcp-date').innerText = new Date().toLocaleDateString(state.lang); 
+            // Show Feedback
+            window.showMessage("Printing...", "success");
+
+            const printArea = document.getElementById('receipt-print-area');
+            const dateStr = new Date().toLocaleString(state.lang);
             
+            let headerTitle = "RECEIPT";
             let headerExtra = "";
+            
             if (o.orderType === 'takeaway') {
-                headerExtra = "<br><span style='font-size: 1.2em; font-weight: 800; border: 2px solid black; padding: 2px 5px; display: inline-block; margin-top: 5px;'>[ " + (resources[state.lang]['takeaway'] || 'TAKEAWAY').toUpperCase() + " ]</span>";
+                headerExtra = `<div style="margin-top: 5px; border: 2px solid black; padding: 5px; font-weight: bold; display: inline-block;">${(resources[state.lang]['takeaway'] || 'TAKEAWAY').toUpperCase()}</div>`;
             }
 
             if (type === 'kitchen') {
-                document.getElementById('rcp-type').innerHTML = (resources[state.lang]['kitchen_ticket'] || "KITCHEN TICKET").toUpperCase() + headerExtra;
-                document.getElementById('rcp-th-amt').classList.add('hide'); 
-                document.getElementById('rcp-footer-section').classList.add('hide'); 
+                headerTitle = resources[state.lang]['kitchen_ticket'] || "KITCHEN TICKET";
+            }
+
+            // Build Receipt HTML manually for better control
+            let itemsHtml = o.items.map(i => {
+                let mods = i.modifiers && i.modifiers.length ? `<div style="font-size: 10px; color: #444; margin-left: 10px;">- ${i.modifiers.join(', ')}</div>` : '';
+                let remarks = i.remarks ? `<div style="font-size: 11px; font-weight: bold; font-style: italic; margin-left: 10px;">** ${i.remarks} **</div>` : '';
+                let priceHtml = type === 'kitchen' ? '' : `<td style="text-align: right; vertical-align: top;">${i.lineTotal.toLocaleString()}</td>`;
                 
-                document.getElementById('rcp-items').innerHTML = o.items.map(i => 
-                    `<tr>
-                        <td class="py-1 font-bold" colspan="2" style="font-size: 1.1em">${i.name} ${i.size ? `(${i.size})` : ''} x${i.qty}</td>
-                     </tr>
-                     ${i.modifiers.length ? `<tr><td colspan="2" class="text-[10px] text-gray-500 pb-2">(${i.modifiers.join(', ')})</td></tr>` : ''}
-                     ${i.remarks ? `<tr><td colspan="2" class="text-xs font-bold italic pb-2">** ${i.remarks} **</td></tr>` : '<tr><td colspan="2" class="pb-2"></td></tr>'}`
-                ).join('');
-                
-            } else {
-                document.getElementById('rcp-type').innerHTML = (resources[state.lang]['receipt'] || "RECEIPT").toUpperCase() + headerExtra;
-                document.getElementById('rcp-th-amt').classList.remove('hide');
-                document.getElementById('rcp-footer-section').classList.remove('hide');
-                
-                const subtotal = o.subtotal || o.totalPrice; 
+                return `
+                    <tr style="border-bottom: 1px dashed #ccc;">
+                        <td style="padding: 5px 0; vertical-align: top;">
+                            <div style="font-weight: bold; font-size: ${type==='kitchen'?'16px':'14px'}">${i.qty} x ${i.name} ${i.size ? `(${i.size})` : ''}</div>
+                            ${mods}
+                            ${remarks}
+                        </td>
+                        ${priceHtml}
+                    </tr>
+                `;
+            }).join('');
+
+            let footerHtml = '';
+            if (type !== 'kitchen') {
+                const subtotal = o.subtotal || o.totalPrice;
                 const discount = o.discount || 0;
                 const tax = o.tax || 0;
                 
-                let calcHtml = "";
-                if(discount > 0 || tax > 0) {
-                     calcHtml += `<span>Subtotal: ${subtotal.toLocaleString()}</span>`;
-                     if(discount > 0) calcHtml += `<span>Discount: -${discount.toLocaleString()}</span>`;
-                     if(tax > 0) calcHtml += `<span>Tax: +${tax.toLocaleString()}</span>`;
-                }
-                document.getElementById('rcp-calc-lines').innerHTML = calcHtml;
-
-                document.getElementById('rcp-footer-section').querySelector('#rcp-total').innerText = o.totalPrice.toLocaleString() + ' Ks';
-                document.getElementById('rcp-th-amt').innerText = (resources[state.lang]['amount'] || 'Amt').toUpperCase();
-                
-                document.getElementById('rcp-items').innerHTML = o.items.map(i => 
-                    `<tr>
-                        <td class="py-1">${i.name} ${i.size ? `(${i.size})` : ''} x${i.qty}</td>
-                        <td class="py-1 text-right">${i.lineTotal.toLocaleString()}</td>
-                     </tr>
-                     ${i.modifiers.length ? `<tr><td colspan="2" class="text-[10px] text-gray-500 pb-1">(${i.modifiers.join(', ')})</td></tr>` : ''}
-                     ${i.remarks ? `<tr><td colspan="2" class="text-[10px] italic pb-1">Note: ${i.remarks}</td></tr>` : ''}`
-                ).join('');
+                footerHtml = `
+                    <div style="margin-top: 10px; border-top: 2px solid black; padding-top: 5px;">
+                        ${discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Subtotal:</span><span>${subtotal.toLocaleString()}</span></div>` : ''}
+                        ${discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Discount:</span><span>-${discount.toLocaleString()}</span></div>` : ''}
+                        ${tax > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Tax:</span><span>+${tax.toLocaleString()}</span></div>` : ''}
+                        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 5px;">
+                            <span>${resources[state.lang]['total'] || 'TOTAL'}</span>
+                            <span>${o.totalPrice.toLocaleString()} Ks</span>
+                        </div>
+                    </div>
+                `;
             }
-            
-            setTimeout(() => window.print(), 100);
+
+            printArea.innerHTML = `
+                <div style="font-family: monospace, sans-serif; width: 100%; max-width: 300px; margin: 0 auto; color: black;">
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <h2 style="font-size: 20px; font-weight: bold; margin: 0;">PingPOS</h2>
+                        <h3 style="font-size: 16px; margin: 5px 0;">${headerTitle}</h3>
+                        ${headerExtra}
+                        <div style="font-size: 12px; margin-top: 5px; display: flex; justify-content: space-between;">
+                            <span>#${id.slice(0,4).toUpperCase()}</span>
+                            <span>${dateStr}</span>
+                        </div>
+                        <div style="font-size: 14px; font-weight: bold; border-bottom: 2px solid black; padding-bottom: 5px; margin-top: 5px;">
+                            ${resources[state.lang]['table'] || 'Table'}: ${o.tableId}
+                        </div>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                        ${itemsHtml}
+                    </table>
+                    
+                    ${footerHtml}
+                    
+                    <div style="text-align: center; margin-top: 20px; font-size: 10px;">
+                        Thank you!
+                    </div>
+                </div>
+            `;
+
+            triggerPrint();
         };
+
+        // Internal helper to handle the actual printing sequence
+        function triggerPrint() {
+            const printArea = document.getElementById('receipt-print-area');
+            
+            // 1. Unhide explicitly for the browser to render it
+            printArea.style.display = 'block';
+            
+            // 2. Small delay to ensure DOM update
+            setTimeout(() => {
+                window.print();
+                
+                // 3. Hide again after print dialog is triggered (Desktop) or closed (Mobile)
+                // Note: On mobile, script execution pauses, so this runs after returning.
+                // On desktop, it might run immediately, so we give it a healthy delay.
+                setTimeout(() => {
+                    printArea.style.display = 'none';
+                }, 1000);
+            }, 100);
+        }
         
         window.printReceipt = (id) => window.printTicket(id, 'customer');
 
-        const getOccupiedTables = () => { const busy = new Set(); state.orders.forEach(o => { if (o.status === 'pending' || o.status === 'cooking') busy.add(String(o.tableId)); }); return busy; };
+        const getOccupiedTables = () => { 
+            const busy = new Set(); 
+            state.orders.forEach(o => { 
+                // Table is occupied ONLY if order is pending or cooking. 
+                // 'served' means food is delivered, user wants it green (free).
+                if (['pending', 'cooking'].includes(o.status)) busy.add(String(o.tableId)); 
+            }); 
+            return busy; 
+        };
+
         window.renderTableMap = () => {
              const busyTables = getOccupiedTables(); const container = document.getElementById('table-map-container'); container.innerHTML = '';
+            
+            if(state.tables.length === 0) generateDefaultTables();
+
             if(!state.isLayoutEdit && state.selectedTableId) { state.selectedTableId = null; updatePropertiesPanel(); }
+            
             state.tables.forEach(t => {
-                const isBusy = busyTables.has(t.id); const isSelected = state.selectedTableId === t.id;
+                const isBusy = busyTables.has(String(t.id)); const isSelected = state.selectedTableId === String(t.id);
                 const shapeClass = t.shape === 'rect' ? 'rounded-lg aspect-square' : 'rounded-full aspect-square';
                 const colorClass = isBusy ? "bg-red-500 shadow-red-500/50" : "bg-green-500 shadow-green-500/50";
                 let borderClass = "cursor-pointer hover:brightness-110"; if (state.isLayoutEdit) { borderClass = "cursor-move border-2 border-dashed border-white/30"; if(isSelected) borderClass = "selected cursor-move"; }
@@ -2857,4 +2951,3 @@
     </script>
 </body>
 </html>
-
