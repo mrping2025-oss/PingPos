@@ -303,62 +303,69 @@
                 </div>
             </div>
             
-            <!-- REDESIGNED Add/Edit Form -->
-            <div class="p-6 bg-dark-800 m-4 rounded-2xl border border-dark-700">
-                <h4 class="font-bold text-white mb-4 text-sm uppercase tracking-wide border-b border-dark-700 pb-2" id="menu-form-title">Add New Item</h4>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Row 1 -->
-                    <div class="md:col-span-2">
-                        <label class="form-label">Name</label>
-                        <input id="new-prod-name" placeholder="Item Name" class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                    </div>
-                    <div>
-                        <label class="form-label">Price</label>
-                        <input id="new-prod-price" type="number" placeholder="Price" class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                    </div>
-                    
-                    <!-- Row 2 -->
-                    <div>
-                        <label class="form-label">Cost Price (COGS)</label>
-                        <input id="new-prod-cost" type="number" placeholder="Cost" class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                    </div>
-                    <div>
-                        <label class="form-label">Discount</label>
-                        <input id="new-prod-discount" type="number" placeholder="Discount" class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition text-green-400">
-                    </div>
-                    <div>
-                        <label class="form-label">Tax %</label>
-                        <input id="new-prod-tax" type="number" placeholder="Tax" class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition text-red-400">
-                    </div>
+            <!-- REDESIGNED & COLLAPSIBLE Add/Edit Form -->
+            <div class="m-4 rounded-2xl border border-dark-700 bg-dark-800 overflow-hidden transition-all duration-300">
+                <div onclick="toggleMenuForm()" id="menu-form-header" class="p-3 flex justify-between items-center cursor-pointer hover:bg-dark-700 transition select-none">
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wide flex items-center gap-3" id="menu-form-title">
+                        <span class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] text-white shadow-md"><i class="fas fa-plus"></i></span>
+                        <span data-i18n="add_item">Add New Item</span>
+                    </h4>
+                    <i class="fas fa-chevron-down text-dark-muted transition-transform duration-300" id="menu-form-chevron"></i>
+                </div>
+                
+                <div id="menu-form-content" class="hide border-t border-dark-700 p-4 bg-dark-800">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <!-- Row 1 -->
+                        <div class="col-span-2 md:col-span-2">
+                            <label class="form-label">Name</label>
+                            <input id="new-prod-name" placeholder="Item Name" class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
+                        </div>
+                        <div class="col-span-1 md:col-span-1">
+                            <label class="form-label">Price</label>
+                            <input id="new-prod-price" type="number" placeholder="Price" class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
+                        </div>
+                        <div class="col-span-1 md:col-span-1">
+                            <label class="form-label">Category</label>
+                            <select id="new-prod-category" class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition"><option value="Other">Other</option></select>
+                        </div>
 
-                    <!-- Row 3 -->
-                    <div class="md:col-span-3">
-                        <label class="form-label">Category</label>
-                        <select id="new-prod-category" class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition"><option value="Other">Other</option></select>
-                    </div>
+                        <!-- Row 2 (Nested Grid for Stats) -->
+                        <div class="col-span-2 md:col-span-4 grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="form-label">Cost (COGS)</label>
+                                <input id="new-prod-cost" type="number" placeholder="Cost" class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
+                            </div>
+                            <div>
+                                <label class="form-label">Discount</label>
+                                <input id="new-prod-discount" type="number" placeholder="Discount" class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition text-green-400">
+                            </div>
+                            <div>
+                                <label class="form-label">Tax %</label>
+                                <input id="new-prod-tax" type="number" placeholder="Tax" class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition text-red-400">
+                            </div>
+                        </div>
 
-                    <!-- Row 4 -->
-                    <div class="md:col-span-3">
-                        <label class="form-label">Image URL</label>
-                        <input id="new-prod-img" placeholder="http://..." class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                    </div>
+                        <!-- Row 3 -->
+                        <div class="col-span-2 md:col-span-4">
+                            <label class="form-label">Image URL</label>
+                            <input id="new-prod-img" placeholder="http://..." class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
+                        </div>
 
-                    <!-- Row 5 -->
-                    <div class="md:col-span-3">
-                        <label class="form-label">Options (comma separated)</label>
-                        <input id="new-prod-options" placeholder="Spicy, No MSG..." class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                    </div>
+                        <!-- Row 4 -->
+                        <div class="col-span-2 md:col-span-2">
+                            <label class="form-label">Options (comma sep)</label>
+                            <input id="new-prod-options" placeholder="Spicy, No MSG..." class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
+                        </div>
+                        <div class="col-span-2 md:col-span-2">
+                            <label class="form-label">Sizes (Name:Price)</label>
+                            <input id="new-prod-sizes" placeholder="Small:1000, Large:2000" class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
+                        </div>
 
-                    <!-- Row 6 -->
-                    <div class="md:col-span-3">
-                        <label class="form-label">Sizes (e.g., Small:1000, Large:2000)</label>
-                        <input id="new-prod-sizes" placeholder="Small:1000, Large:2000" class="w-full p-3 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                    </div>
-
-                    <!-- Row 7 -->
-                    <div class="md:col-span-3 pt-2">
-                        <button id="btn-save-prod" onclick="saveProduct()" class="w-full bg-primary text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-red-600 transition flex items-center justify-center gap-2 transform active:scale-[0.98]">Save Item</button>
-                        <button id="btn-cancel-edit" onclick="cancelEdit()" class="hide w-full mt-3 text-red-400 font-bold text-xs hover:text-white transition">Cancel Edit</button>
+                        <!-- Row 5 -->
+                        <div class="col-span-2 md:col-span-4 pt-1">
+                            <button id="btn-save-prod" onclick="saveProduct()" class="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-lg hover:bg-red-600 transition flex items-center justify-center gap-2 transform active:scale-[0.98]">Save Item</button>
+                            <button id="btn-cancel-edit" onclick="cancelEdit()" class="hide w-full mt-2 text-red-400 font-bold text-xs hover:text-white transition">Cancel Edit</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1791,9 +1798,32 @@
 
         window.toggleStock = async (id, currentStatus) => { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id), { isSoldOut: !currentStatus }); } catch(e) { console.error(e); } };
 
+        window.toggleMenuForm = (forceState = null) => {
+            const content = document.getElementById('menu-form-content');
+            const chevron = document.getElementById('menu-form-chevron');
+            const header = document.getElementById('menu-form-header');
+            
+            const isCurrentlyHidden = content.classList.contains('hide');
+            const shouldShow = forceState !== null ? forceState : isCurrentlyHidden;
+
+            if (shouldShow) {
+                content.classList.remove('hide');
+                chevron.style.transform = 'rotate(180deg)';
+                header.classList.add('bg-dark-700');
+            } else {
+                content.classList.add('hide');
+                chevron.style.transform = 'rotate(0deg)';
+                header.classList.remove('bg-dark-700');
+            }
+        };
+
         window.editProduct = (id) => {
             const p = state.products.find(x => x.id === id); if (!p) return;
             state.editingProductId = id;
+            
+            // Open the form
+            window.toggleMenuForm(true);
+
             document.getElementById('new-prod-name').value = p.name;
             document.getElementById('new-prod-price').value = p.price;
             document.getElementById('new-prod-cost').value = p.cost || '';
@@ -1813,7 +1843,7 @@
             const btn = document.getElementById('btn-save-prod');
             btn.innerText = "Update Item"; 
             
-            document.getElementById('menu-form-title').innerText = "Edit Item";
+            document.getElementById('menu-form-title').innerHTML = `<span class="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-[10px] text-white shadow-md"><i class="fas fa-pen"></i></span> Edit Item`;
             document.getElementById('btn-cancel-edit').classList.remove('hide');
             window.scrollToTop();
         };
@@ -1832,7 +1862,7 @@
             const btn = document.getElementById('btn-save-prod');
             btn.innerText = "Save Item"; 
             
-            document.getElementById('menu-form-title').innerText = "Add New Item";
+            document.getElementById('menu-form-title').innerHTML = `<span class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] text-white shadow-md"><i class="fas fa-plus"></i></span> <span data-i18n="add_item">Add New Item</span>`;
             document.getElementById('btn-cancel-edit').classList.add('hide');
         };
 
