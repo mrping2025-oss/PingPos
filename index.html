@@ -2859,22 +2859,23 @@
             const printArea = document.getElementById('receipt-print-area');
             
             // 1. Unhide explicitly for the browser to render it
+            // Important: We must remove the 'hide' class because it has !important
+            printArea.classList.remove('hide'); 
             printArea.style.display = 'block';
             
-            // 2. Small delay to ensure DOM update
+            // 2. Increased delay (500ms) to ensure DOM update works on slower Mobile CPUs
             setTimeout(() => {
                 window.print();
                 
-                // 3. Hide again after print dialog is triggered (Desktop) or closed (Mobile)
-                // Note: On mobile, script execution pauses, so this runs after returning.
-                // On desktop, it might run immediately, so we give it a healthy delay.
+                // 3. Hide again after print dialog is triggered
+                // Increased to 3000ms because Android takes time to generate the preview.
+                // If we hide it too soon, the preview becomes blank.
                 setTimeout(() => {
                     printArea.style.display = 'none';
-                }, 1000);
-            }, 100);
+                    printArea.classList.add('hide');
+                }, 3000);
+            }, 500);
         }
-        
-        window.printReceipt = (id) => window.printTicket(id, 'customer');
 
         const getOccupiedTables = () => { 
             const busy = new Set(); 
