@@ -1762,7 +1762,10 @@
                             <span class="text-[10px] bg-dark-700 text-dark-muted px-1.5 py-0.5 rounded border border-dark-600 uppercase font-bold tracking-wide">${p.category || 'Other'}</span>
                             ${disc > 0 ? `<span class="text-[10px] text-green-400 font-bold bg-green-900/20 px-1 rounded">-${disc}</span>` : ''}
                         </div>
-                        <div class="font-bold text-primary text-sm mt-1 font-mono">${p.price.toLocaleString()} Ks</div>
+                        <div class="font-bold text-primary text-sm mt-1 font-mono flex items-center gap-2">
+                            ${p.price.toLocaleString()} Ks
+                            ${tax > 0 ? `<span class="text-[9px] text-blue-400 border border-blue-500/30 px-1 rounded bg-blue-900/10">+${tax}% Tax</span>` : ''}
+                        </div>
                     </div>
 
                     <!-- Actions -->
@@ -2107,7 +2110,7 @@
             
             const basePrice = state.selectedProduct.price;
             const discountAmt = state.selectedProduct.discount || 0;
-            const taxRate = state.selectedProduct.tax || 0;
+            const taxRate = parseFloat(state.selectedProduct.tax) || 0;
             
             const taxableAmount = basePrice - discountAmt;
             const taxAmount = Math.round(taxableAmount * (taxRate / 100));
@@ -2134,7 +2137,7 @@
             const c = state.cart.reduce((a,i)=>a+i.qty,0);
             document.getElementById('cart-count').innerText = c;
             const rawTotal = state.cart.reduce((a,i)=>a+i.lineTotal,0);
-            document.getElementById('cart-total').innerText = rawTotal + " Ks";
+            document.getElementById('cart-total').innerText = rawTotal.toLocaleString() + " Ks";
             const bar = document.getElementById('cart-bar');
             if(c>0) bar.classList.remove('translate-y-[200%]'); else bar.classList.add('translate-y-[200%]');
         }
@@ -2152,21 +2155,25 @@
             window.setOrderType('dine_in');
             
             document.getElementById('checkout-items').innerHTML = state.cart.map((item,i)=>`
-                <div class="flex justify-between items-start bg-dark-800 p-3 rounded-2xl border border-dark-700 shadow-sm">
+                <div class="flex justify-between items-start bg-dark-800 p-3 rounded-2xl border border-dark-700 shadow-sm relative group">
                     <div class="flex gap-3">
-                        <div class="font-bold bg-dark-900 w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs border border-dark-700">${item.qty}x</div>
-                        <div>
-                            <p class="font-bold text-sm text-white">${item.name} ${item.size ? `<span class="text-xs text-primary bg-primary/10 px-1 rounded ml-1">${item.size}</span>` : ''}</p>
-                            <p class="text-[10px] text-dark-muted mt-0.5">${item.modifiers.join(', ')}</p>
-                            ${item.discount > 0 ? `<p class="text-[10px] text-green-400 mt-0.5"><i class="fas fa-tag"></i> Discount: -${item.discount * item.qty} Ks</p>` : ''}
-                            ${item.taxAmount > 0 ? `<p class="text-[10px] text-red-400 mt-0.5"><i class="fas fa-file-invoice-dollar"></i> Tax (${item.taxRate}%): +${item.taxAmount * item.qty} Ks</p>` : ''}
-                            ${item.remarks ? `<p class="text-[10px] text-orange-400 italic mt-0.5">"${item.remarks}"</p>` : ''}
+                        <div class="font-bold bg-dark-900 w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs border border-dark-700 shrink-0">${item.qty}x</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm text-white truncate">${item.name} ${item.size ? `<span class="text-xs text-primary bg-primary/10 px-1 rounded ml-1">${item.size}</span>` : ''}</p>
+                            <p class="text-[10px] text-dark-muted mt-0.5 truncate">${item.modifiers.join(', ')}</p>
+                            
+                            <!-- Detailed Breakdown -->
+                            <div class="mt-1 flex flex-col gap-0.5">
+                                ${item.discount > 0 ? `<p class="text-[10px] text-green-400 font-mono"><i class="fas fa-tag mr-1"></i>-${(item.discount * item.qty).toLocaleString()} Ks</p>` : ''}
+                                ${item.taxAmount > 0 ? `<p class="text-[10px] text-blue-400 font-mono"><i class="fas fa-percentage mr-1"></i>Tax (${item.taxRate}%): +${(item.taxAmount * item.qty).toLocaleString()} Ks</p>` : ''}
+                                ${item.remarks ? `<p class="text-[10px] text-orange-400 italic break-words">"${item.remarks}"</p>` : ''}
+                            </div>
                         </div>
                     </div>
-                    <div class="flex flex-col items-end gap-1">
-                        ${item.discount > 0 ? `<span class="text-xs text-gray-500 line-through">${(item.price * item.qty).toLocaleString()}</span>` : ''}
-                        <span class="font-bold text-sm text-white">${item.lineTotal.toLocaleString()}</span>
-                        <button onclick="window.removeFromCart(${i})" class="text-red-400 text-xs bg-red-900/20 px-2 py-1 rounded-md hover:bg-red-900/40 transition mt-1"><i class="fas fa-trash"></i></button>
+                    <div class="flex flex-col items-end gap-1 pl-2">
+                        ${item.discount > 0 ? `<span class="text-[10px] text-gray-500 line-through decoration-red-500">${(item.price * item.qty).toLocaleString()}</span>` : ''}
+                        <span class="font-bold text-sm text-white font-mono">${item.lineTotal.toLocaleString()}</span>
+                        <button onclick="window.removeFromCart(${i})" class="text-red-400 text-xs bg-red-900/20 w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-900/40 transition mt-1"><i class="fas fa-trash text-[10px]"></i></button>
                     </div>
                 </div>`).join('');
             
