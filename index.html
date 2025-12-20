@@ -938,9 +938,13 @@
                             class="fas fa-arrow-left"></i></button>
                     <h3 class="font-bold text-xl text-white" data-i18n="expenses">Expenses</h3>
                 </div>
-                <button onclick="openAddExpenseModal()"
-                    class="bg-red-600 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition"><i
-                        class="fas fa-plus"></i></button>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearAllExpenses()"
+                        class="bg-dark-900 border border-red-500/50 text-red-400 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-full text-[10px] font-bold transition">Clear All</button>
+                    <button onclick="openAddExpenseModal()"
+                        class="bg-red-600 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition"><i
+                            class="fas fa-plus"></i></button>
+                </div>
             </div>
 
             <div class="flex-1 overflow-y-auto p-5 pb-20">
@@ -949,6 +953,7 @@
                         <tr>
                             <th class="py-2 p-3">Date</th>
                             <th class="py-2 p-3">Description</th>
+                            <th class="py-2 p-3">Note</th>
                             <th class="py-2 text-right p-3">Amount</th>
                             <th class="py-2 text-center p-3">Action</th>
                         </tr>
@@ -1515,34 +1520,77 @@
         </div>
     </div>
 
-    <!-- === NEW MODAL: TRANSFER TABLE (UPDATED) === -->
-    <div id="modal-transfer" class="fixed inset-0 bg-black/80 z-[110] hide flex items-center justify-center p-4 backdrop-blur-sm">
+    <!-- === NEW MODAL: TRANSFER / MERGE TABLE (UPDATED) === -->
+    <div id="modal-transfer"
+        class="fixed inset-0 bg-black/80 z-[110] hide flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-dark-800 w-full max-w-sm rounded-[30px] shadow-2xl p-6 border border-dark-700 animate-slide-up">
-            <h3 class="font-bold text-lg text-white mb-1" data-i18n="transfer_table">Transfer Order</h3>
-            <p class="text-[10px] text-dark-muted mb-4 uppercase tracking-widest">Update Table or Order Type</p>
-            
-            <!-- Order Type Toggle -->
+            <h3 class="font-bold text-lg text-white mb-1" data-i18n="transfer_table">Update Order</h3>
+            <p class="text-[10px] text-dark-muted mb-4 uppercase tracking-widest">Transfer or Merge Order</p>
+
+            <div class="mb-4">
+                <label class="form-label">Update Type</label>
+                <div class="flex bg-dark-900 p-1 rounded-xl border border-dark-700">
+                    <button id="update-mode-transfer" onclick="window.setUpdateMode('transfer')"
+                        class="flex-1 py-2 rounded-lg text-[10px] font-bold bg-dark-700 text-white shadow-sm transition uppercase">Transfer
+                        (T-X)</button>
+                    <button id="update-mode-merge" onclick="window.setUpdateMode('merge')"
+                        class="flex-1 py-2 rounded-lg text-[10px] font-bold text-dark-muted hover:text-white transition uppercase">Merge
+                        Into</button>
+                </div>
+            </div>
+
             <label class="form-label">Order Type</label>
             <div class="flex bg-dark-900 p-1 rounded-xl border border-dark-700 mb-4">
-                <button id="tfr-type-dine" onclick="window.selectTransferType('dine_in')" class="flex-1 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                <button id="tfr-type-dine" onclick="window.selectTransferType('dine_in')"
+                    class="flex-1 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
                     <i class="fas fa-utensils"></i> <span data-i18n="dine_in">Dine In</span>
                 </button>
-                <button id="tfr-type-take" onclick="window.selectTransferType('takeaway')" class="flex-1 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                <button id="tfr-type-take" onclick="window.selectTransferType('takeaway')"
+                    class="flex-1 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
                     <i class="fas fa-shopping-bag"></i> <span data-i18n="takeaway">Takeaway</span>
                 </button>
             </div>
 
-            <!-- Table Grid -->
-            <label class="form-label">Select Table</label>
-            <div class="max-h-48 overflow-y-auto grid grid-cols-4 gap-2 mb-6 p-1 scrollbar-hide border border-dark-700/50 rounded-xl bg-dark-900/50" id="transfer-tables-grid">
-                <!-- Tables injected via JS -->
+            <label class="form-label">Select Target Table</label>
+            <div class="max-h-48 overflow-y-auto grid grid-cols-4 gap-2 mb-6 p-1 scrollbar-hide border border-dark-700/50 rounded-xl bg-dark-900/50"
+                id="transfer-tables-grid">
             </div>
 
-            <!-- Modal Footer -->
             <div class="flex gap-3 pt-2">
-                <button onclick="closeModal('modal-transfer')" class="flex-1 py-3 bg-dark-700 text-white rounded-xl font-bold text-sm" data-i18n="cancel">Cancel</button>
-                <button id="btn-confirm-transfer" onclick="window.executeTransfer()" class="flex-1 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-lg hover:bg-red-600 transition" data-i18n="confirm">Confirm</button>
+                <button onclick="closeModal('modal-transfer')"
+                    class="flex-1 py-3 bg-dark-700 text-white rounded-xl font-bold text-sm"
+                    data-i18n="cancel">Cancel</button>
+                <button id="btn-confirm-transfer" onclick="window.executeTransfer()"
+                    class="flex-1 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-lg hover:bg-red-600 transition"
+                    data-i18n="confirm">Confirm</button>
             </div>
+        </div>
+    </div>
+
+    <!-- NEW MODAL: PAYMENT SELECTION (NEW FEATURE) -->
+    <div id="modal-payment-selection"
+        class="fixed inset-0 bg-black/80 z-[110] hide flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-dark-800 w-full max-w-xs rounded-[30px] shadow-2xl p-6 border border-dark-700 animate-slide-up">
+            <h3 class="font-bold text-lg text-white mb-1">Confirm Payment</h3>
+            <p class="text-[10px] text-dark-muted mb-4 uppercase tracking-widest">Select payment method to finish</p>
+
+            <div class="space-y-2 mb-6">
+                <button onclick="window.confirmServedWithPayment('Cash')"
+                    class="w-full py-3 bg-green-600/20 text-green-400 border border-green-500/30 rounded-xl font-bold text-sm hover:bg-green-600 hover:text-white transition flex items-center justify-center gap-2"><i
+                        class="fas fa-money-bill-wave"></i> Cash</button>
+                <button onclick="window.confirmServedWithPayment('Bank Transfer')"
+                    class="w-full py-3 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl font-bold text-sm hover:bg-blue-600 hover:text-white transition flex items-center justify-center gap-2"><i
+                        class="fas fa-university"></i> Bank Transfer</button>
+                <button onclick="window.confirmServedWithPayment('Visa / Card')"
+                    class="w-full py-3 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-xl font-bold text-sm hover:bg-indigo-600 hover:text-white transition flex items-center justify-center gap-2"><i
+                        class="fas fa-credit-card"></i> Visa / Card</button>
+                <button onclick="window.confirmServedWithPayment('Other')"
+                    class="w-full py-3 bg-gray-700/50 text-gray-300 border border-gray-600 rounded-xl font-bold text-sm hover:bg-gray-600 hover:text-white transition flex items-center justify-center gap-2"><i
+                        class="fas fa-wallet"></i> Other</button>
+            </div>
+
+            <button onclick="closeModal('modal-payment-selection')"
+                class="w-full text-dark-muted text-xs font-bold py-2 hover:text-white">Cancel</button>
         </div>
     </div>
 
@@ -1550,9 +1598,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, setDoc, getDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Canvas Animation Script (Injected)
+        // Canvas Animation Script
         (function () {
             const canvas = document.getElementById('bg-canvas');
             const ctx = canvas.getContext('2d');
@@ -1637,23 +1685,18 @@
         const db = getFirestore(app);
         const appId = 'pingpos-production';
 
-        // Error Handler
-        window.onerror = function (msg, url, line) {
-            console.error(`Error: ${msg} at ${line}`);
-        };
-
-        // AUDIO SYSTEM - UPDATED
+        // AUDIO SYSTEM
         const sounds = {
-            classic: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3', // Desk Bell
-            digital: 'https://assets.mixkit.co/active_storage/sfx/1862/1862-preview.mp3', // Kitchen Beep
-            soft: 'https://assets.mixkit.co/active_storage/sfx/2559/2559-preview.mp3',    // Soft Chime
-            chime_up: 'https://assets.mixkit.co/active_storage/sfx/2744/2744-preview.mp3', // Positive Chime
-            clash: 'https://assets.mixkit.co/active_storage/sfx/2908/2908-preview.mp3',    // Metal Clash
-            pop_alert: 'https://assets.mixkit.co/active_storage/sfx/2405/2405-preview.mp3', // Pop Alert
-            bell_ring: 'https://assets.mixkit.co/active_storage/sfx/1206/1206-preview.mp3', // Telephone Ring
-            fanfare: 'https://assets.mixkit.co/active_storage/sfx/2850/2850-preview.mp3', // Triumphal Ding
-            cute_jingle: 'https://assets.mixkit.co/active_storage/sfx/3506/3506-preview.mp3', // Cute Music
-            victory_song: 'https://assets.mixkit.co/active_storage/sfx/1310/1310-preview.mp3' // Cute Song / Victory
+            classic: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
+            digital: 'https://assets.mixkit.co/active_storage/sfx/1862/1862-preview.mp3',
+            soft: 'https://assets.mixkit.co/active_storage/sfx/2559/2559-preview.mp3',
+            chime_up: 'https://assets.mixkit.co/active_storage/sfx/2744/2744-preview.mp3',
+            clash: 'https://assets.mixkit.co/active_storage/sfx/2908/2908-preview.mp3',
+            pop_alert: 'https://assets.mixkit.co/active_storage/sfx/2405/2405-preview.mp3',
+            bell_ring: 'https://assets.mixkit.co/active_storage/sfx/1206/1206-preview.mp3',
+            fanfare: 'https://assets.mixkit.co/active_storage/sfx/2850/2850-preview.mp3',
+            cute_jingle: 'https://assets.mixkit.co/active_storage/sfx/3506/3506-preview.mp3',
+            victory_song: 'https://assets.mixkit.co/active_storage/sfx/1310/1310-preview.mp3'
         };
 
         let soundState = {
@@ -1682,11 +1725,8 @@
             document.getElementById('silence-btn').classList.add('hide');
         };
 
-        window.playSingleBeep = () => {
-            if (!soundState.enabled) return;
-            const tempAudio = new Audio(sounds[soundState.choice]);
-            tempAudio.play().catch(() => { });
-        };
+        // playSingleBeep disabled for non-essential actions as requested
+        window.playSingleBeep = () => { };
 
         window.openSettingsModal = () => {
             document.getElementById('modal-settings').classList.remove('hide');
@@ -1718,101 +1758,17 @@
                 dine_in: "Dine In", takeaway: "Takeaway", hero_title: "Hungry? 😋", hero_subtitle: "Order something good!", table: "TABLE", loading: "Loading Menu...", no_items: "No items available yet.", total: "TOTAL", view_order: "VIEW ORDER", kitchen_display: "Kitchen Display", kitchen_clear: "Kitchen is clear", exit: "Exit", menu: "Menu", select_category: "Select Category", staff_access: "Staff Access", staff_only: "Kitchen Management Only", login: "Login", cancel: "Cancel", update_pin: "Update PIN", save_pin: "Save New PIN", customize: "Customize Order", add_to_order: "Add to Order", your_tray: "Your Tray", check_items: "Check your items", total_amount: "Total Amount", confirm: "Confirm", menu_manager: "Menu Manager", add_item: "Add Item", update_item: "Update Item", cancel_edit: "Cancel Edit", analytics: "Analytics", overview: "Overview", history: "History", top_items: "Top Items", date: "Date:", total_revenue: "Total Revenue", total_orders: "Total Orders", orders_selected: "Orders for Selected Date", clear_all: "Clear All", time: "Time", top_selected: "Top Items for Selected Date", table_qr: "Table QR", generate: "Generate", print_qr: "Print QR Code", close: "Close", more: "More", hourly_sales: "Sales Trend", category_sales: "Category Sales", order_type: "Order Type", sold_out: "SOLD OUT", available: "Available", pos_mode: "POS Mode", table_map: "Table Layout", select_table_msg: "Select a table to take order", free: "Free", occupied: "Occupied", remarks: "Special Requests", cancelled: "Cancelled", daily: "Daily", weekly: "Weekly", monthly: "Monthly", yearly: "Yearly",
                 Fried: "Fried", Curry: "Curry", Soup: "Soup", Salad: "Salad", Rice: "Rice", Noodle: "Noodle", Dessert: "Dessert", Drink: "Drink", Other: "Other", All: "All", view_list: "View List", view_chart: "View Chart", cancelled_orders: "Cancelled Orders", category_manager: "Category Manager", search_history_placeholder: "Search by Order ID/Table ID (e.g., #A12B or T-1)",
                 expenses: "Expenses", add_expense: "Add Expense", net_profit: "Net Profit", cogs: "COGS",
-                confirmation: "Confirmation", admin_action: "Admin Action Required", cancel_confirm: "Cancel Order?", remove_confirm: "Remove Item?", delete_confirm: "Delete Record?", delete_all_confirm: "Delete All History?", delete_category_confirm: "Delete Category?", delete_table_confirm: "Delete Table?", pin_prompt: "Enter PIN", saved_pin_success: "New PIN Saved", wrong_pin: "Wrong PIN", min_4_digits: "Min 4 digits required", cleared_success: "History Cleared", action_failed: "Action Failed", error: "Error",
-                transfer_table: "Transfer Order", select_target_table: "Select Target Table"
+                confirmation: "Confirmation", admin_action: "Admin Action Required", cancel_confirm: "Cancel Order?", remove_confirm: "Remove Item?", delete_confirm: "Delete Record?", delete_all_confirm: "Delete All History?", delete_category_confirm: "Delete Category?", delete_table_confirm: "Delete Table?", pin_prompt: "Enter PIN", saved_pin_success: "New PIN Saved", wrong_pin: "Wrong PIN", min_4_digits: "Min 4 digits required", cleared_success: "Action Completed Successfully", action_failed: "Action Failed", error: "Error",
+                transfer_table: "Update Order", select_target_table: "Select Target Table"
             },
             my: {
                 dine_in: "ထမင်းစားပွဲ", takeaway: "ပါဆယ်", hero_title: "ဗိုက်ဆာနေလား? 😋", hero_subtitle: "အရသာရှိတာလေး မှာလိုက်ပါ!", table: "စားပွဲ", loading: "မီနူးများ တင်နေသည်...", no_items: "ပစ္စည်း မရှိသေးပါ။", total: "စုစုပေါင်း", view_order: "မှာယူမှု ကြည့်ရန်", kitchen_display: "မီးဖိုချောင် ဖန်သားပြင်", kitchen_clear: "မီးဖိုချောင် ရှင်းလင်းသည်", exit: "ထွက်ရန်", menu: "မီနူး", select_category: "အမျိုးအစား ရွေးပါ", staff_access: "ဝန်ထမ်း ဝင်ရောက်မှု", staff_only: "မီးဖိုချောင် စီမံခန့်ခွဲရေးသာ", login: "ဝင်မည်", cancel: "ဖျက်သိမ်းမည်", update_pin: "PIN ပြောင်းလဲမည်", save_pin: "PIN အသစ် သိမ်းမည်", customize: "စိတ်ကြိုက်ပြင်ဆင်မည်", add_to_order: "မှာယူမှုတွင် ထည့်မည်", your_tray: "မှာယူထားသော စာရင်း", check_items: "ပစ္စည်းများ စစ်ဆေးပါ", total_amount: "စုစုပေါင်း ငွေပမာဏ", confirm: "အတည်ပြုမည်", menu_manager: "မီနူး စီမံခန့်ခွဲမှု", add_item: "ပစ္စည်းအသစ် ထည့်မည်", update_item: "ပစ္စည်း ပြင်မည်", cancel_edit: "ပြင်ဆင်မှု ဖျက်မည်", analytics: "ခွဲခြမ်းစိတ်ဖြာချက်", overview: "အကျဉ်းချုပ်", history: "မှတ်တမ်း", top_items: "အရောင်းရဆုံး ပစ္စည်းများ", date: "ရက်စွဲ:", total_revenue: "စုစုပေါင်း ဝင်ငွေ", total_orders: "စုစုပေါင်း မှာယူမှု", orders_selected: "ရွေးချယ်ထားသော မှာယူမှုများ", clear_all: "အားလုံး ဖျက်မည်", time: "အချိန်", top_selected: "အရောင်းရဆုံး ပစ္စည်းများ", table_qr: "စားပွဲ QR", generate: "ထုတ်လုပ်မည်", print_qr: "QR Code ပုံနှိပ်မည်", close: "ပိတ်မည်", more: "ပိုမို", hourly_sales: "ရောင်းအား အခြေအနေ", category_sales: "အမျိုးအစားအလိုက် ရောင်းအား", order_type: "မှာယူမှု အမျိုးအစား", sold_out: "ပစ္စည်းကုန်", available: "ရရှိနိုင်", pos_mode: "POS စနစ်", table_map: "စားပွဲ Layout", select_table_msg: "မှာယူရန် စားပွဲ ရွေးပါ", free: "လွတ်", occupied: "မအားသေး", remarks: "အထူး မှတ်ချက်", cancelled: "ဖျက်သိမ်းပြီး", daily: "နေ့စဉ်", weekly: "အပတ်စဉ်", monthly: "လစဉ်", yearly: "နှစ်စဉ်",
                 Fried: "ကြော်", Curry: "ဟင်း", Soup: "စွပ်ပြုတ်", Salad: "သုပ်", Rice: "ထမင်း", Noodle: "ခေါက်ဆွဲ", Dessert: "အချိုပွဲ", Drink: "အဖျော်ယမကာ", Other: "အခြား", All: "အားလုံး", view_list: "စာရင်းကြည့်မည်", view_chart: "ဇယားကြည့်မည်", cancelled_orders: "ဖျက်သိမ်းပြီးသော မှာယူမှုများ", category_manager: "အမျိုးအစား စီမံခန့်ခွဲမှု", search_history_placeholder: "မှာယူမှု နံပါတ်/စားပွဲနံပါတ် ဖြင့် ရှာဖွေပါ (ဥပမာ: #A12B သို့မဟုတ် T-1)",
                 expenses: "အသုံးစရိတ်များ", add_expense: "အသုံးစရိတ် ထည့်မည်", net_profit: "အသားတင် အမြတ်", cogs: "အရင်း",
-                confirmation: "အတည်ပြုချက်", admin_action: "စီမံခန့်ခွဲသူ လုပ်ဆောင်ချက် လိုအပ်", cancel_confirm: "မှာယူမှု ဖျက်သိမ်းမလား?", remove_confirm: "ပစ္စည်းဖယ်ရှားမလား?", delete_confirm: "မှတ်တမ်း ဖျက်မလား?", delete_all_confirm: "မှတ်တမ်းအားလုံး ဖျက်မလား?", delete_category_confirm: "အမျိုးအစား ဖျက်မလား?", delete_table_confirm: "စားပွဲ ဖျက်မလား?", pin_prompt: "PIN နံပါတ် ထည့်ပါ", saved_pin_success: "PIN အသစ် သိမ်းဆည်းပြီး", wrong_pin: "PIN နံပါတ် မှားယွင်း", min_4_digits: "အနည်းဆုံး ဂဏန်း ၄ လုံး လိုအပ်သည်", cleared_success: "မှတ်တမ်း ရှင်းလင်းပြီး", action_failed: "လုပ်ဆောင်ချက် မအောင်မြင်ပါ", error: "အမှား",
-                transfer_table: "စားပွဲ/အမျိုးအစား ပြောင်းမည်", select_target_table: "ရွှေ့မည့်စားပွဲရွေးပါ"
-            },
-            cn: {
-                dine_in: "堂食", takeaway: "外带", hero_title: "饿了吗? 😋", hero_subtitle: "点些好吃的吧!", table: "桌号", loading: "正在加载菜单...", no_items: "暂无商品。", total: "总计", view_order: "查看订单", kitchen_display: "厨房显示屏", kitchen_clear: "厨房清理完毕", exit: "退出", menu: "菜单", select_category: "选择类别", staff_access: "员工通道", staff_only: "仅限厨房管理", login: "登录", cancel: "取消", update_pin: "更新密码", save_pin: "保存新密码", customize: "定制订单", add_to_order: "添加到订单", your_tray: "您的餐盘", check_items: "检查您的商品", total_amount: "总金额", confirm: "确认", menu_manager: "菜单管理", add_item: "添加商品", update_item: "更新商品", cancel_edit: "取消编辑", analytics: "数据分析", overview: "总览", history: "历史记录", top_items: "畅销商品", date: "日期:", total_revenue: "总收入", total_orders: "总订单", orders_selected: "所选期间的订单", clear_all: "清除所有", time: "时间", top_selected: "所选期间的畅销商品", table_qr: "桌号二维码", generate: "生成", print_qr: "打印二维码", close: "关闭", more: "更多", hourly_sales: "销售趋势", category_sales: "类别销售", order_type: "订单类型", sold_out: "已售罄", available: "有货", pos_mode: "POS模式", table_map: "餐桌布局", select_table_msg: "选择一张桌子开始点餐", free: "空闲", occupied: "占用", remarks: "特殊要求", cancelled: "已取消", daily: "每日", weekly: "每周", monthly: "每月", yearly: "每年",
-                Fried: "油炸", Curry: "咖喱", Soup: "汤类", Salad: "沙拉", Rice: "米饭", Noodle: "面食", Dessert: "甜点", Drink: "饮料", Other: "其他", All: "全部", view_list: "查看列表", view_chart: "查看图表", cancelled_orders: "已取消的订单", category_manager: "类别管理", search_history_placeholder: "按订单/桌号搜索 (例如: #A12B 或 T-1)",
-                expenses: "开支", add_expense: "添加费用", net_profit: "净利润", cogs: "成本",
-                confirmation: "确认", admin_action: "需要管理员操作", cancel_confirm: "取消订单?", remove_confirm: "删除商品?", delete_confirm: "删除记录?", delete_all_confirm: "删除所有记录?", delete_category_confirm: "删除类别?", delete_table_confirm: "删除桌子?", pin_prompt: "输入密码", saved_pin_success: "新密码已保存", wrong_pin: "密码错误", min_4_digits: "最少 4 位数字", cleared_success: "记录已清除", action_failed: "操作失败", error: "错误",
-                transfer_table: "转单", select_target_table: "选择目标桌号"
-            },
-            ms: {
-                dine_in: "Makan Di Sini", takeaway: "Bawa Pulang", hero_title: "Lapar? 😋", hero_subtitle: "Pesanlah sesuatu yang enak!", table: "MEJA", loading: "Memuatkan Menu...", no_items: "Tiada barang tersedia.", total: "JUMLAH", view_order: "Lihat Pesanan", kitchen_display: "Paparan Dapur", kitchen_clear: "Dapur sudah sedia", exit: "Keluar", menu: "Menu", select_category: "Pilih Kategori", staff_access: "Akses Staf", staff_only: "Pengurusan Dapur Sahaja", login: "Log Masuk", cancel: "Batal", update_pin: "Kemas Kini PIN", save_pin: "Simpan PIN Baru", customize: "Sesuaikan Pesanan", add_to_order: "Tambah ke Pesanan", your_tray: "Dulang Anda", check_items: "Semak barang anda", total_amount: "Jumlah Amaun", confirm: "Sahkan", menu_manager: "Pengurus Menu", add_item: "Tambah Item", update_item: "Kemas Kini Item", cancel_edit: "Batal Suntingan", analytics: "Analitik", overview: "Gambaran Keseluruhan", history: "Sejarah", top_items: "Item Teratas", date: "Tarikh:", total_revenue: "Jumlah Hasil", total_orders: "Jumlah Pesanan", orders_selected: "Pesanan untuk Tempoh Dipilih", clear_all: "Padam Semua", time: "Masa", top_selected: "Item Teratas untuk Tempoh Dipilih", table_qr: "QR Meja", generate: "Jana", print_qr: "Cetak Kod QR", close: "Tutup", more: "Lebih Lanjut", hourly_sales: "Trend Jualan", category_sales: "Jualan Kategori", order_type: "Jenis Pesanan", sold_out: "HABIS DIJUAL", available: "Tersedia", pos_mode: "Mod POS", table_map: "Susun Atur Meja", select_table_msg: "Pilih meja untuk ambil pesanan", free: "Kosong", occupied: "Berisi", remarks: "Permintaan Khas", cancelled: "Dibatalkan", daily: "Harian", weekly: "Mingguan", monthly: "Bulanan", yearly: "Tahunan",
-                Fried: "Goreng", Curry: "Kari", Soup: "Sup", Salad: "Salad", Rice: "Nasi", Noodle: "Mee", Dessert: "Pencuci Mulut", Drink: "Minuman", Other: "Lain-lain", All: "Semua", view_list: "Lihat Senarai", view_chart: "Lihat Carta", cancelled_orders: "Pesanan Dibatalkan", category_manager: "Pengurus Kategori", search_history_placeholder: "Cari dengan ID Pesanan/ID Meja (cth: #A12B atau T-1)",
-                expenses: "Perbelanjaan", add_expense: "Tambah Perbelanjaan", net_profit: "Untung Bersih", cogs: "Kos Barangan",
-                confirmation: "Pengesahan", admin_action: "Tindakan Admin Diperlukan", cancel_confirm: "Batal Pesanan?", remove_confirm: "Buang Item?", delete_confirm: "Padam Rekod?", delete_all_confirm: "Padam Semua Sejarah?", delete_category_confirm: "Padam Kategori?", delete_table_confirm: "Padam Meja?", pin_prompt: "Masukkan PIN", saved_pin_success: "PIN Baru Disimpan", wrong_pin: "PIN Salah", min_4_digits: "Min 4 digit diperlukan", cleared_success: "Sejarah Dikosongkan", action_failed: "Tindakan Gagal", error: "Ralat",
-                transfer_table: "Pindah Pesanan", select_target_table: "Pilih Meja Sasaran"
+                confirmation: "အတည်ပြုချက်", admin_action: "စီမံခန့်ခွဲသူ လုပ်ဆောင်ချက် လိုအပ်", cancel_confirm: "မှာယူမှု ဖျက်သိမ်းမလား?", remove_confirm: "ပစ္စည်းဖယ်ရှားမလား?", delete_confirm: "မှတ်တမ်း ဖျက်မလား?", delete_all_confirm: "မှတ်တမ်းအားလုံး ဖျက်မလား?", delete_category_confirm: "အမျိုးအစား ဖျက်မလား?", delete_table_confirm: "စားပွဲ ဖျက်မလား?", pin_prompt: "PIN နံပါတ် ထည့်ပါ", saved_pin_success: "PIN အသစ် သိမ်းဆည်းပြီး", wrong_pin: "PIN နံပါတ် မှားယွင်း", min_4_digits: "အနည်းဆုံး ဂဏန်း ၄ လုံး လိုအပ်သည်", cleared_success: "အောင်မြင်စွာ လုပ်ဆောင်ပြီးပါပြီ", action_failed: "လုပ်ဆောင်ချက် မအောင်မြင်ပါ", error: "အမှား",
+                transfer_table: "မှာယူမှု ပြောင်းလဲမည်", select_target_table: "ရွှေ့မည့်စားပွဲရွေးပါ"
             }
         };
-
-        if (!resources.en.missing_name_price) resources.en.missing_name_price = "Missing Name or Price";
-        if (!resources.en.failed) resources.en.failed = "Failed";
-        if (!resources.en.removed) resources.en.removed = "Removed!";
-        if (!resources.en.cat_empty) resources.en.cat_empty = "Category name cannot be empty.";
-        if (!resources.en.cat_exists) resources.en.cat_exists = "Category already exists.";
-        if (!resources.en.not_connected) resources.en.not_connected = "Not Connected";
-        if (!resources.en.order_sent_success) resources.en.order_sent_success = "Order Sent Successfully!";
-        if (!resources.en.wrong_pin) resources.en.wrong_pin = "Wrong PIN";
-        if (!resources.en.saved) resources.en.saved = "Saved";
-        if (!resources.en.min_4_digits) resources.en.min_4_digits = "Min 4 digits required";
-        if (!resources.en.print) resources.en.print = "Print";
-        if (!resources.en.print_receipt) resources.en.print_receipt = "Print Receipt";
-        if (!resources.en.delete_order) resources.en.delete_order = "Delete Order";
-        if (!resources.en.cleared) resources.en.cleared = "Cleared";
-        if (!resources.en.kitchen_ticket) resources.en.kitchen_ticket = "Kitchen Ticket";
-        if (!resources.en.receipt) resources.en.receipt = "Receipt";
-        if (!resources.en.amount) resources.en.amount = "Amt";
-        if (!resources.en.order_items) resources.en.order_items = "Order Items";
-        if (!resources.en.order) resources.en.order = "Order";
-        if (!resources.en.cancelled_items) resources.en.cancelled_items = "Cancelled Items";
-        if (!resources.en.items_sold_in) resources.en.items_sold_in = "Items Sold In";
-        if (!resources.en.category) resources.en.category = "Category";
-        if (!resources.en.sold) resources.en.sold = "sold";
-        if (!resources.en.revenue) resources.en.revenue = "Revenue";
-        if (!resources.en.no_sales_data) resources.en.no_sales_data = "No sales data for this period";
-        if (!resources.en.select_table_to_edit) resources.en.select_table_to_edit = "Select table to edit properties.";
-        if (!resources.en.selected_week) resources.en.selected_week = "Selected Week";
-        if (!resources.en.cleared_success) resources.en.cleared_success = "Success!";
-        if (!resources.en.action_failed) resources.en.action_failed = "Action Failed";
-        if (!resources.en.login_success) resources.en.login_success = "Login Successful";
-        if (!resources.en.saved_pin_success) resources.en.saved_pin_success = "New PIN Saved";
-        if (!resources.en.cannot_delete_default) resources.en.cannot_delete_default = "Cannot delete default categories.";
-        if (!resources.en.orders_for) resources.en.orders_for = "Orders for";
-        if (!resources.en.no_detailed_records) resources.en.no_detailed_records = "No detailed records found.";
-
-        if (!resources.my.missing_name_price) resources.my.missing_name_price = "အမည် သို့မဟုတ် ဈေးနှုန်း မပြည့်စုံပါ။";
-        if (!resources.my.failed) resources.my.failed = "မအောင်မြင်ပါ";
-        if (!resources.my.removed) resources.my.removed = "ဖယ်ရှားပြီး";
-        if (!resources.my.cat_empty) resources.my.cat_empty = "အမျိုးအစားအမည် ထည့်သွင်းပါ။";
-        if (!resources.my.cat_exists) resources.my.cat_exists = "ဤအမျိုးအစား ရှိပြီးသားဖြစ်ပါသည်။";
-        if (!resources.my.not_connected) resources.my.not_connected = "ချိတ်ဆက်မထားပါ";
-        if (!resources.my.order_sent_success) resources.my.order_sent_success = "မှာယူမှု အောင်မြင်စွာ ပေးပို့ပြီးပါပြီ!";
-        if (!resources.my.wrong_pin) resources.my.wrong_pin = "PIN နံပါတ် မှားယွင်း";
-        if (!resources.my.saved) resources.my.saved = "သိမ်းဆည်းပြီးပါပြီ";
-        if (!resources.my.min_4_digits) resources.my.min_4_digits = "အနည်းဆုံး ဂဏန်း ၄ လုံး လိုအပ်သည်";
-        if (!resources.my.print) resources.my.print = "ပုံနှိပ်ရန်";
-        if (!resources.my.print_receipt) resources.my.print_receipt = "ငွေတောင်းခံလွှာ ပုံနှိပ်မည်";
-        if (!resources.my.delete_order) resources.my.delete_order = "မှာယူမှု ဖျက်မည်";
-        if (!resources.my.cleared) resources.my.cleared = "ရှင်းလင်းပြီးပါပြီ";
-        if (!resources.my.kitchen_ticket) resources.my.kitchen_ticket = "မီးဖိုချောင် လက်မှတ်";
-        if (!resources.my.receipt) resources.my.receipt = "ငွေတောင်းခံလွှာ";
-        if (!resources.my.amount) resources.my.amount = "ပမာဏ";
-        if (!resources.my.order_items) resources.my.order_items = "မှာယူထားသော ပစ္စည်းများ";
-        if (!resources.my.order) resources.my.order = "မှာယူမှု";
-        if (!resources.my.cancelled_items) resources.my.cancelled_items = "ဖျက်သိမ်းပြီး ပစ္စည်းများ";
-        if (!resources.my.items_sold_in) resources.my.items_sold_in = "ရောင်းရသည့် ပစ္စည်းများ";
-        if (!resources.my.category) resources.my.category = "အမျိုးအစား";
-        if (!resources.my.sold) resources.my.sold = "ခု ရောင်းရ";
-        if (!resources.my.revenue) resources.my.revenue = "ဝင်ငွေ";
-        if (!resources.my.no_sales_data) resources.my.no_sales_data = "ဤကာလအတွက် ရောင်းအားဒေတာ မရှိပါ။";
-        if (!resources.my.select_table_to_edit) resources.my.select_table_to_edit = "ပြင်ရန် စားပွဲ ရွေးပါ။";
-        if (!resources.my.selected_week) resources.my.selected_week = "ရွေးချယ်ထားသော အပတ်";
-        if (!resources.my.cleared_success) resources.my.cleared_success = "အောင်မြင်သည်!";
-        if (!resources.my.action_failed) resources.my.action_failed = "လုပ်ဆောင်ချက် မအောင်မြင်ပါ";
-        if (!resources.my.login_success) resources.my.login_success = "Login အောင်မြင်ပါသည်";
-        if (!resources.my.saved_pin_success) resources.my.saved_pin_success = "PIN အသစ် သိမ်းဆည်းပြီး";
-        if (!resources.my.cannot_delete_default) resources.my.cannot_delete_default = "ပုံသေ အမျိုးအစားများ ဖျက်၍ မရပါ";
-        if (!resources.my.orders_for) resources.my.orders_for = "မှာယူမှု စာရင်း";
-        if (!resources.my.no_detailed_records) resources.my.no_detailed_records = "အသေးစိတ် မှတ်တမ်းများ မတွေ့ရပါ။";
 
         // GLOBAL STATE
         let state = {
@@ -1838,7 +1794,12 @@
             orderType: 'dine_in',
             currentOverviewTab: 'sales',
             customCategories: [],
-            tempPin: '' // NEW for PIN pad logic
+            tempPin: '',
+            // New states for Transfer/Merge/Payment
+            transferOrderId: null,
+            transferTargetId: null,
+            transferMode: 'transfer', // 'transfer' or 'merge'
+            paymentOrderId: null
         };
 
         let isInitialLoad = true;
@@ -1985,7 +1946,7 @@
         window.scrollToTop = () => document.getElementById('main-scroll-container').scrollTo({ top: 0, behavior: 'smooth' });
 
         window.toggleLanguage = () => {
-            const languages = ['en', 'my', 'cn', 'ms'];
+            const languages = ['en', 'my'];
             const currentIndex = languages.indexOf(state.lang);
             const nextIndex = (currentIndex + 1) % languages.length;
             state.lang = languages[nextIndex];
@@ -2016,8 +1977,6 @@
             div.innerHTML = `<i class="fas ${icon}"></i> <span>${msg}</span>`;
 
             document.body.appendChild(div);
-
-            if (type === 'success') window.playSingleBeep();
 
             setTimeout(() => {
                 div.style.transition = 'opacity 0.5s, transform 0.5s';
@@ -2085,15 +2044,18 @@
                 if (!isInitialLoad) {
                     snapshot.docChanges().forEach((change) => {
                         if (change.type === "added") {
+                            // Sound ONLY on new order
                             if (!document.getElementById('screen-kitchen').classList.contains('hide')) window.startIncomingOrderAlert();
-                            else window.playSingleBeep();
+                            else {
+                                const tempAudio = new Audio(sounds[soundState.choice]);
+                                tempAudio.play().catch(() => { });
+                            }
                         }
                     });
                 }
                 isInitialLoad = false;
                 renderAdminOrders();
 
-                // Refresh table map if active so status changes (red->green) show immediately
                 if (!document.getElementById('screen-tables').classList.contains('hide')) window.renderTableMap();
             });
 
@@ -2162,7 +2124,6 @@
                 const imgHtml = (p.image && p.image.startsWith('http')) ? `<img src="${p.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">` : `<div class="w-full h-full flex items-center justify-center text-4xl text-dark-700"><i class="fas fa-utensils"></i></div>`;
                 const isSoldOut = p.isSoldOut === true;
                 const discountAmt = p.discount || 0;
-                // Tax is separate calculation, here we just show base price minus discount
                 const effectiveBasePrice = p.price - discountAmt;
 
                 const containerClass = isSoldOut ? "relative h-52 rounded-[24px] shadow-lg border border-dark-700/50 overflow-hidden bg-dark-800" : "relative h-52 rounded-[24px] shadow-lg border border-dark-700/50 cursor-pointer overflow-hidden group active:scale-[0.95] transition-all bg-dark-800";
@@ -2210,7 +2171,7 @@
                     actionBtnLabel = "Start"; actionBtnFunc = `window.startOrder('${order.id}')`;
                 } else if (order.status === 'cooking') {
                     statusColor = "bg-blue-900/20 text-blue-400 border-blue-900/50"; stText = "Cooking";
-                    actionBtnLabel = "Serve"; actionBtnFunc = `window.updateStatus('${order.id}', 'served')`;
+                    actionBtnLabel = "Serve"; actionBtnFunc = `window.confirmServedPaymentModal('${order.id}')`;
                 } else if (order.status === 'served') {
                     statusColor = "bg-gray-700/50 text-gray-400 border-gray-700"; stText = "Served";
                 }
@@ -2219,7 +2180,7 @@
                 if (order.status !== 'served') {
                     btnHtml = `
                     <div class="flex w-full gap-2 mt-1">
-                        <button onclick="window.openTransferModal('${order.id}', '${order.tableId}', '${order.orderType}')" class="flex-1 bg-indigo-900/20 text-indigo-400 border border-indigo-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-900/40 transition flex items-center justify-center"><i class="fas fa-exchange-alt"></i></button>
+                        <button onclick="window.openTransferModal('${order.id}', '${order.tableId}', '${order.orderType}')" class="flex-1 bg-indigo-900/20 text-indigo-400 border border-indigo-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-900/40 transition flex items-center justify-center" title="Transfer / Merge"><i class="fas fa-object-group"></i></button>
                         <button onclick="window.cancelKitchenOrder('${order.id}')" class="flex-1 bg-red-900/20 text-red-500 border border-red-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-red-900/40 transition flex items-center justify-center"><i class="fas fa-trash-alt"></i></button>
                         <button onclick="${actionBtnFunc}" class="flex-1 bg-white text-dark-900 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-200 transition">${actionBtnLabel}</button>
                     </div>`;
@@ -2229,9 +2190,11 @@
 
                 const isTakeaway = order.orderType === 'takeaway';
                 const typeBadge = isTakeaway ? `<span class="bg-purple-900/50 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded text-[10px] font-bold ml-2 animate-pulse"><i class="fas fa-shopping-bag mr-1"></i>TAKEAWAY</span>` : '';
+                const pMethodBadge = order.paymentMethod ? `<span class="bg-green-900/30 text-green-400 border border-green-500/20 px-1.5 py-0.5 rounded text-[9px] font-bold ml-2 italic">${order.paymentMethod}</span>` : '';
+
                 const div = document.createElement('div');
                 div.className = cardClass;
-                div.innerHTML = `<div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-dark-900 flex items-center justify-center font-bold text-white border border-dark-700 shadow-inner">${order.tableId}</div><span class="text-xs font-bold text-gray-400">#${order.id.slice(0, 4)}</span></div><div class="flex items-center">${typeBadge}<span class="px-2 py-1 rounded-lg text-[10px] font-bold border ${statusColor} ml-2">${stText}</span></div></div><div class="flex-1 overflow-y-auto max-h-32 space-y-2 py-2 border-t border-b border-dark-700 custom-scroll">${order.items.map(i => `<div class="flex justify-between font-bold text-white text-sm"><span>${i.qty}x ${i.name} ${i.size ? `(${i.size})` : ''}</span></div>`).join('')}</div><div class="flex flex-col gap-2"><div class="flex justify-between items-center px-1"><span class="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Total</span><span class="font-bold text-base text-white">${order.totalPrice.toLocaleString()} Ks</span></div>${btnHtml}</div>`;
+                div.innerHTML = `<div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-dark-900 flex items-center justify-center font-bold text-white border border-dark-700 shadow-inner">${order.tableId}</div><span class="text-xs font-bold text-gray-400">#${order.id.slice(0, 4)}</span></div><div class="flex items-center">${typeBadge}${pMethodBadge}<span class="px-2 py-1 rounded-lg text-[10px] font-bold border ${statusColor} ml-2">${stText}</span></div></div><div class="flex-1 overflow-y-auto max-h-32 space-y-2 py-2 border-t border-b border-dark-700 custom-scroll">${order.items.map(i => `<div class="flex justify-between font-bold text-white text-sm"><span>${i.qty}x ${i.name} ${i.size ? `(${i.size})` : ''}</span></div>`).join('')}</div><div class="flex flex-col gap-2"><div class="flex justify-between items-center px-1"><span class="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Total</span><span class="font-bold text-base text-white">${order.totalPrice.toLocaleString()} Ks</span></div>${btnHtml}</div>`;
                 grid.appendChild(div);
             });
         };
@@ -2244,6 +2207,25 @@
             } catch (e) {
                 console.error(e);
             }
+        };
+
+        // NEW FEATURE: served with payment selection
+        window.confirmServedPaymentModal = (id) => {
+            state.paymentOrderId = id;
+            document.getElementById('modal-payment-selection').classList.remove('hide');
+        };
+
+        window.confirmServedWithPayment = async (method) => {
+            if (!state.paymentOrderId) return;
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', state.paymentOrderId), {
+                    status: 'served',
+                    paymentMethod: method
+                });
+                const id = state.paymentOrderId;
+                closeModal('modal-payment-selection');
+                window.printTicket(id, 'customer');
+            } catch (e) { console.error(e); }
         };
 
         window.cancelKitchenOrder = (id) => {
@@ -2259,14 +2241,6 @@
             }, false);
         };
 
-        window.updateStatus = async (id, newStatus) => {
-            try {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', id), { status: newStatus });
-            } catch (e) {
-                console.error("Failed to update status:", e);
-            }
-        };
-
         function renderMenuManager() {
             document.getElementById('menu-list-container').innerHTML = state.products.map(p => {
                 const isSoldOut = p.isSoldOut === true;
@@ -2276,15 +2250,10 @@
 
                 return `
                 <div class="bg-dark-800 rounded-xl p-3 flex gap-3 items-center border border-dark-700 shadow-sm relative overflow-hidden group">
-                    <!-- Status overlay if sold out -->
                     ${isSoldOut ? '<div class="absolute inset-0 bg-dark-900/60 z-10 flex items-center justify-center backdrop-blur-[1px]"><span class="text-red-500 font-black -rotate-12 border-2 border-red-500 px-2 py-1 rounded text-xs tracking-widest uppercase shadow-lg bg-dark-900/80">Sold Out</span></div>' : ''}
-
-                    <!-- Image -->
                     <div class="w-16 h-16 shrink-0 rounded-lg bg-dark-900 overflow-hidden border border-dark-600">
                         <img src="${imageSrc}" class="w-full h-full object-cover">
                     </div>
-
-                    <!-- Info -->
                     <div class="flex-1 min-w-0">
                         <h4 class="text-white font-bold text-sm truncate">${p.name}</h4>
                         <div class="flex items-center gap-2 mt-1">
@@ -2296,10 +2265,8 @@
                             ${tax > 0 ? `<span class="text-[9px] text-blue-400 border border-blue-500/30 px-1 rounded bg-blue-900/10">+${tax}% Tax</span>` : ''}
                         </div>
                     </div>
-
-                    <!-- Actions -->
                     <div class="flex flex-col gap-2 z-20 shrink-0 border-l border-dark-700 pl-3">
-                        <button onclick="window.toggleStock('${p.id}', ${isSoldOut})" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isSoldOut ? 'bg-red-900/20 text-red-400 border border-red-900/50' : 'bg-green-900/20 text-green-400 border border-green-900/50 hover:bg-green-900/30'}" title="Toggle Stock">
+                        <button onclick="window.toggleStock('${p.id}', ${isSoldOut})" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isSoldOut ? 'bg-red-900/20 text-red-400 border border-red-900/50' : 'bg-green-900/20 text-green-400 border border-green-500/50 hover:bg-green-900/30'}" title="Toggle Stock">
                             <i class="fas ${isSoldOut ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
                         </button>
                         <div class="flex gap-2">
@@ -2323,9 +2290,6 @@
                     if (p) select.value = p.category || 'Other';
                 }
             }
-            if (document.getElementById('screen-categories') && !document.getElementById('screen-categories').classList.contains('hide')) {
-                window.renderCategoryManager();
-            }
         }
 
         window.toggleStock = async (id, currentStatus) => { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id), { isSoldOut: !currentStatus }); } catch (e) { console.error(e); } };
@@ -2334,10 +2298,8 @@
             const content = document.getElementById('menu-form-content');
             const chevron = document.getElementById('menu-form-chevron');
             const header = document.getElementById('menu-form-header');
-
             const isCurrentlyHidden = content.classList.contains('hide');
             const shouldShow = forceState !== null ? forceState : isCurrentlyHidden;
-
             if (shouldShow) {
                 content.classList.remove('hide');
                 chevron.style.transform = 'rotate(180deg)';
@@ -2352,29 +2314,19 @@
         window.editProduct = (id) => {
             const p = state.products.find(x => x.id === id); if (!p) return;
             state.editingProductId = id;
-
-            // Open the form
             window.toggleMenuForm(true);
-
             document.getElementById('new-prod-name').value = p.name;
             document.getElementById('new-prod-price').value = p.price;
             document.getElementById('new-prod-cost').value = p.cost || '';
             document.getElementById('new-prod-discount').value = p.discount || '';
             document.getElementById('new-prod-tax').value = p.tax || '';
-
             document.getElementById('new-prod-img').value = (p.image === '🍽️' || !p.image) ? '' : p.image;
             document.getElementById('new-prod-category').value = p.category || 'Other';
             document.getElementById('new-prod-options').value = p.options ? p.options.join(', ') : '';
-
             let sizesStr = '';
-            if (p.sizes && Array.isArray(p.sizes)) {
-                sizesStr = p.sizes.map(s => `${s.name}:${s.price}`).join(', ');
-            }
+            if (p.sizes && Array.isArray(p.sizes)) sizesStr = p.sizes.map(s => `${s.name}:${s.price}`).join(', ');
             document.getElementById('new-prod-sizes').value = sizesStr;
-
-            const btn = document.getElementById('btn-save-prod');
-            btn.innerText = "Update Item";
-
+            document.getElementById('btn-save-prod').innerText = "Update Item";
             document.getElementById('menu-form-title').innerHTML = `<span class="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-[10px] text-white shadow-md"><i class="fas fa-pen"></i></span> Edit Item`;
             document.getElementById('btn-cancel-edit').classList.remove('hide');
             window.scrollToTop();
@@ -2390,10 +2342,7 @@
             document.getElementById('new-prod-img').value = '';
             document.getElementById('new-prod-options').value = '';
             document.getElementById('new-prod-sizes').value = '';
-
-            const btn = document.getElementById('btn-save-prod');
-            btn.innerText = "Save Item";
-
+            document.getElementById('btn-save-prod').innerText = "Save Item";
             document.getElementById('menu-form-title').innerHTML = `<span class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] text-white shadow-md"><i class="fas fa-plus"></i></span> <span data-i18n="add_item">Add New Item</span>`;
             document.getElementById('btn-cancel-edit').classList.add('hide');
         };
@@ -2409,117 +2358,50 @@
             const c = document.getElementById('new-prod-category').value;
             const sStr = document.getElementById('new-prod-sizes').value;
 
-            if (!n || !p) return window.showMessage(resources[state.lang]['missing_name_price'] || "Missing Name or Price", 'error');
+            if (!n || !p) return window.showMessage("Missing Name or Price", 'error');
 
             let sizes = [];
             if (sStr && sStr.trim() !== '') {
-                try {
-                    sizes = sStr.split(',').map(item => {
-                        const parts = item.split(':');
-                        if (parts.length === 2) {
-                            return { name: parts[0].trim(), price: parseInt(parts[1].trim()) };
-                        }
-                        return null;
-                    }).filter(x => x !== null);
-                } catch (e) { console.log("Size parse error", e); }
+                sizes = sStr.split(',').map(item => {
+                    const parts = item.split(':');
+                    if (parts.length === 2) return { name: parts[0].trim(), price: parseInt(parts[1].trim()) };
+                    return null;
+                }).filter(x => x !== null);
             }
 
             const data = {
-                name: n,
-                price: p,
-                cost: cost,
-                discount: disc,
-                tax: tax,
+                name: n, price: p, cost: cost, discount: disc, tax: tax,
                 image: i || '🍽️',
                 options: o ? o.split(',').map(s => s.trim()).filter(Boolean) : [],
-                category: c,
-                sizes: sizes
+                category: c, sizes: sizes
             };
 
             try {
-                if (state.editingProductId) {
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', state.editingProductId), data);
-                    window.cancelEdit();
-                    window.showMessage(resources[state.lang]['saved'] || "Saved!", 'success');
-                } else {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), data);
-                    window.cancelEdit(); // Clears form
-                    window.showMessage(resources[state.lang]['saved'] || "Saved!", 'success');
-                }
-            } catch (e) { console.error(e); window.showMessage(resources[state.lang]['failed'] || "Failed", 'error'); }
+                if (state.editingProductId) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', state.editingProductId), data);
+                else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), data);
+                window.cancelEdit();
+                window.showMessage("Saved!", 'success');
+            } catch (e) { console.error(e); }
         };
 
         window.deleteProduct = (id) => {
             window.showConfirm('remove_confirm', async () => {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id));
-                window.showMessage(resources[state.lang]['removed'] || "Removed!", 'success');
+                window.showMessage("Removed!", 'success');
             }, false);
-        };
-
-        window.renderCategoryManager = () => {
-            const listContainer = document.getElementById('categories-list');
-            listContainer.innerHTML = '';
-
-            state.customCategories.forEach(cat => {
-                const catName = resources[state.lang][cat] || cat;
-                const el = document.createElement('div');
-                el.className = 'flex justify-between items-center p-3 bg-dark-800 rounded-xl border border-dark-700';
-                el.innerHTML = `
-                    <span class="font-bold text-white text-sm">${catName}</span>
-                    <button onclick="deleteCategory('${cat}')" class="text-red-400 hover:text-white hover:bg-red-500/80 bg-red-900/20 w-8 h-8 rounded-full transition flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button>
-                `;
-                listContainer.appendChild(el);
-            });
-        };
-
-        window.saveCategory = async () => {
-            const newCat = document.getElementById('new-cat-name').value.trim();
-            if (!newCat) return window.showMessage(resources[state.lang]['cat_empty'] || "Category name cannot be empty.", 'error');
-            if (state.customCategories.includes(newCat)) return window.showMessage(resources[state.lang]['cat_exists'] || "Category already exists.", 'error');
-
-            const catRef = doc(db, 'artifacts', appId, 'public', 'data', 'config_categories', 'list');
-            try {
-                const newList = [...state.customCategories, newCat];
-                await updateDoc(catRef, { list: newList, updatedAt: serverTimestamp() });
-                document.getElementById('new-cat-name').value = '';
-                window.showMessage(resources[state.lang]['saved'] || "Saved!", 'success');
-            } catch (e) {
-                console.error("Failed to add category:", e);
-                window.showMessage(resources[state.lang]['failed'] || "Failed to add category.", 'error');
-            }
-        };
-
-        window.deleteCategory = (catToDelete) => {
-            if (catToDelete === 'All' || catToDelete === 'Other') return window.showMessage(resources[state.lang]['cannot_delete_default'] || "Cannot delete default categories.", 'error');
-
-            window.showConfirm('delete_category_confirm', async () => {
-                const catRef = doc(db, 'artifacts', appId, 'public', 'data', 'config_categories', 'list');
-                try {
-                    const newList = state.customCategories.filter(c => c !== catToDelete);
-                    await updateDoc(catRef, { list: newList, updatedAt: serverTimestamp() });
-
-                    state.products.filter(p => p.category === catToDelete).forEach(async (p) => {
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', p.id), { category: 'Other' });
-                    });
-
-                    window.showMessage(resources[state.lang]['cleared_success'] || "Category deleted and items reassigned.", 'success');
-                } catch (e) {
-                    console.error("Failed to delete category:", e);
-                    window.showMessage(resources[state.lang]['failed'] || "Failed to delete category.", 'error');
-                }
-            }, true);
         };
 
         window.renderExpenses = () => {
             const b = document.getElementById('expenses-table-body');
             b.innerHTML = '';
-            if (state.expenses.length === 0) { b.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-dark-muted">No expenses recorded</td></tr>'; return; }
+            if (state.expenses.length === 0) { b.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-dark-muted">No expenses recorded</td></tr>'; return; }
             state.expenses.forEach(e => {
                 const d = e.timestamp ? new Date(e.timestamp.seconds * 1000).toLocaleDateString() : '-';
                 b.innerHTML += `
                 <tr class="border-b border-dark-700 hover:bg-dark-800 transition">
-                    <td class="p-3 text-dark-muted">${d}</td>
+                    <td class="p-3 text-dark-muted text-xs">${d}</td>
                     <td class="p-3 text-white font-bold">${e.description}</td>
+                    <td class="p-3 text-dark-muted italic text-[10px]">${e.note || '-'}</td>
                     <td class="p-3 text-right text-red-400 font-mono font-bold">-${e.amount.toLocaleString()}</td>
                     <td class="p-3 text-center">
                         <button onclick="deleteExpense('${e.id}')" class="text-dark-muted hover:text-white"><i class="fas fa-trash"></i></button>
@@ -2528,26 +2410,31 @@
             });
         };
 
+        window.clearAllExpenses = async () => {
+            window.showConfirm('delete_all_confirm', async () => {
+                const batch = writeBatch(db);
+                state.expenses.forEach(e => {
+                    batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'expenses', e.id));
+                });
+                await batch.commit();
+                window.showMessage("Expenses Cleared", "success");
+            }, true);
+        }
+
         window.openAddExpenseModal = () => document.getElementById('modal-add-expense').classList.remove('hide');
 
         window.saveExpenseFromModal = async () => {
             const d = document.getElementById('modal-exp-title').value;
             const a = parseInt(document.getElementById('modal-exp-amount').value);
             const n = document.getElementById('modal-exp-note').value;
-
             if (!d || !a) return window.showMessage("Missing title or amount", "error");
-
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'expenses'), {
-                    description: d,
-                    amount: a,
-                    note: n,
-                    timestamp: serverTimestamp()
+                    description: d, amount: a, note: n, timestamp: serverTimestamp()
                 });
                 document.getElementById('modal-exp-title').value = '';
                 document.getElementById('modal-exp-amount').value = '';
                 document.getElementById('modal-exp-note').value = '';
-
                 closeModal('modal-add-expense');
                 window.showMessage("Expense Added", "success");
             } catch (e) { console.error(e); }
@@ -2563,21 +2450,17 @@
         window.openProductModal = (id) => {
             const p = state.products.find(x => x.id === id); if (!p) return;
             state.selectedProduct = { ...p, qty: 1, selectedSize: null };
-
             if (p.sizes && p.sizes.length > 0) {
                 state.selectedProduct.selectedSize = p.sizes[0];
                 state.selectedProduct.price = p.sizes[0].price;
             }
-
             const effectiveBasePrice = state.selectedProduct.price - (p.discount || 0);
-
             document.getElementById('mp-name').innerText = p.name;
             document.getElementById('mp-price-display').innerText = effectiveBasePrice + ' Ks';
             document.getElementById('mp-qty').innerText = 1;
             document.getElementById('prod-remark').value = '';
             const img = document.getElementById('mp-img');
             img.src = (p.image && p.image.startsWith('http')) ? p.image : 'https://placehold.co/600x400/1F2937/9CA3AF?text=' + (p.image || 'Food');
-
             const optionsContainer = document.getElementById('dynamic-options');
             optionsContainer.innerHTML = '';
             const opts = (p.options && p.options.length > 0) ? p.options : ["Normal Spicy", "Less Spicy", "No MSG"];
@@ -2586,11 +2469,9 @@
                 div.innerHTML = `<label class="cursor-pointer block"><input type="checkbox" name="prod_option" value="${opt}" class="peer sr-only"><div class="border border-dark-700 peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary rounded-xl py-3 px-2 text-center text-[10px] font-bold transition-all h-full bg-dark-900 text-dark-muted hover:bg-dark-700">${opt}</div></label>`;
                 optionsContainer.appendChild(div);
             });
-
             const sizeContainer = document.getElementById('size-selection-container');
             const dynamicSizes = document.getElementById('dynamic-sizes');
             dynamicSizes.innerHTML = '';
-
             if (p.sizes && p.sizes.length > 0) {
                 sizeContainer.classList.remove('hide');
                 p.sizes.forEach((s, idx) => {
@@ -2598,18 +2479,10 @@
                     const effSizePrice = s.price - (p.discount || 0);
                     const div = document.createElement('label');
                     div.className = "cursor-pointer";
-                    div.innerHTML = `
-                        <input type="radio" name="prod_size" value="${idx}" class="peer sr-only" ${isChecked} onchange="selectSize(${idx})">
-                        <div class="border border-dark-700 bg-dark-900 text-white peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white rounded-lg px-4 py-2 text-xs font-bold transition">
-                            ${s.name} <span class="opacity-70 text-[10px]">(${effSizePrice})</span>
-                        </div>
-                    `;
+                    div.innerHTML = `<input type="radio" name="prod_size" value="${idx}" class="peer sr-only" ${isChecked} onchange="selectSize(${idx})"><div class="border border-dark-700 bg-dark-900 text-white peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white rounded-lg px-4 py-2 text-xs font-bold transition">${s.name} <span class="opacity-70 text-[10px]">(${effSizePrice})</span></div>`;
                     dynamicSizes.appendChild(div);
                 });
-            } else {
-                sizeContainer.classList.add('hide');
-            }
-
+            } else sizeContainer.classList.add('hide');
             document.getElementById('modal-product').classList.remove('hide');
         };
 
@@ -2628,36 +2501,19 @@
         window.addToCart = () => {
             const checkboxes = document.querySelectorAll('input[name="prod_option"]:checked');
             const remark = document.getElementById('prod-remark').value.trim();
-
             let name = state.selectedProduct.name;
-            let sizeInfo = null;
-            if (state.selectedProduct.selectedSize) {
-                sizeInfo = state.selectedProduct.selectedSize.name;
-            }
-
+            let sizeInfo = state.selectedProduct.selectedSize ? state.selectedProduct.selectedSize.name : null;
             const unitCost = state.selectedProduct.cost || 0;
-
             const basePrice = state.selectedProduct.price;
             const discountAmt = state.selectedProduct.discount || 0;
             const taxRate = parseFloat(state.selectedProduct.tax) || 0;
-
             const taxableAmount = basePrice - discountAmt;
             const taxAmount = Math.round(taxableAmount * (taxRate / 100));
             const finalUnitPrice = taxableAmount + taxAmount;
-
             state.cart.push({
-                ...state.selectedProduct,
-                name: name,
-                size: sizeInfo,
-                cost: unitCost,
-                discount: discountAmt,
-                taxRate: taxRate,
-                taxAmount: taxAmount,
-                effectivePrice: finalUnitPrice,
-                modifiers: Array.from(checkboxes).map(cb => cb.value),
-                remarks: remark,
-                lineTotal: finalUnitPrice * state.selectedProduct.qty,
-                lineCost: unitCost * state.selectedProduct.qty
+                ...state.selectedProduct, name, size: sizeInfo, cost: unitCost, discount: discountAmt, taxRate, taxAmount,
+                effectivePrice: finalUnitPrice, modifiers: Array.from(checkboxes).map(cb => cb.value),
+                remarks: remark, lineTotal: finalUnitPrice * state.selectedProduct.qty, lineCost: unitCost * state.selectedProduct.qty, category: state.selectedProduct.category || 'Other'
             });
             updateCartUI(); closeModal('modal-product');
         };
@@ -2675,14 +2531,13 @@
             state.orderType = type;
             const btnDine = document.getElementById('btn-type-dine');
             const btnTake = document.getElementById('btn-type-take');
-            if (type === 'dine_in') { btnDine.classList.remove('text-dark-muted', 'hover:text-white'); btnDine.classList.add('bg-primary', 'text-white', 'shadow-md'); btnTake.classList.add('text-dark-muted', 'hover:text-white'); btnTake.classList.remove('bg-purple-600', 'text-white', 'shadow-md'); }
-            else { btnDine.classList.add('text-dark-muted', 'hover:text-white'); btnDine.classList.remove('bg-primary', 'text-white', 'shadow-md'); btnTake.classList.remove('text-dark-muted', 'hover:text-white'); btnTake.classList.add('bg-purple-600', 'text-white', 'shadow-md'); }
+            if (type === 'dine_in') { btnDine.className = "flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 bg-primary text-white shadow-md"; btnTake.className = "flex-1 py-2.5 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition flex items-center justify-center gap-2"; }
+            else { btnDine.className = "flex-1 py-2.5 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition flex items-center justify-center gap-2"; btnTake.className = "flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 bg-purple-600 text-white shadow-md"; }
         };
 
         window.openCheckoutModal = () => {
             if (state.cart.length === 0) return;
             window.setOrderType('dine_in');
-
             document.getElementById('checkout-items').innerHTML = state.cart.map((item, i) => `
                 <div class="flex justify-between items-start bg-dark-800 p-3 rounded-2xl border border-dark-700 shadow-sm relative group">
                     <div class="flex gap-3">
@@ -2690,22 +2545,17 @@
                         <div class="flex-1 min-w-0">
                             <p class="font-bold text-sm text-white truncate">${item.name} ${item.size ? `<span class="text-xs text-primary bg-primary/10 px-1 rounded ml-1">${item.size}</span>` : ''}</p>
                             <p class="text-[10px] text-dark-muted mt-0.5 truncate">${item.modifiers.join(', ')}</p>
-                            
-                            <!-- Detailed Breakdown -->
                             <div class="mt-1 flex flex-col gap-0.5">
-                                ${item.discount > 0 ? `<p class="text-[10px] text-green-400 font-mono"><i class="fas fa-tag mr-1"></i>-${(item.discount * item.qty).toLocaleString()} Ks</p>` : ''}
-                                ${item.taxAmount > 0 ? `<p class="text-[10px] text-blue-400 font-mono"><i class="fas fa-percentage mr-1"></i>Tax (${item.taxRate}%): +${(item.taxAmount * item.qty).toLocaleString()} Ks</p>` : ''}
+                                ${item.discount > 0 ? `<p class="text-[10px] text-green-400 font-mono">-${(item.discount * item.qty).toLocaleString()} Ks</p>` : ''}
                                 ${item.remarks ? `<p class="text-[10px] text-orange-400 italic break-words">"${item.remarks}"</p>` : ''}
                             </div>
                         </div>
                     </div>
                     <div class="flex flex-col items-end gap-1 pl-2">
-                        ${item.discount > 0 ? `<span class="text-[10px] text-gray-500 line-through decoration-red-500">${(item.price * item.qty).toLocaleString()}</span>` : ''}
                         <span class="font-bold text-sm text-white font-mono">${item.lineTotal.toLocaleString()}</span>
                         <button onclick="window.removeFromCart(${i})" class="text-red-400 text-xs bg-red-900/20 w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-900/40 transition mt-1"><i class="fas fa-trash text-[10px]"></i></button>
                     </div>
                 </div>`).join('');
-
             updateCheckoutTotals();
             document.getElementById('modal-checkout').classList.remove('hide');
         };
@@ -2715,7 +2565,6 @@
             const totalDiscount = state.cart.reduce((acc, item) => acc + ((item.discount || 0) * item.qty), 0);
             const totalTax = state.cart.reduce((acc, item) => acc + ((item.taxAmount || 0) * item.qty), 0);
             const grandTotal = state.cart.reduce((acc, item) => acc + item.lineTotal, 0);
-
             document.getElementById('checkout-subtotal').innerText = totalSubtotal.toLocaleString() + ' Ks';
             document.getElementById('checkout-discount-val').innerText = '-' + totalDiscount.toLocaleString() + ' Ks';
             document.getElementById('checkout-tax-val').innerText = '+' + totalTax.toLocaleString() + ' Ks';
@@ -2725,150 +2574,65 @@
         window.removeFromCart = (i) => { state.cart.splice(i, 1); if (state.cart.length === 0) closeModal('modal-checkout'); else window.openCheckoutModal(); updateCartUI(); };
 
         window.submitOrder = async () => {
-            if (!state.user) return window.showMessage(resources[state.lang]['not_connected'] || "Not Connected", 'error');
-
+            if (!state.user) return window.showMessage("Not Connected", 'error');
             const totalSubtotal = state.cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
             const totalDiscount = state.cart.reduce((acc, item) => acc + ((item.discount || 0) * item.qty), 0);
             const totalTax = state.cart.reduce((acc, item) => acc + ((item.taxAmount || 0) * item.qty), 0);
             const grandTotal = state.cart.reduce((acc, item) => acc + item.lineTotal, 0);
             const totalCost = state.cart.reduce((acc, item) => acc + (item.lineCost || 0), 0);
-
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), {
-                    tableId: state.tableId,
-                    items: state.cart,
-                    subtotal: totalSubtotal,
-                    discount: totalDiscount,
-                    tax: totalTax,
-                    totalPrice: grandTotal,
-                    totalCost: totalCost,
-                    status: 'pending',
-                    timestamp: serverTimestamp(),
-                    userId: state.user.uid,
-                    orderType: state.orderType
+                    tableId: state.tableId, items: state.cart, subtotal: totalSubtotal, discount: totalDiscount,
+                    tax: totalTax, totalPrice: grandTotal, totalCost: totalCost, status: 'pending',
+                    timestamp: serverTimestamp(), userId: state.user.uid, orderType: state.orderType
                 });
                 state.cart = []; updateCartUI(); closeModal('modal-checkout');
-                const msg = resources[state.lang]['order_sent_success'] || 'Order Sent Successfully!';
-                window.showMessage(msg, 'success');
-                if (state.isPOSMode) { const autoReturn = document.getElementById('chk-auto-return').checked; if (autoReturn) setTimeout(() => exitPOSMode(), 1000); }
-            } catch (e) { console.error(e); window.showMessage(resources[state.lang]['failed'] || "Failed", 'error'); }
+                window.showMessage("Order Sent Successfully!", 'success');
+                if (state.isPOSMode) { if (document.getElementById('chk-auto-return').checked) setTimeout(() => exitPOSMode(), 1000); }
+            } catch (e) { console.error(e); }
         };
 
         // LOGIN MODAL LOGIC (KEYPAD)
-        window.openLoginModal = () => {
-            state.tempPin = '';
-            updatePinDisplay();
-            document.getElementById('modal-login').classList.remove('hide');
-        };
-
+        window.openLoginModal = () => { state.tempPin = ''; updatePinDisplay(); document.getElementById('modal-login').classList.remove('hide'); };
         window.handlePinInput = (key) => {
-            if (key === 'back') {
-                state.tempPin = state.tempPin.slice(0, -1);
-            } else {
-                if (state.tempPin.length < 4) {
-                    state.tempPin += key;
-                }
-            }
+            if (key === 'back') state.tempPin = state.tempPin.slice(0, -1);
+            else if (state.tempPin.length < 4) state.tempPin += key;
             updatePinDisplay();
-
-            if (state.tempPin.length === 4) {
-                // Short delay to see the last dot
-                setTimeout(() => verifyPin(), 300);
-            }
+            if (state.tempPin.length === 4) setTimeout(() => verifyPin(), 300);
         };
-
         window.updatePinDisplay = () => {
-            const pinContainer = document.getElementById('pin-display');
-            const dots = pinContainer.children;
+            const dots = document.getElementById('pin-display').children;
             for (let i = 0; i < 4; i++) {
-                if (i < state.tempPin.length) {
-                    dots[i].classList.remove('bg-dark-700');
-                    dots[i].classList.add('bg-white');
-                } else {
-                    dots[i].classList.remove('bg-white');
-                    dots[i].classList.add('bg-dark-700');
-                }
+                if (i < state.tempPin.length) { dots[i].classList.remove('bg-dark-700'); dots[i].classList.add('bg-white'); }
+                else { dots[i].classList.remove('bg-white'); dots[i].classList.add('bg-dark-700'); }
             }
         };
-
         window.verifyPin = () => {
-            const correctPin = localStorage.getItem('pingpos_admin_pin') || '1234';
-            if (state.tempPin === correctPin) {
-                navigateTo('screen-kitchen');
-                closeModal('modal-login');
-                state.tempPin = '';
-                updatePinDisplay();
-                window.showMessage(resources[state.lang]['login_success'] || "Login Successful", 'success');
+            if (state.tempPin === (localStorage.getItem('pingpos_admin_pin') || '1234')) {
+                navigateTo('screen-kitchen'); closeModal('modal-login');
             } else {
-                // Incorrect PIN Animation
-                const pinContainer = document.getElementById('pin-display');
-                pinContainer.classList.add('animate-pulse');
-                setTimeout(() => pinContainer.classList.remove('animate-pulse'), 500);
-
-                state.tempPin = '';
-                updatePinDisplay();
-                window.showMessage(resources[state.lang]['wrong_pin'] || "Wrong PIN", 'error');
+                document.getElementById('pin-display').classList.add('animate-pulse');
+                setTimeout(() => document.getElementById('pin-display').classList.remove('animate-pulse'), 500);
+                state.tempPin = ''; updatePinDisplay(); window.showMessage("Wrong PIN", 'error');
             }
         };
-
         window.openChangePinModal = () => document.getElementById('modal-change-pin').classList.remove('hide');
         window.saveNewPin = () => {
             const n = document.getElementById('new-pin-input').value;
-            if (n.length >= 4) {
-                localStorage.setItem('pingpos_admin_pin', n);
-                window.showMessage(resources[state.lang]['saved_pin_success'] || "New PIN Saved", 'success');
-                closeModal('modal-change-pin');
-            } else {
-                window.showMessage(resources[state.lang]['min_4_digits'] || "Min 4 digits", 'error');
-            }
+            if (n.length >= 4) { localStorage.setItem('pingpos_admin_pin', n); window.showMessage("PIN Saved", 'success'); closeModal('modal-change-pin'); }
+            else window.showMessage("Min 4 digits", 'error');
         };
 
         window.closeModal = (id) => document.getElementById(id).classList.add('hide');
-
         window.exitPOSMode = () => { state.isPOSMode = false; state.tableId = "1"; document.getElementById('pos-mode-header').classList.add('hide'); navigateTo('screen-kitchen'); };
 
-        window.openReportModal = () => navigateTo('screen-analytics');
-        window.openMenuManager = () => navigateTo('screen-menu');
-        window.openTableMap = () => navigateTo('screen-tables');
-        window.openQRModal = () => document.getElementById('modal-qr').classList.remove('hide');
-
-        window.switchReportTab = (tab) => {
-            document.getElementById('rpt-view-overview').classList.add('hide');
-            document.getElementById('rpt-view-history').classList.add('hide');
-            document.getElementById('rpt-view-top').classList.add('hide');
-            document.getElementById('rpt-view-cancelled').classList.add('hide');
-
-            ['overview', 'history', 'cancelled', 'top'].forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                if (el) {
-                    if (t === tab) { el.classList.remove('text-dark-muted'); el.classList.add('bg-dark-700', 'text-white', 'shadow-sm'); } else { el.classList.add('text-dark-muted'); el.classList.remove('bg-dark-700', 'text-white', 'shadow-sm'); }
-                }
-            });
-            document.getElementById(`rpt-view-${tab}`).classList.remove('hide');
-            if (tab === 'overview') window.renderReportOverview();
-            else if (tab === 'history') window.renderSalesHistory();
-            else if (tab === 'cancelled') window.renderCancelledOrders();
-            else window.renderTopSelling();
-        };
-
         function isDateInRange(dateObj, range, selectedDate) {
-            const d = new Date(dateObj);
-            const s = new Date(selectedDate);
-            d.setHours(0, 0, 0, 0);
-            const sMidnight = new Date(s);
-            sMidnight.setHours(0, 0, 0, 0);
-
+            const d = new Date(dateObj); const s = new Date(selectedDate);
+            d.setHours(0, 0, 0, 0); const sMidnight = new Date(s); sMidnight.setHours(0, 0, 0, 0);
             if (range === 'daily') return d.getTime() === sMidnight.getTime();
-            else if (range === 'weekly') {
-                const day = sMidnight.getDay();
-                const diff = sMidnight.getDate() - day + (day === 0 ? -6 : 1);
-                const monday = new Date(sMidnight.setDate(diff));
-                const sunday = new Date(monday);
-                sunday.setDate(monday.getDate() + 6);
-                return d >= monday && d <= sunday;
-            }
-            else if (range === 'monthly') return d.getMonth() === s.getMonth() && d.getFullYear() === s.getFullYear();
-            else if (range === 'yearly') return d.getFullYear() === s.getFullYear();
+            if (range === 'weekly') { const diff = sMidnight.getDate() - sMidnight.getDay() + (sMidnight.getDay() === 0 ? -6 : 1); const mon = new Date(sMidnight.setDate(diff)); const sun = new Date(mon); sun.setDate(mon.getDate() + 6); return d >= mon && d <= sun; }
+            if (range === 'monthly') return d.getMonth() === s.getMonth() && d.getFullYear() === s.getFullYear();
+            if (range === 'yearly') return d.getFullYear() === s.getFullYear();
             return false;
         }
 
@@ -2881,877 +2645,144 @@
 
         window.renderSalesChart = (labels, data) => {
             const ctx = document.getElementById('salesChart').getContext('2d');
-            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, '#60A5FA'); gradient.addColorStop(1, '#2563EB');
             if (state.chartInstance) state.chartInstance.destroy();
-            state.chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{ label: resources[state.lang]['total_revenue'] + ' (Ks)', data: data, borderColor: '#3B82F6', backgroundColor: gradient, fill: true, tension: 0.4 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#374151' }, ticks: { color: '#9CA3AF' } }, x: { grid: { display: false }, ticks: { color: '#9CA3AF', maxTicksLimit: 12 } } }, plugins: { legend: { display: false } } }
-            });
-        };
-
-        window.renderTableChart = (labels, revenueData, countData) => {
-            const ctx = document.getElementById('tableChart').getContext('2d');
-            if (state.tableChartInstance) state.tableChartInstance.destroy();
-
-            state.tableChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: resources[state.lang]['total_revenue'] + ' (Ks)',
-                        data: revenueData,
-                        backgroundColor: '#34D399',
-                        borderRadius: 4,
-                        order: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#374151' }, ticks: { color: '#9CA3AF' } },
-                        x: { grid: { display: false }, ticks: { color: '#9CA3AF' } }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed.y !== null) label += context.parsed.y.toLocaleString() + " Ks";
-                                    return label;
-                                },
-                                afterLabel: function (context) {
-                                    return `${resources[state.lang]['total_orders'] || 'Orders'}: ${countData[context.dataIndex]}`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        window.renderCategoryChart = (categories, data) => {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            if (state.categoryChartInstance) state.categoryChartInstance.destroy();
-            const translatedLabels = categories.map(cat => resources[state.lang][cat] || cat);
-            state.categoryChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: { labels: translatedLabels, datasets: [{ data: data, backgroundColor: ['#FF4757', '#34D399', '#FBBF24', '#60A5FA', '#A78BFA', '#F472B6', '#9CA3AF', '#EC4899', '#6366f1'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#9CA3AF', font: { size: 10 }, boxWidth: 10 } } }, cutout: '70%' }
-            });
-        };
-
-        window.renderOrderTypeChart = (stats) => {
-            const ctx = document.getElementById('orderTypeChart').getContext('2d');
-            if (state.orderTypeChartInstance) state.orderTypeChartInstance.destroy();
-            const dineInCount = state.orders.filter(o => o.orderType !== 'takeaway' && o.status !== 'cancelled').length;
-            const takeawayCount = state.orders.filter(o => o.orderType === 'takeaway' && o.status !== 'cancelled').length;
-
-            state.orderTypeChartInstance = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: [resources[state.lang]['dine_in'], resources[state.lang]['takeaway']],
-                    datasets: [{
-                        data: [stats.dine_in, stats.takeaway],
-                        backgroundColor: ['#3B82F6', '#A855F7'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: '#9CA3AF', font: { size: 10 }, boxWidth: 10 } },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    let label = context.label || '';
-                                    if (label) label += ': ';
-
-                                    const revenue = context.parsed.toLocaleString();
-                                    const count = context.label === resources[state.lang]['dine_in'] ? dineInCount : takeawayCount;
-
-                                    return `${label} ${revenue} Ks (${count} ${resources[state.lang]['total_orders'] || 'orders'})`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            state.chartInstance = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: 'Revenue (Ks)', data, borderColor: '#3B82F6', tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
         };
 
         window.renderReportOverview = () => {
             const dateInput = document.getElementById('rpt-date-input').value;
             const range = document.getElementById('rpt-range-select').value;
-            let c = 0, t = 0, cancelled = 0;
-            let totalCost = 0;
-            let totalExpenses = 0;
-
-            let chartLabels = [];
-            let chartData = [];
-            let categoryStats = {};
-            let typeStats = { dine_in: 0, takeaway: 0 };
-            let tableStats = {};
-
-            if (range === 'daily') {
-                chartLabels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
-                chartData = new Array(24).fill(0);
-                document.getElementById('rpt-period-label').innerText = new Date(dateInput).toDateString();
-            } else if (range === 'weekly') {
-                chartLabels = [resources[state.lang]['Mon'] || 'Mon', resources[state.lang]['Tue'] || 'Tue', resources[state.lang]['Wed'] || 'Wed', resources[state.lang]['Thu'] || 'Thu', resources[state.lang]['Fri'] || 'Fri', resources[state.lang]['Sat'] || 'Sat', resources[state.lang]['Sun'] || 'Sun'];
-                chartData = new Array(7).fill(0);
-                document.getElementById('rpt-period-label').innerText = resources[state.lang]['selected_week'] || "Selected Week";
-            } else if (range === 'monthly') {
-                const daysInMonth = new Date(new Date(dateInput).getFullYear(), new Date(dateInput).getMonth() + 1, 0).getDate();
-                chartLabels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
-                chartData = new Array(daysInMonth).fill(0);
-                document.getElementById('rpt-period-label').innerText = new Date(dateInput).toLocaleDateString(state.lang === 'cn' ? 'zh-CN' : 'en-US', { month: 'long', year: 'numeric' });
-            } else if (range === 'yearly') {
-                chartLabels = [resources[state.lang]['Jan'] || 'Jan', resources[state.lang]['Feb'] || 'Feb', resources[state.lang]['Mar'] || 'Mar', resources[state.lang]['Apr'] || 'Apr', resources[state.lang]['May'] || 'May', resources[state.lang]['Jun'] || 'Jun', resources[state.lang]['Jul'] || 'Jul', resources[state.lang]['Aug'] || 'Aug', resources[state.lang]['Sep'] || 'Sep', resources[state.lang]['Oct'] || 'Oct', resources[state.lang]['Nov'] || 'Nov', resources[state.lang]['Dec'] || 'Dec'];
-                chartData = new Array(12).fill(0);
-                document.getElementById('rpt-period-label').innerText = new Date(dateInput).getFullYear();
-            }
-
-            state.expenses.forEach(e => {
-                if (e.timestamp && isDateInRange(new Date(e.timestamp.seconds * 1000), range, dateInput)) {
-                    totalExpenses += e.amount;
-                }
-            });
-
+            let c = 0, t = 0, cancelled = 0, totalCost = 0, totalExpenses = 0;
+            state.expenses.forEach(e => { if (e.timestamp && isDateInRange(new Date(e.timestamp.seconds * 1000), range, dateInput)) totalExpenses += e.amount; });
             state.orders.forEach(o => {
-                if (o.timestamp) {
-                    const dateObj = new Date(o.timestamp.seconds * 1000);
-
-                    if (isDateInRange(dateObj, range, dateInput)) {
-                        if (o.status === 'cancelled') {
-                            cancelled++;
-                        } else {
-                            c++;
-                            t += o.totalPrice;
-                            if (o.totalCost) totalCost += o.totalCost;
-
-                            if (range === 'daily') chartData[dateObj.getHours()] += o.totalPrice;
-                            else if (range === 'weekly') { const day = dateObj.getDay(); const index = day === 0 ? 6 : day - 1; chartData[index] += o.totalPrice; }
-                            else if (range === 'monthly') chartData[dateObj.getDate() - 1] += o.totalPrice;
-                            else if (range === 'yearly') chartData[dateObj.getMonth()] += o.totalPrice;
-
-                            const tId = o.tableId || 'Unknown';
-                            if (!tableStats[tId]) tableStats[tId] = { revenue: 0, count: 0 };
-                            tableStats[tId].revenue += o.totalPrice;
-                            tableStats[tId].count += 1;
-
-                            if (o.items && Array.isArray(o.items)) {
-                                o.items.forEach(item => {
-                                    const cat = item.category || 'Other';
-                                    categoryStats[cat] = (categoryStats[cat] || { qty: 0, revenue: 0 });
-                                    categoryStats[cat].qty += item.qty;
-                                    categoryStats[cat].revenue += item.lineTotal;
-                                });
-                            }
-                            if (o.orderType === 'takeaway') typeStats.takeaway += o.totalPrice; else typeStats.dine_in += o.totalPrice;
-                        }
-                    }
+                if (o.timestamp && isDateInRange(new Date(o.timestamp.seconds * 1000), range, dateInput)) {
+                    if (o.status === 'cancelled') cancelled++;
+                    else { c++; t += o.totalPrice; if (o.totalCost) totalCost += o.totalCost; }
                 }
             });
-
-            const netProfit = t - totalCost - totalExpenses;
-
-            document.getElementById('rpt-ov-profit').innerText = netProfit.toLocaleString() + ' Ks';
-            document.getElementById('rpt-ov-profit').classList.remove('text-red-300', 'text-white');
-            if (netProfit < 0) document.getElementById('rpt-ov-profit').classList.add('text-red-300');
-
+            document.getElementById('rpt-ov-profit').innerText = (t - totalCost - totalExpenses).toLocaleString() + ' Ks';
             document.getElementById('rpt-ov-total').innerText = t.toLocaleString() + ' Ks';
             document.getElementById('rpt-ov-cogs').innerText = totalCost.toLocaleString() + ' Ks';
             document.getElementById('rpt-ov-expenses').innerText = totalExpenses.toLocaleString() + ' Ks';
             document.getElementById('rpt-ov-count').innerText = c;
             document.getElementById('rpt-ov-cancelled').innerText = cancelled;
-
-            switch (state.currentOverviewTab) {
-                case 'sales':
-                    renderSalesChart(chartLabels, chartData);
-                    break;
-                case 'table':
-                    const sortedTables = Object.entries(tableStats).sort((a, b) => b[1].revenue - a[1].revenue);
-                    renderTableChart(sortedTables.map(x => "T-" + x[0]), sortedTables.map(x => x[1].revenue), sortedTables.map(x => x[1].count));
-
-                    const tableTbody = document.getElementById('table-data-tbody');
-                    if (sortedTables.length > 0) {
-                        tableTbody.innerHTML = sortedTables.map(([tId, stat], index) => {
-                            const key = `T-${tId}`;
-                            return `
-                            <tr onclick="window.showDetailList('table', '${key}')" class="cursor-pointer hover:bg-dark-700 transition">
-                                <td class="py-2 p-3 text-white font-bold flex items-center gap-2">${key}</td>
-                                <td class="py-2 text-right p-3 text-dark-muted">${stat.count}</td>
-                                <td class="py-2 text-right p-3 font-mono text-green-400 font-bold">${stat.revenue.toLocaleString()} Ks</td>
-                            </tr>
-                        `}).join('');
-                    } else {
-                        tableTbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-dark-700">No data</td></tr>';
-                    }
-                    break;
-                case 'category':
-                    const catLabels = Object.keys(categoryStats);
-                    const catRevenue = catLabels.map(c => categoryStats[c].revenue);
-                    renderCategoryChart(catLabels, catRevenue);
-
-                    const catTbody = document.getElementById('cat-data-tbody');
-                    if (catLabels.length > 0) {
-                        catTbody.innerHTML = catLabels.map(cat => `
-                            <tr onclick="window.showDetailList('category', '${cat}')" class="cursor-pointer hover:bg-dark-700 transition">
-                                <td class="py-2 p-3 text-white font-bold">${resources[state.lang][cat] || cat}</td>
-                                <td class="py-2 text-right p-3 text-dark-muted">${categoryStats[cat].qty}</td>
-                                <td class="py-2 text-right p-3 font-mono text-green-400 font-bold">${categoryStats[cat].revenue.toLocaleString()} Ks</td>
-                            </tr>
-                        `).join('');
-                    } else {
-                        catTbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-dark-700">No data</td></tr>';
-                    }
-                    break;
-                case 'type':
-                    renderOrderTypeChart(typeStats);
-
-                    const typeTbody = document.getElementById('type-data-tbody');
-                    const typeData = [
-                        { type: resources[state.lang]['dine_in'], key: 'dine_in', count: state.orders.filter(o => o.orderType !== 'takeaway' && o.status !== 'cancelled' && isDateInRange(new Date(o.timestamp.seconds * 1000), range, dateInput)).length, revenue: typeStats.dine_in },
-                        { type: resources[state.lang]['takeaway'], key: 'takeaway', count: state.orders.filter(o => o.orderType === 'takeaway' && o.status !== 'cancelled' && isDateInRange(new Date(o.timestamp.seconds * 1000), range, dateInput)).length, revenue: typeStats.takeaway },
-                    ];
-
-                    if (typeData.some(d => d.revenue > 0)) {
-                        typeTbody.innerHTML = typeData.map(d => `
-                            <tr onclick="window.showDetailList('type', '${d.key}')" class="cursor-pointer hover:bg-dark-700 transition">
-                                <td class="py-2 p-3 text-white font-bold">${d.type}</td>
-                                <td class="py-2 text-right p-3 text-dark-muted">${d.count}</td>
-                                <td class="py-2 text-right p-3 font-mono text-green-400 font-bold">${d.revenue.toLocaleString()} Ks</td>
-                            </tr>
-                        `).join('');
-                    } else {
-                        typeTbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-dark-700">No data</td></tr>';
-                    }
-                    break;
-            }
         };
-
 
         window.renderSalesHistory = () => {
-            const dateInput = document.getElementById('rpt-date-input').value;
-            const range = document.getElementById('rpt-range-select').value;
-            const search = document.getElementById('history-search-input').value.toLowerCase().trim();
             const b = document.getElementById('rpt-history-body'); b.innerHTML = '';
-
-            const h = state.orders.filter(o => {
-                if (!o.timestamp) return false;
-                const d = new Date(o.timestamp.seconds * 1000);
-
-                const isDateMatch = ['served', 'cooking', 'pending', 'cancelled'].includes(o.status) && isDateInRange(d, range, dateInput);
-
-                if (search && isDateMatch) {
-                    const orderIdMatch = o.id.toLowerCase().includes(search.replace('#', ''));
-                    const tableIdMatch = String(o.tableId).toLowerCase().includes(search.replace('t-', ''));
-                    return orderIdMatch || tableIdMatch;
-                }
-
-                return isDateMatch;
-            });
-
-            if (h.length === 0) { b.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-xs text-dark-700">No records found for this period</td></tr>'; return; }
-
-            h.forEach(o => {
-                const d = o.timestamp ? new Date(o.timestamp.seconds * 1000) : new Date();
-                let dateStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                if (range !== 'daily') dateStr = `${d.getDate()}/${d.getMonth() + 1} ${dateStr}`;
-
-                const isTakeaway = o.orderType === 'takeaway';
-                const typeIcon = isTakeaway ? '<i class="fas fa-shopping-bag text-purple-400" title="' + (resources[state.lang]['takeaway'] || 'Takeaway') + '"></i>' : '<i class="fas fa-utensils text-dark-muted" title="' + (resources[state.lang]['dine_in'] || 'Dine In') + '"></i>';
-                let rowColor = isTakeaway ? 'bg-purple-900/10' : '';
-
-                const isCancelled = o.status === 'cancelled';
-                if (isCancelled) rowColor = 'bg-red-900/10 opacity-75';
-
-                const itemsHtml = o.items.map(i =>
-                    `<div class="flex justify-between text-xs py-1 border-b border-dark-700/50 last:border-0">
-                        <span class="${isCancelled ? 'line-through' : ''}">${i.qty}x ${i.name} ${i.size ? `(${i.size})` : ''} <span class="text-[10px] text-dark-muted bg-dark-900 px-1 rounded ml-1 border border-dark-700">${resources[state.lang][i.category] || i.category || 'Other'}</span></span>
-                        <span class="font-mono text-dark-muted">${i.lineTotal.toLocaleString()}</span>
-                     </div>`
-                ).join('');
-
-                let mainRowAction;
-                if (isCancelled) {
-                    mainRowAction = `<span class="text-[10px] text-red-500 font-bold border border-red-500/50 px-1 rounded">${resources[state.lang]['cancel'].toUpperCase()}</span>`;
-                } else if (o.status === 'served') {
-                    mainRowAction = `<button onclick="event.stopPropagation(); window.printReceipt('${o.id}')" class="text-white hover:text-green-400 bg-green-500/20 px-2 py-1 rounded-lg text-xs font-bold transition"><i class="fas fa-receipt mr-1"></i> ${resources[state.lang]['print'] || 'Print'}</button>`;
-                } else {
-                    mainRowAction = `<span class="text-[10px] text-yellow-400 font-bold border border-yellow-500/50 px-1 rounded">${o.status.toUpperCase()}</span>`;
-                }
-
-                const mainRow = `
-                    <tr onclick="toggleHistoryDetail('${o.id}')" class="cursor-pointer hover:bg-dark-700 transition border-b border-dark-700 last:border-0 group ${rowColor}">
-                        <td class="p-3 text-xs text-white flex items-center gap-2">
-                            <i class="fas fa-chevron-right text-[10px] text-dark-700 transition-transform group-hover:text-dark-muted" id="icon-${o.id}"></i>
-                            ${dateStr}
-                        </td>
-                        <td class="p-3 font-bold text-white text-xs">
-                            ${typeIcon} <span class="ml-1 ${isCancelled ? 'line-through decoration-red-500' : ''}">T-${o.tableId}</span>
-                        </td>
-                        <td class="p-3 font-bold ${isCancelled ? 'text-red-400 line-through' : 'text-primary'} text-right">${o.totalPrice.toLocaleString()}</td>
-                        <td class="p-3 text-center">
-                            ${mainRowAction}
-                        </td>
-                    </tr>
-                `;
-
-                const detailRow = `
-                    <tr id="detail-${o.id}" class="hide bg-dark-900/50">
-                        <td colspan="4" class="p-3 pl-8">
-                            <div class="bg-dark-900 rounded-lg p-3 border border-dark-700 shadow-inner">
-                                <h5 class="text-[10px] font-bold text-dark-muted uppercase mb-2 tracking-wider">${resources[state.lang]['order_items'] || 'Order Items'} ${isCancelled ? '(' + resources[state.lang]['cancel'].toUpperCase() + ')' : ''}</h5>
-                                ${itemsHtml}
-                                <div class="mt-3 pt-3 border-t border-dark-700 flex justify-between items-center text-xs">
-                                     <div class="flex flex-col text-dark-muted">
-                                         ${o.subtotal ? `<span>Subtotal: ${o.subtotal.toLocaleString()}</span>` : ''}
-                                         ${o.discount ? `<span class="text-green-400">Disc: -${o.discount.toLocaleString()}</span>` : ''}
-                                         ${o.tax ? `<span class="text-red-400">Tax: +${o.tax.toLocaleString()}</span>` : ''}
-                                     </div>
-                                </div>
-                                <div class="mt-2 pt-2 border-t border-dark-700 flex justify-between items-center">
-                                    ${o.orderType === 'takeaway' ? '<div class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">' + (resources[state.lang]['takeaway'] || 'Takeaway') + ' ' + (resources[state.lang]['order'] || 'Order') + '</div>' : '<div></div>'}
-                                    ${!isCancelled ? `<button onclick="event.stopPropagation(); window.printReceipt('${o.id}')" class="text-green-500 hover:text-green-400 bg-green-500/10 px-3 py-1 rounded-lg text-xs font-bold transition"><i class="fas fa-receipt mr-1"></i> ${resources[state.lang]['print_receipt'] || 'Print Receipt'}</button>` : ''}
-                                    <button onclick="event.stopPropagation(); deleteOrder('${o.id}')" class="text-red-500 hover:text-red-400 bg-red-500/10 px-3 py-1 rounded-lg text-xs font-bold transition ml-2"><i class="fas fa-trash text-xs"></i> ${resources[state.lang]['delete_order'] || 'Delete Order'}</button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-
-                b.innerHTML += mainRow + detailRow;
+            const filtered = state.orders.filter(o => o.timestamp && isDateInRange(new Date(o.timestamp.seconds * 1000), document.getElementById('rpt-range-select').value, document.getElementById('rpt-date-input').value));
+            if (filtered.length === 0) { b.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-xs text-dark-muted">No records</td></tr>'; return; }
+            filtered.forEach(o => {
+                const d = new Date(o.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                b.innerHTML += `<tr class="border-b border-dark-700"><td class="p-3 text-xs text-white">${d}</td><td class="p-3 font-bold text-white">T-${o.tableId}</td><td class="p-3 text-right font-bold text-primary">${o.totalPrice.toLocaleString()}</td><td class="p-3 text-center"><button onclick="deleteOrder('${o.id}')" class="text-dark-muted"><i class="fas fa-trash"></i></button></td></tr>`;
             });
         };
 
-        window.toggleHistoryDetail = (id) => {
-            const row = document.getElementById(`detail-${id}`);
-            const icon = document.getElementById(`icon-${id}`);
-            if (row.classList.contains('hide')) {
-                row.classList.remove('hide');
-                icon.style.transform = 'rotate(90deg)';
-                icon.classList.add('text-primary');
-            } else {
-                row.classList.add('hide');
-                icon.style.transform = 'rotate(0deg)';
-                icon.classList.remove('text-primary');
-            }
-        };
-
-        window.renderCancelledOrders = () => {
-            const dateInput = document.getElementById('rpt-date-input').value;
-            const range = document.getElementById('rpt-range-select').value;
-            const b = document.getElementById('rpt-cancelled-body'); b.innerHTML = '';
-
-            const h = state.orders.filter(o => {
-                if (!o.timestamp) return false;
-                const d = new Date(o.timestamp.seconds * 1000);
-                return o.status === 'cancelled' && isDateInRange(d, range, dateInput);
-            });
-
-            if (h.length === 0) { b.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-xs text-dark-700">No cancelled records found for this period</td></tr>'; return; }
-
-            h.forEach(o => {
-                const d = o.timestamp ? new Date(o.timestamp.seconds * 1000) : new Date();
-                let dateStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                if (range !== 'daily') dateStr = `${d.getDate()}/${d.getMonth() + 1} ${dateStr}`;
-
-                const isTakeaway = o.orderType === 'takeaway';
-                const typeIcon = isTakeaway ? '<i class="fas fa-shopping-bag text-purple-400" title="' + (resources[state.lang]['takeaway'] || 'Takeaway') + '"></i>' : '<i class="fas fa-utensils text-dark-muted" title="' + (resources[state.lang]['dine_in'] || 'Dine In') + '"></i>';
-
-                const itemsHtml = o.items.map(i =>
-                    `<div class="flex justify-between text-xs py-1 border-b border-dark-700/50 last:border-0">
-                        <span class="line-through">${i.qty}x ${i.name} ${i.size ? `(${i.size})` : ''} <span class="text-[10px] text-dark-muted bg-dark-900 px-1 rounded ml-1 border border-dark-700">${resources[state.lang][i.category] || i.category || 'Other'}</span></span>
-                        <span class="font-mono text-dark-muted">${i.lineTotal.toLocaleString()}</span>
-                     </div>`
-                ).join('');
-
-                const mainRow = `
-                    <tr onclick="toggleCancelledDetail('${o.id}')" class="cursor-pointer hover:bg-dark-700 transition border-b border-dark-700 last:border-0 group bg-red-900/10 opacity-80">
-                        <td class="p-3 text-xs text-white flex items-center gap-2">
-                            <i class="fas fa-chevron-right text-[10px] text-dark-700 transition-transform group-hover:text-dark-muted" id="icon-cancel-${o.id}"></i>
-                            ${dateStr}
-                        </td>
-                        <td class="p-3 font-bold text-white text-xs">
-                            ${typeIcon} <span class="ml-1 line-through decoration-red-500">T-${o.tableId}</span>
-                        </td>
-                        <td class="p-3 font-bold text-red-400 line-through text-right">${o.totalPrice.toLocaleString()}</td>
-                        <td class="p-3 text-center">
-                            <span class="text-[10px] text-red-500 font-bold border border-red-500/50 px-1 rounded">${resources[state.lang]['cancel'].toUpperCase()}</span>
-                        </td>
-                    </tr>
-                `;
-
-                const detailRow = `
-                    <tr id="detail-cancel-${o.id}" class="hide bg-dark-900/50">
-                        <td colspan="4" class="p-3 pl-8">
-                            <div class="bg-dark-900 rounded-lg p-3 border border-dark-700 shadow-inner">
-                                <h5 class="text-[10px] font-bold text-red-400 uppercase mb-2 tracking-wider">${resources[state.lang]['cancelled_items'] || 'CANCELLED ITEMS'}</h5>
-                                ${itemsHtml}
-                                ${o.orderType === 'takeaway' ? '<div class="mt-2 pt-2 border-t border-dark-700 text-[10px] font-bold text-purple-400 text-center uppercase tracking-widest">' + (resources[state.lang]['takeaway'] || 'Takeaway') + ' ' + (resources[state.lang]['order'] || 'Order') + '</div>' : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-
-                b.innerHTML += mainRow + detailRow;
-            });
-        };
-
-        window.toggleCancelledDetail = (id) => {
-            const row = document.getElementById(`detail-cancel-${id}`);
-            const icon = document.getElementById(`icon-cancel-${id}`);
-            if (row.classList.contains('hide')) {
-                row.classList.remove('hide');
-                icon.style.transform = 'rotate(90deg)';
-                icon.classList.add('text-red-400');
-            } else {
-                row.classList.add('hide');
-                icon.style.transform = 'rotate(0deg)';
-                icon.classList.remove('text-red-400');
-            }
-        };
-
-        window.showDetailList = (type, key) => {
-            const modal = document.getElementById('modal-analytics-detail');
-            const titleEl = document.getElementById('detail-modal-title');
-            const contentEl = document.getElementById('detail-modal-content');
-            contentEl.innerHTML = '<div class="flex justify-center py-10"><span class="loader"></span></div>';
-
-            let orders = state.orders.filter(o => o.status !== 'cancelled' && o.timestamp);
-            const dateInput = document.getElementById('rpt-date-input').value;
-            const range = document.getElementById('rpt-range-select').value;
-            orders = orders.filter(o => isDateInRange(new Date(o.timestamp.seconds * 1000), range, dateInput));
-
-            let titleText = `Details for ${key}`;
-            let detailHtml = '';
-
-            if (type === 'table') {
-                const tableId = key.replace('T-', '');
-                const tableOrders = orders.filter(o => String(o.tableId) === tableId);
-                titleText = `${resources[state.lang]['orders_for'] || 'Orders for'} Table T-${tableId}`;
-
-                detailHtml = tableOrders.map(o => {
-                    const d = new Date(o.timestamp.seconds * 1000);
-                    const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    return `
-                        <div class="bg-dark-800 p-3 rounded-xl border border-dark-700">
-                            <div class="flex justify-between items-center mb-2 border-b border-dark-700/50 pb-2">
-                                <span class="text-xs font-bold text-white">${resources[state.lang]['order'] || 'Order'} #${o.id.slice(0, 4)} (${timeStr})</span>
-                                <span class="text-lg font-extrabold text-primary">${o.totalPrice.toLocaleString()} Ks</span>
-                            </div>
-                            <ul class="space-y-1 text-xs text-dark-muted">
-                                ${o.items.map(item =>
-                        `<li class="flex justify-between">
-                                        <span>${item.qty}x ${item.name} ${item.size ? `(${item.size})` : ''}</span>
-                                        <span class="text-[10px] text-right bg-dark-900 px-1 rounded">${resources[state.lang][item.category] || item.category || 'Other'}</span>
-                                    </li>`
-                    ).join('')}
-                            </ul>
-                        </div>
-                    `;
-                }).join('');
-
-            } else if (type === 'category') {
-                const category = key;
-                titleText = `${resources[state.lang]['items_sold_in'] || 'Items Sold in'} ${resources[state.lang]['category'] || 'Category'}: ${resources[state.lang][category] || category}`;
-
-                let itemAgg = {};
-                orders.forEach(o => {
-                    o.items.forEach(item => {
-                        if ((item.category || 'Other') === category) {
-                            const itemKey = item.name + (item.size ? ` (${item.size})` : '');
-                            itemAgg[itemKey] = (itemAgg[itemKey] || { qty: 0, revenue: 0 });
-                            itemAgg[itemKey].qty += item.qty;
-                            itemAgg[itemKey].revenue += item.lineTotal;
-                        }
-                    });
-                });
-
-                const sortedItems = Object.entries(itemAgg).sort((a, b) => b[1].qty - a[1].qty);
-
-                detailHtml = sortedItems.map(([name, data]) => `
-                    <div class="flex justify-between items-center bg-dark-800 p-3 rounded-xl border border-dark-700">
-                        <span class="text-sm font-bold text-white">${name}</span>
-                        <div class="text-right">
-                            <span class="text-xs font-bold text-dark-muted block">${data.qty} ${resources[state.lang]['sold'] || 'sold'}</span>
-                            <span class="text-sm font-extrabold text-green-400">${data.revenue.toLocaleString()} Ks</span>
-                        </div>
-                    </div>
-                `).join('');
-
-            } else if (type === 'type') {
-                const orderType = key;
-                titleText = `${resources[state.lang][key] || key} ${resources[state.lang]['orders'] || 'Orders'}`;
-
-                const typeOrders = orders.filter(o => o.orderType === orderType || (orderType === 'dine_in' && o.orderType !== 'takeaway'));
-
-                detailHtml = typeOrders.map(o => {
-                    const d = new Date(o.timestamp.seconds * 1000);
-                    const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    return `
-                        <div class="bg-dark-800 p-3 rounded-xl border border-dark-700">
-                            <div class="flex justify-between items-center mb-2 border-b border-dark-700/50 pb-2">
-                                <span class="text-xs font-bold text-white">${resources[state.lang]['order'] || 'Order'} #${o.id.slice(0, 4)} (${timeStr})</span>
-                                <span class="text-lg font-extrabold text-primary">${o.totalPrice.toLocaleString()} Ks</span>
-                            </div>
-                            <ul class="space-y-1 text-xs text-dark-muted">
-                                ${o.items.map(item =>
-                        `<li class="flex justify-between">
-                                        <span>${item.qty}x ${item.name} ${item.size ? `(${item.size})` : ''}</span>
-                                        <span class="text-[10px] text-right bg-dark-900 px-1 rounded">${resources[state.lang][item.category] || item.category || 'Other'}</span>
-                                    </li>`
-                    ).join('')}
-                            </ul>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            if (detailHtml === '') detailHtml = `<p class="text-center text-dark-700 p-10">${resources[state.lang]['no_detailed_records'] || 'No detailed records found for this selection.'}</p>`;
-
-            titleEl.innerText = titleText;
-            contentEl.innerHTML = detailHtml;
-            modal.classList.remove('hide');
-        };
-
-        window.renderTopSelling = () => {
-            const dateInput = document.getElementById('rpt-date-input').value;
-            const range = document.getElementById('rpt-range-select').value;
-            const c = {};
-
-            const filteredOrders = state.orders.filter(o => {
-                if (!o.timestamp) return false;
-                const d = new Date(o.timestamp.seconds * 1000);
-                return o.status !== 'cancelled' && isDateInRange(d, range, dateInput);
-            });
-
-            filteredOrders.forEach(o => {
-                if (o.items) o.items.forEach(i => {
-                    const nameKey = i.name + (i.size ? ` (${i.size})` : '');
-                    if (!c[nameKey]) c[nameKey] = { qty: 0, revenue: 0, category: i.category || 'Other' };
-                    c[nameKey].qty += i.qty;
-                    c[nameKey].revenue += i.lineTotal;
-                });
-            });
-
-            const s = Object.entries(c).sort((a, b) => b[1].qty - a[1].qty);
-            const ct = document.getElementById('rpt-top-list'); ct.innerHTML = '';
-
-            if (s.length === 0) ct.innerHTML = '<p class="text-center text-dark-700 p-4 text-xs">' + (resources[state.lang]['no_sales_data'] || 'No sales data for this period') + '</p>';
-
-            const maxVal = s.length > 0 ? s[0][1].qty : 1;
-
-            s.forEach(([n, data], i) => {
-                const percent = (data.qty / maxVal) * 100;
-                ct.innerHTML += `
-                <div class="p-3 bg-dark-800 rounded-xl border border-dark-700 relative overflow-hidden group">
-                    <div class="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-primary/20 to-transparent transition-all duration-500" style="width: ${percent}%"></div>
-                    <div class="relative flex justify-between items-center z-10">
-                        <div class="flex gap-3 items-center">
-                            <span class="font-bold text-primary w-5 text-sm">#${i + 1}</span>
-                            <div>
-                                <p class="font-bold text-white text-sm flex items-center gap-2">
-                                    ${n} 
-                                    <span class="text-[9px] px-1.5 py-0.5 bg-dark-900 border border-dark-600 rounded text-dark-muted font-normal uppercase tracking-wide">${resources[state.lang][data.category] || data.category}</span>
-                                </p>
-                                <p class="text-[10px] text-dark-muted mt-0.5">${resources[state.lang]['revenue'] || 'Revenue'}: <span class="text-green-400 font-bold">${data.revenue.toLocaleString()} Ks</span></p>
-                            </div>
-                        </div>
-                        <span class="text-xs font-bold text-white bg-dark-900 px-2 py-1 rounded-lg border border-dark-600 shadow-sm">${data.qty} ${resources[state.lang]['sold'] || 'sold'}</span>
-                    </div>
-                </div>`;
-            });
-        };
-
-        window.deleteOrder = (id) => {
-            window.showConfirm('delete_confirm', async () => {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', id));
-                window.showMessage(resources[state.lang]['cleared_success'] || "Record Deleted", 'success');
-                renderSalesHistory();
-            }, false);
-        };
-
-        window.clearAllHistory = () => {
-            window.showConfirm('delete_all_confirm', async () => {
-                const ordersToDelete = state.orders.map(o => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', o.id)));
-                await Promise.all(ordersToDelete);
-                window.showMessage(resources[state.lang]['cleared_success'] || "History Cleared", 'success');
-                renderSalesHistory();
-            }, true);
-        };
+        window.deleteOrder = (id) => window.showConfirm('delete_confirm', async () => { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', id)); });
+        window.clearAllHistory = () => window.showConfirm('delete_all_confirm', async () => { const batch = writeBatch(db); state.orders.forEach(o => batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'orders', o.id))); await batch.commit(); }, true);
 
         window.generateQR = () => { const t = document.getElementById('qr-table-num').value; document.getElementById('qr-container').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href.split('?')[0] + '?table=' + t)}">`; };
 
-        // --- PRINTING FUNCTIONS UPDATE ---
-
-        // Updated Print QR
-        window.printQR = () => {
-            const qrContent = document.getElementById('qr-container').innerHTML;
-            const tableNum = document.getElementById('qr-table-num').value;
-
-            const printArea = document.getElementById('receipt-print-area');
-
-            // Build a simple layout for the QR print inside the main receipt area
-            printArea.innerHTML = `
-                <div style="text-align:center; padding-top: 20px; font-family: sans-serif;">
-                    <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">PingPOS</h1>
-                    <h2 style="font-size: 18px; margin-bottom: 20px;">Table ${tableNum}</h2>
-                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">${qrContent}</div>
-                    <p style="margin-top: 20px; font-size: 12px;">Scan to Order</p>
-                </div>
-            `;
-
-            triggerPrint();
-        };
-
-        // Updated Print Ticket
         window.printTicket = (id, type) => {
             const o = state.orders.find(x => x.id === id); if (!o) return;
-
-            // Show Feedback
-            window.showMessage("Printing...", "success");
-
             const printArea = document.getElementById('receipt-print-area');
-            const dateStr = new Date().toLocaleString(state.lang);
-
-            let headerTitle = "RECEIPT";
-            let headerExtra = "";
-
-            if (o.orderType === 'takeaway') {
-                headerExtra = `<div style="margin-top: 5px; border: 2px solid black; padding: 5px; font-weight: bold; display: inline-block;">${(resources[state.lang]['takeaway'] || 'TAKEAWAY').toUpperCase()}</div>`;
-            }
-
-            if (type === 'kitchen') {
-                headerTitle = resources[state.lang]['kitchen_ticket'] || "KITCHEN TICKET";
-            }
-
-            // Build Receipt HTML manually for better control
-            let itemsHtml = o.items.map(i => {
-                let mods = i.modifiers && i.modifiers.length ? `<div style="font-size: 10px; color: #444; margin-left: 10px;">- ${i.modifiers.join(', ')}</div>` : '';
-                let remarks = i.remarks ? `<div style="font-size: 11px; font-weight: bold; font-style: italic; margin-left: 10px;">** ${i.remarks} **</div>` : '';
-                let priceHtml = type === 'kitchen' ? '' : `<td style="text-align: right; vertical-align: top;">${i.lineTotal.toLocaleString()}</td>`;
-
-                return `
-                    <tr style="border-bottom: 1px dashed #ccc;">
-                        <td style="padding: 5px 0; vertical-align: top;">
-                            <div style="font-weight: bold; font-size: ${type === 'kitchen' ? '16px' : '14px'}">${i.qty} x ${i.name} ${i.size ? `(${i.size})` : ''}</div>
-                            ${mods}
-                            ${remarks}
-                        </td>
-                        ${priceHtml}
-                    </tr>
-                `;
-            }).join('');
-
-            let footerHtml = '';
-            if (type !== 'kitchen') {
-                const subtotal = o.subtotal || o.totalPrice;
-                const discount = o.discount || 0;
-                const tax = o.tax || 0;
-
-                footerHtml = `
-                    <div style="margin-top: 10px; border-top: 2px solid black; padding-top: 5px;">
-                        ${discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Subtotal:</span><span>${subtotal.toLocaleString()}</span></div>` : ''}
-                        ${discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Discount:</span><span>-${discount.toLocaleString()}</span></div>` : ''}
-                        ${tax > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Tax:</span><span>+${tax.toLocaleString()}</span></div>` : ''}
-                        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 5px;">
-                            <span>${resources[state.lang]['total'] || 'TOTAL'}</span>
-                            <span>${o.totalPrice.toLocaleString()} Ks</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            printArea.innerHTML = `
-                <div style="font-family: monospace, sans-serif; width: 100%; max-width: 300px; margin: 0 auto; color: black;">
-                    <div style="text-align: center; margin-bottom: 10px;">
-                        <h2 style="font-size: 20px; font-weight: bold; margin: 0;">PingPOS</h2>
-                        <h3 style="font-size: 16px; margin: 5px 0;">${headerTitle}</h3>
-                        ${headerExtra}
-                        <div style="font-size: 12px; margin-top: 5px; display: flex; justify-content: space-between;">
-                            <span>#${id.slice(0, 4).toUpperCase()}</span>
-                            <span>${dateStr}</span>
-                        </div>
-                        <div style="font-size: 14px; font-weight: bold; border-bottom: 2px solid black; padding-bottom: 5px; margin-top: 5px;">
-                            ${resources[state.lang]['table'] || 'Table'}: ${o.tableId}
-                        </div>
-                    </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                        ${itemsHtml}
-                    </table>
-                    
-                    ${footerHtml}
-                    
-                    <div style="text-align: center; margin-top: 20px; font-size: 10px;">
-                        Thank you!
-                    </div>
-                </div>
-            `;
-
-            triggerPrint();
-        };
-
-        // Internal helper to handle the actual printing sequence
-        function triggerPrint() {
-            const printArea = document.getElementById('receipt-print-area');
-
-            // 1. Unhide explicitly for the browser to render it
+            const itemsHtml = o.items.map(i => `<tr><td style="padding:4px 0"><b>${i.qty}x ${i.name} ${i.size ? `(${i.size})` : ''}</b></td><td style="text-align:right">${type === 'kitchen' ? '' : i.lineTotal.toLocaleString()}</td></tr>`).join('');
+            printArea.innerHTML = `<div style="text-align:center;font-family:monospace;color:black"><h2>PingPOS</h2><p>${type === 'kitchen' ? 'KITCHEN TICKET' : 'RECEIPT'} #${id.slice(0, 4)}</p><p>Table: ${o.tableId}</p><hr><table style="width:100%">${itemsHtml}</table><hr>${type === 'kitchen' ? '' : `<p style="text-align:right">Total: ${o.totalPrice.toLocaleString()} Ks</p>`}<p>Thank you!</p></div>`;
             printArea.style.display = 'block';
-
-            // 2. Small delay to ensure DOM update
-            setTimeout(() => {
-                window.print();
-
-                // 3. Hide again after print dialog is triggered (Desktop) or closed (Mobile)
-                // Note: On mobile, script execution pauses, so this runs after returning.
-                // On desktop, it might run immediately, so we give it a healthy delay.
-                setTimeout(() => {
-                    printArea.style.display = 'none';
-                }, 1000);
-            }, 100);
-        }
-
-        window.printReceipt = (id) => window.printTicket(id, 'customer');
-
-        const getOccupiedTables = () => {
-            const busy = new Set();
-            state.orders.forEach(o => {
-                // Table is occupied ONLY if order is pending or cooking. 
-                // 'served' means food is delivered, user wants it green (free).
-                if (['pending', 'cooking'].includes(o.status)) busy.add(String(o.tableId));
-            });
-            return busy;
+            setTimeout(() => { window.print(); printArea.style.display = 'none'; }, 200);
         };
 
         window.renderTableMap = () => {
-            const busyTables = getOccupiedTables(); const container = document.getElementById('table-map-container'); container.innerHTML = '';
-
-            if (state.tables.length === 0) generateDefaultTables();
-
-            if (!state.isLayoutEdit && state.selectedTableId) { state.selectedTableId = null; updatePropertiesPanel(); }
-
+            const busy = new Set(); state.orders.forEach(o => { if (['pending', 'cooking'].includes(o.status)) busy.add(String(o.tableId)); });
+            const container = document.getElementById('table-map-container'); container.innerHTML = '';
             state.tables.forEach(t => {
-                const isBusy = busyTables.has(String(t.id)); const isSelected = state.selectedTableId === String(t.id);
-                const shapeClass = t.shape === 'rect' ? 'rounded-lg aspect-square' : 'rounded-full aspect-square';
-                const colorClass = isBusy ? "bg-red-500 shadow-red-500/50" : "bg-green-500 shadow-green-500/50";
-                let borderClass = "cursor-pointer hover:brightness-110"; if (state.isLayoutEdit) { borderClass = "cursor-move border-2 border-dashed border-white/30"; if (isSelected) borderClass = "selected cursor-move"; }
-                const sizeScale = t.size || 1; const baseSize = 80; const sizePx = baseSize * sizeScale;
-                const div = document.createElement('div'); div.className = `table-node flex flex-col items-center justify-center text-white font-bold shadow-lg ${shapeClass} ${colorClass} ${borderClass}`; div.style.left = t.x + '%'; div.style.top = t.y + '%'; div.style.width = sizePx + 'px'; div.style.height = sizePx + 'px'; div.style.fontSize = (16 * sizeScale) + 'px'; div.id = `table-${t.id}`;
-                div.innerHTML = `<i class="fas ${t.shape === 'rect' ? 'fa-square' : 'fa-circle'} mb-1 opacity-50 pointer-events-none" style="font-size: 1.2em"></i><span class="pointer-events-none">T-${t.id}</span>`;
-                if (state.isLayoutEdit) { div.addEventListener('mousedown', (e) => startDrag(e, t.id)); div.addEventListener('touchstart', (e) => startDrag(e, t.id), { passive: false }); div.onclick = (e) => { e.stopPropagation(); selectTable(t.id); }; }
-                else { div.onclick = () => window.startPOSMode(t.id); }
+                const isBusy = busy.has(String(t.id)); const isSelected = state.selectedTableId === String(t.id);
+                const div = document.createElement('div'); div.className = `table-node flex flex-col items-center justify-center text-white font-bold shadow-lg ${t.shape === 'rect' ? 'rounded-lg' : 'rounded-full'} ${isBusy ? "bg-red-500" : "bg-green-500"} ${state.isLayoutEdit ? 'border-2 border-dashed' : ''}`;
+                div.style.left = t.x + '%'; div.style.top = t.y + '%'; div.style.width = (80 * t.size) + 'px'; div.style.height = (80 * t.size) + 'px'; div.innerText = "T-" + t.id;
+                div.onclick = () => { if (state.isLayoutEdit) { state.selectedTableId = t.id; renderTableMap(); } else window.startPOSMode(t.id); };
+                if (state.isLayoutEdit) div.addEventListener('mousedown', (e) => startDrag(e, t.id));
                 container.appendChild(div);
             });
-            updatePropertiesPanel();
         };
 
-        window.selectTable = (id) => { if (!state.isLayoutEdit) return; state.selectedTableId = id; renderTableMap(); };
-        window.deselectTable = () => { if (state.selectedTableId) { state.selectedTableId = null; renderTableMap(); } };
-        window.updatePropertiesPanel = () => { const panel = document.getElementById('table-properties'); const legend = document.getElementById('map-legend'); if (state.isLayoutEdit && state.selectedTableId) { legend.classList.add('hide'); panel.classList.remove('hide'); const t = state.tables.find(x => x.id === state.selectedTableId); if (t) { document.getElementById('prop-id').innerText = "T-" + t.id; document.getElementById('prop-size').value = t.size || 1; } } else { legend.classList.remove('hide'); panel.classList.add('hide'); } };
-        window.updateTableProperty = (key, val) => { if (!state.selectedTableId) return; const t = state.tables.find(x => x.id === state.selectedTableId); if (t) { t[key] = (key === 'size') ? parseFloat(val) : val; renderTableMap(); } };
-
-        window.deleteSelectedTable = () => {
-            if (!state.selectedTableId) return;
-            window.showConfirm('delete_table_confirm', async () => {
-                state.tables = state.tables.filter(t => t.id !== state.selectedTableId);
-                state.selectedTableId = null;
-                renderTableMap();
-                window.showMessage(resources[state.lang]['removed'] || "Table Deleted", 'success');
-            }, true);
-        };
-
-        window.startDrag = (e, tId) => { };
-        window.toggleLayoutEdit = () => { state.isLayoutEdit = !state.isLayoutEdit; const btn = document.getElementById('btn-edit-layout'); const controls = document.getElementById('layout-edit-controls'); state.selectedTableId = null; if (state.isLayoutEdit) { btn.classList.add('bg-dark-700', 'text-white'); controls.classList.remove('hide'); document.getElementById('table-map-subtitle').innerText = (resources[state.lang]['select_table_to_edit'] || "Select table to edit properties."); } else { btn.classList.remove('bg-dark-700', 'text-white'); controls.classList.add('hide'); document.getElementById('table-map-subtitle').innerText = (resources[state.lang]['select_table_msg'] || "Select a table to take order"); } renderTableMap(); };
-        window.addNewTable = () => { const maxId = state.tables.reduce((max, t) => Math.max(max, parseInt(t.id) || 0), 0); const newId = String(maxId + 1); const shapeSelect = document.getElementById('new-table-shape'); state.tables.push({ id: newId, x: 45, y: 45, shape: shapeSelect ? shapeSelect.value : 'round', size: 1 }); renderTableMap(); state.selectedTableId = newId; renderTableMap(); };
-        window.saveLayout = async () => { const btn = document.getElementById('btn-save-layout'); btn.innerHTML = 'Saving...'; try { const cleanTables = state.tables.map(t => ({ id: String(t.id), x: Number(t.x) || 0, y: Number(t.y) || 0, shape: t.shape || 'round', size: Number(t.size) || 1 })); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config_tables', 'main_layout'), { tables: cleanTables, updatedAt: serverTimestamp() }); window.showMessage(resources[state.lang]['saved'] || "Saved!", 'success'); if (state.isLayoutEdit) window.toggleLayoutEdit(); } catch (e) { console.error(e); window.showMessage(resources[state.lang]['error'] || "Error", 'error'); } finally { btn.innerHTML = 'Save'; } };
-
-        window.startDrag = (e, tId) => {
-            if (!state.isLayoutEdit) return; e.preventDefault();
-            if (state.selectedTableId !== tId) { state.selectedTableId = tId; renderTableMap(); }
-            const table = state.tables.find(t => t.id === tId); const el = document.getElementById(`table-${tId}`); const container = document.getElementById('table-map-container');
-            const startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX; const startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-            const rect = el.getBoundingClientRect(); const containerRect = container.getBoundingClientRect();
-            const offsetX = startX - rect.left; const offsetY = startY - rect.top;
-            state.dragItem = { tId, offsetX, offsetY, containerRect };
-            const moveHandler = (moveEvent) => {
-                const clientX = moveEvent.type.includes('mouse') ? moveEvent.clientX : moveEvent.touches[0].clientX; const clientY = moveEvent.type.includes('mouse') ? moveEvent.clientY : moveEvent.touches[0].clientY;
-                let newLeft = clientX - state.dragItem.containerRect.left - state.dragItem.offsetX; let newTop = clientY - state.dragItem.containerRect.top - state.dragItem.offsetY;
-                let percentX = (newLeft / state.dragItem.containerRect.width) * 100; let percentY = (newTop / state.dragItem.containerRect.height) * 100;
-                percentX = Math.max(0, Math.min(90, percentX)); percentY = Math.max(0, Math.min(90, percentY));
-                el.style.left = percentX + '%'; el.style.top = percentY + '%'; table.x = percentX; table.y = percentY;
-            };
-            const upHandler = () => { document.removeEventListener('mousemove', moveHandler); document.removeEventListener('mouseup', upHandler); document.removeEventListener('touchmove', moveHandler); document.removeEventListener('touchend', upHandler); state.dragItem = null; };
-            document.addEventListener('mousemove', moveHandler); document.addEventListener('mouseup', upHandler); document.addEventListener('touchmove', moveHandler, { passive: false }); document.addEventListener('touchend', upHandler);
-        };
-
-        // --- NEW FEATURE: TRANSFER TABLE LOGIC (UPDATED) ---
-        let transferState = { orderId: null, selectedTableId: null, selectedType: 'dine_in' };
-
+        // --- UPDATED FEATURE: TRANSFER & MERGE LOGIC ---
         window.openTransferModal = (orderId, currentTableId, currentType) => {
-            transferState = { orderId: orderId, selectedTableId: currentTableId, selectedType: currentType || 'dine_in' };
+            state.transferOrderId = orderId;
+            state.transferTargetId = null;
+            state.transferMode = 'transfer';
+            window.setUpdateMode('transfer');
             window.renderTransferGrid();
-            window.selectTransferType(transferState.selectedType);
+            window.selectTransferType(currentType || 'dine_in');
             document.getElementById('modal-transfer').classList.remove('hide');
         };
 
+        window.setUpdateMode = (mode) => {
+            state.transferMode = mode;
+            const tBtn = document.getElementById('update-mode-transfer');
+            const mBtn = document.getElementById('update-mode-merge');
+            if (mode === 'transfer') { tBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-bold bg-dark-700 text-white shadow-sm uppercase transition"; mBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-bold text-dark-muted hover:text-white uppercase transition"; }
+            else { tBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-bold text-dark-muted hover:text-white uppercase transition"; mBtn.className = "flex-1 py-2 rounded-lg text-[10px] font-bold bg-dark-700 text-white shadow-sm uppercase transition"; }
+            window.renderTransferGrid();
+        };
+
         window.selectTransferType = (type) => {
-            transferState.selectedType = type;
-            const btnDine = document.getElementById('tfr-type-dine');
-            const btnTake = document.getElementById('tfr-type-take');
-            if (type === 'dine_in') {
-                btnDine.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-primary text-white shadow-md transition";
-                btnTake.className = "flex-1 py-2 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition";
-            } else {
-                btnDine.className = "flex-1 py-2 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition";
-                btnTake.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-purple-600 text-white shadow-md transition";
-            }
+            state.orderType = type;
+            const dine = document.getElementById('tfr-type-dine'); const take = document.getElementById('tfr-type-take');
+            if (type === 'dine_in') { dine.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-primary text-white shadow-md transition"; take.className = "flex-1 py-2 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition"; }
+            else { dine.className = "flex-1 py-2 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition"; take.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-purple-600 text-white shadow-md transition"; }
         };
 
         window.renderTransferGrid = () => {
-            const grid = document.getElementById('transfer-tables-grid');
-            grid.innerHTML = '';
-            const sortedTables = [...state.tables].sort((a,b) => parseInt(a.id) - parseInt(b.id));
-            sortedTables.forEach(t => {
-                const isSelected = String(t.id) === String(transferState.selectedTableId);
+            const grid = document.getElementById('transfer-tables-grid'); grid.innerHTML = '';
+            const occupied = new Set(); state.orders.forEach(o => { if (['pending', 'cooking'].includes(o.status)) occupied.add(String(o.tableId)); });
+            state.tables.forEach(t => {
+                const isOccupied = occupied.has(String(t.id));
+                const isSelected = String(t.id) === String(state.transferTargetId);
+                // In merge mode, only show occupied tables. In transfer mode, show all.
+                if (state.transferMode === 'merge' && !isOccupied) return;
                 const btn = document.createElement('button');
-                btn.className = `p-3 rounded-xl font-bold text-sm border transition-all ${isSelected ? 'bg-primary text-white border-primary ring-2 ring-primary/50' : 'bg-dark-900 text-dark-muted border-dark-700 hover:border-primary'}`;
+                btn.className = `p-3 rounded-xl font-bold text-sm border transition-all ${isSelected ? 'bg-primary text-white border-primary' : 'bg-dark-900 text-dark-muted border-dark-700'}`;
                 btn.innerText = t.id;
-                btn.onclick = () => { transferState.selectedTableId = t.id; window.renderTransferGrid(); };
+                btn.onclick = () => { state.transferTargetId = t.id; window.renderTransferGrid(); };
                 grid.appendChild(btn);
             });
         };
 
         window.executeTransfer = async () => {
-            if (!transferState.orderId) return;
-            const btn = document.getElementById('btn-confirm-transfer');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i>';
-            btn.disabled = true;
+            if (!state.transferOrderId || !state.transferTargetId) return;
+            const orderId = state.transferOrderId;
+            const targetTableId = state.transferTargetId;
             try {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', transferState.orderId), {
-                    tableId: transferState.selectedTableId,
-                    orderType: transferState.selectedType
-                });
-                closeModal('modal-transfer');
-                window.showMessage("Order Updated Successfully!", 'success');
-            } catch (e) {
-                console.error(e);
-                window.showMessage("Update Failed", 'error');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                if (state.transferMode === 'transfer') {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId), { tableId: targetTableId, orderType: state.orderType });
+                } else {
+                    // Merge logic
+                    const sourceOrder = state.orders.find(o => o.id === orderId);
+                    const targetOrder = state.orders.find(o => String(o.tableId) === String(targetTableId) && ['pending', 'cooking'].includes(o.status));
+                    if (targetOrder) {
+                        const newItems = [...targetOrder.items, ...sourceOrder.items];
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', targetOrder.id), {
+                            items: newItems,
+                            totalPrice: targetOrder.totalPrice + sourceOrder.totalPrice,
+                            totalCost: (targetOrder.totalCost || 0) + (sourceOrder.totalCost || 0)
+                        });
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', sourceOrder.id));
+                    }
+                }
+                closeModal('modal-transfer'); window.showMessage("Success", "success");
+            } catch (e) { console.error(e); }
+        };
+
+        window.startDrag = (e, tId) => {
+            const table = state.tables.find(t => t.id === tId); const el = document.querySelector(`.table-node:nth-child(${state.tables.indexOf(table) + 1})`);
+            const moveHandler = (mE) => {
+                const rect = document.getElementById('table-map-container').getBoundingClientRect();
+                table.x = Math.max(0, Math.min(90, ((mE.clientX - rect.left) / rect.width) * 100));
+                table.y = Math.max(0, Math.min(90, ((mE.clientY - rect.top) / rect.height) * 100));
+                renderTableMap();
+            };
+            const upHandler = () => { document.removeEventListener('mousemove', moveHandler); document.removeEventListener('mouseup', upHandler); };
+            document.addEventListener('mousemove', moveHandler); document.addEventListener('mouseup', upHandler);
         };
 
         init();
