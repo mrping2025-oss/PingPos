@@ -3575,58 +3575,48 @@ window.renderAdminOrders = () => {
         // --- PRINTING FUNCTIONS UPDATE ---
 
         // Updated Print QR
-        window.printQR = () => {
+     window.printQR = () => {
             const qrContent = document.getElementById('qr-container').innerHTML;
             const tableNum = document.getElementById('qr-table-num').value;
-
             const printArea = document.getElementById('receipt-print-area');
 
-            // Build a simple layout for the QR print inside the main receipt area
             printArea.innerHTML = `
-                <div style="text-align:center; padding-top: 20px; font-family: sans-serif;">
-                    <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">PingPOS</h1>
-                    <h2 style="font-size: 18px; margin-bottom: 20px;">Table ${tableNum}</h2>
-                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">${qrContent}</div>
-                    <p style="margin-top: 20px; font-size: 12px;">Scan to Order</p>
+                <div style="text-align:center; padding: 20px; font-family: sans-serif; color: black;">
+                    <h1 style="font-size: 28px; font-weight: bold; margin: 0;">PingPOS</h1>
+                    <p style="font-size: 14px; margin: 5px 0;">Restaurant & Cafe</p>
+                    <div style="border-top: 2px solid black; border-bottom: 2px solid black; margin: 15px 0; padding: 10px 0;">
+                        <h2 style="font-size: 22px; margin: 0;">TABLE NUMBER - ${tableNum}</h2>
+                    </div>
+                    <div style="display: flex; justify-content: center; margin: 20px 0;">${qrContent}</div>
+                    <p style="margin-top: 10px; font-size: 14px; font-weight: bold;">Scan to Order</p>
                 </div>
             `;
-
             triggerPrint();
         };
 
-        // Updated Print Ticket
+        // Professional Receipt (English Only)
         window.printTicket = (id, type) => {
             const o = state.orders.find(x => x.id === id); if (!o) return;
 
-            // Show Feedback
-            window.showMessage("Printing...", "success");
-
+            window.showMessage("Printing Receipt...", "success");
             const printArea = document.getElementById('receipt-print-area');
-            const dateStr = new Date().toLocaleString(state.lang);
+            
+            const now = o.timestamp ? new Date(o.timestamp.seconds * 1000) : new Date();
+            const dateStr = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            let headerTitle = "RECEIPT";
-            let headerExtra = "";
+            let headerTitle = (type === 'kitchen') ? "KITCHEN TICKET" : "RECEIPT";
 
-            if (o.orderType === 'takeaway') {
-                headerExtra = `<div style="margin-top: 5px; border: 2px solid black; padding: 5px; font-weight: bold; display: inline-block;">${(resources[state.lang]['takeaway'] || 'TAKEAWAY').toUpperCase()}</div>`;
-            }
-
-            if (type === 'kitchen') {
-                headerTitle = resources[state.lang]['kitchen_ticket'] || "KITCHEN TICKET";
-            }
-
-            // Build Receipt HTML manually for better control
             let itemsHtml = o.items.map(i => {
-                let mods = i.modifiers && i.modifiers.length ? `<div style="font-size: 10px; color: #444; margin-left: 10px;">- ${i.modifiers.join(', ')}</div>` : '';
-                let remarks = i.remarks ? `<div style="font-size: 11px; font-weight: bold; font-style: italic; margin-left: 10px;">** ${i.remarks} **</div>` : '';
-                let priceHtml = type === 'kitchen' ? '' : `<td style="text-align: right; vertical-align: top;">${i.lineTotal.toLocaleString()}</td>`;
+                let mods = i.modifiers && i.modifiers.length ? `<div style="font-size: 10px; color: #444; margin-left: 10px;">+ ${i.modifiers.join(', ')}</div>` : '';
+                let remarks = i.remarks ? `<div style="font-size: 11px; font-weight: bold; font-style: italic; margin-left: 10px;">* ${i.remarks}</div>` : '';
+                let priceHtml = type === 'kitchen' ? '' : `<td style="text-align: right; vertical-align: top; font-weight: bold;">${(i.effectivePrice * i.qty).toLocaleString()}</td>`;
 
                 return `
                     <tr style="border-bottom: 1px dashed #ccc;">
-                        <td style="padding: 5px 0; vertical-align: top;">
-                            <div style="font-weight: bold; font-size: ${type === 'kitchen' ? '16px' : '14px'}">${i.qty} x ${i.name} ${i.size ? `(${i.size})` : ''}</div>
-                            ${mods}
-                            ${remarks}
+                        <td style="padding: 6px 0; vertical-align: top;">
+                            <div style="font-weight: bold; font-size: 13px;">${i.qty} x ${i.name} ${i.size ? `(${i.size})` : ''}</div>
+                            ${mods} ${remarks}
                         </td>
                         ${priceHtml}
                     </tr>
@@ -3640,41 +3630,52 @@ window.renderAdminOrders = () => {
                 const tax = o.tax || 0;
 
                 footerHtml = `
-                    <div style="margin-top: 10px; border-top: 2px solid black; padding-top: 5px;">
-                        ${discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Subtotal:</span><span>${subtotal.toLocaleString()}</span></div>` : ''}
-                        ${discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Discount:</span><span>-${discount.toLocaleString()}</span></div>` : ''}
-                        ${tax > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Tax:</span><span>+${tax.toLocaleString()}</span></div>` : ''}
-                        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 5px;">
-                            <span>${resources[state.lang]['total'] || 'TOTAL'}</span>
+                    <div style="margin-top: 10px; border-top: 1px solid black; padding-top: 5px; font-size: 13px;">
+                        <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>${subtotal.toLocaleString()} Ks</span></div>
+                        ${discount > 0 ? `<div style="display: flex; justify-content: space-between;"><span>Discount:</span><span>-${discount.toLocaleString()} Ks</span></div>` : ''}
+                        ${tax > 0 ? `<div style="display: flex; justify-content: space-between;"><span>Tax:</span><span>+${tax.toLocaleString()} Ks</span></div>` : ''}
+                        
+                        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 5px; border-top: 1.5px solid black; padding-top: 5px;">
+                            <span>GRAND TOTAL:</span>
                             <span>${o.totalPrice.toLocaleString()} Ks</span>
+                        </div>
+
+                        <div style="margin-top: 10px; padding: 6px; border: 1px solid black; text-align: center; font-weight: bold; background-color: #f0f0f0; text-transform: uppercase;">
+                            Payment: ${o.paymentMethod || 'CASH'}
                         </div>
                     </div>
                 `;
             }
 
             printArea.innerHTML = `
-                <div style="font-family: monospace, sans-serif; width: 100%; max-width: 300px; margin: 0 auto; color: black;">
-                    <div style="text-align: center; margin-bottom: 10px;">
-                        <h2 style="font-size: 20px; font-weight: bold; margin: 0;">PingPOS</h2>
-                        <h3 style="font-size: 16px; margin: 5px 0;">${headerTitle}</h3>
-                        ${headerExtra}
-                        <div style="font-size: 12px; margin-top: 5px; display: flex; justify-content: space-between;">
-                            <span>#${id.slice(0, 4).toUpperCase()}</span>
-                            <span>${dateStr}</span>
-                        </div>
-                        <div style="font-size: 14px; font-weight: bold; border-bottom: 2px solid black; padding-bottom: 5px; margin-top: 5px;">
-                            ${resources[state.lang]['table'] || 'Table'}: ${o.tableId}
-                        </div>
+                <div style="font-family: 'Courier New', Courier, monospace; width: 280px; margin: 0 auto; color: black; padding: 10px; background: white;">
+                    <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 10px;">
+                        <h2 style="margin: 0; font-size: 22px;">PingPOS</h2>
+                        <p style="margin: 2px 0; font-size: 12px;">Restaurant & Cafe</p>
+                        <p style="margin: 2px 0; font-size: 11px;">Ph: 09-XXXXXXXXX</p>
+                        <div style="margin-top: 5px; font-weight: bold; font-size: 14px;">*** ${headerTitle} ***</div>
                     </div>
                     
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <div style="font-size: 12px; margin-bottom: 10px; line-height: 1.4;">
+                        <div style="display: flex; justify-content: space-between;"><span>Date: ${dateStr}</span><span>Time: ${timeStr}</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span>Voucher: #${o.id.slice(-5).toUpperCase()}</span><span style="font-weight: bold;">Table: ${o.tableId}</span></div>
+                        <div style="text-transform: uppercase; font-weight: bold; margin-top: 2px;">Type: ${o.orderType === 'takeaway' ? 'Takeaway' : 'Dine-in'}</div>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <tr style="border-bottom: 1px solid black; text-align: left;">
+                            <th style="padding-bottom: 5px;">Item Description</th>
+                            <th style="text-align: right; padding-bottom: 5px;">Price</th>
+                        </tr>
                         ${itemsHtml}
                     </table>
                     
                     ${footerHtml}
                     
-                    <div style="text-align: center; margin-top: 20px; font-size: 10px;">
-                        Thank you!
+                    <div style="text-align: center; margin-top: 25px; font-size: 12px;">
+                        THANK YOU! PLEASE COME AGAIN.
+                        <br><br>
+                        <span style="font-weight: bold; letter-spacing: 2px;">*** PINGPOS ***</span>
                     </div>
                 </div>
             `;
@@ -3682,24 +3683,16 @@ window.renderAdminOrders = () => {
             triggerPrint();
         };
 
-        // Internal helper to handle the actual printing sequence
         function triggerPrint() {
             const printArea = document.getElementById('receipt-print-area');
-
-            // 1. Unhide explicitly for the browser to render it
             printArea.style.display = 'block';
 
-            // 2. Small delay to ensure DOM update
             setTimeout(() => {
                 window.print();
-
-                // 3. Hide again after print dialog is triggered (Desktop) or closed (Mobile)
-                // Note: On mobile, script execution pauses, so this runs after returning.
-                // On desktop, it might run immediately, so we give it a healthy delay.
                 setTimeout(() => {
                     printArea.style.display = 'none';
                 }, 1000);
-            }, 100);
+            }, 250);
         }
 
         window.printReceipt = (id) => window.printTicket(id, 'customer');
@@ -3707,13 +3700,10 @@ window.renderAdminOrders = () => {
         const getOccupiedTables = () => {
             const busy = new Set();
             state.orders.forEach(o => {
-                // Table is occupied ONLY if order is pending or cooking. 
-                // 'served' means food is delivered, user wants it green (free).
                 if (['pending', 'cooking'].includes(o.status)) busy.add(String(o.tableId));
             });
             return busy;
         };
-
         window.renderTableMap = () => {
             const busyTables = getOccupiedTables(); const container = document.getElementById('table-map-container'); container.innerHTML = '';
 
