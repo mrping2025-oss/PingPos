@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -940,7 +939,8 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="clearAllExpenses()"
-                        class="bg-dark-900 border border-red-500/50 text-red-400 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-full text-[10px] font-bold transition">Clear All</button>
+                        class="bg-dark-900 border border-red-500/50 text-red-400 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-full text-[10px] font-bold transition">Clear
+                        All</button>
                     <button onclick="openAddExpenseModal()"
                         class="bg-red-600 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition"><i
                             class="fas fa-plus"></i></button>
@@ -1595,11 +1595,54 @@
         </div>
     </div>
 
+    <!-- === NEW MODAL: ADVANCED BILLING (SPLIT/TRANSFER ITEM) === -->
+    <div id="modal-advanced-billing"
+        class="fixed inset-0 bg-black/80 z-[120] hide flex items-center justify-center p-4 backdrop-blur-sm">
+        <div
+            class="bg-dark-800 w-full max-w-md rounded-[30px] shadow-2xl p-6 border border-dark-700 animate-slide-up flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-white" id="adv-billing-title">Split / Transfer Item</h3>
+                <button onclick="closeModal('modal-advanced-billing')" class="text-dark-muted hover:text-white"><i
+                        class="fas fa-times"></i></button>
+            </div>
+
+            <p class="text-[10px] text-dark-muted mb-4 uppercase tracking-widest">Select items you want to move or split
+            </p>
+
+            <!-- Item Selection List -->
+            <div id="split-items-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-2 custom-scroll">
+                <!-- Items will be injected here -->
+            </div>
+
+            <div class="border-t border-dark-700 pt-4 space-y-4">
+                <div>
+                    <label class="form-label">Target Table</label>
+                    <div id="adv-target-tables"
+                        class="grid grid-cols-5 gap-2 max-h-32 overflow-y-auto p-1 bg-dark-900/50 rounded-xl border border-dark-700/50">
+                        <!-- Tables will be injected here -->
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="window.executeSplitBill('split')"
+                        class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs hover:bg-indigo-500 shadow-lg transition">
+                        <i class="fas fa-columns mr-1"></i> Split to New Bill
+                    </button>
+                    <button onclick="window.executeSplitBill('transfer')"
+                        class="flex-1 py-3 bg-orange-600 text-white rounded-xl font-bold text-xs hover:bg-orange-500 shadow-lg transition">
+                        <i class="fas fa-exchange-alt mr-1"></i> Transfer to Table
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
 
         // Canvas Animation Script (Injected)
         (function () {
@@ -1731,7 +1774,7 @@
             document.getElementById('silence-btn').classList.add('hide');
         };
 
-       // playSingleBeep disabled for non-essential actions as requested
+        // playSingleBeep disabled for non-essential actions as requested
         window.playSingleBeep = () => { };
 
         window.openSettingsModal = () => {
@@ -1884,12 +1927,17 @@
             orderType: 'dine_in',
             currentOverviewTab: 'sales',
             customCategories: [],
-            tempPin: '' ,// NEW for PIN pad logic
-             // New states for Transfer/Merge/Payment
+            tempPin: '',// NEW for PIN pad logic
+            // New states for Transfer/Merge/Payment
             transferOrderId: null,
             transferTargetId: null,
             transferMode: 'transfer', // 'transfer' or 'merge'
             paymentOrderId: null
+        };
+        let stateSplit = {
+            sourceOrderId: null,
+            selectedItems: [], // ဘယ် item တွေကို ရွေးထားသလဲ သိမ်းရန်
+            targetTableId: null
         };
 
         let isInitialLoad = true;
@@ -2134,13 +2182,19 @@
                 snapshot.forEach(d => state.orders.push({ id: d.id, ...d.data() }));
                 state.orders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
                 if (!isInitialLoad) {
+                    // setupListeners function ထဲမှာ ဒီနေရာကို ရှာပြင်ပါ
                     snapshot.docChanges().forEach((change) => {
                         if (change.type === "added") {
-                            // Sound ONLY on new order
-                            if (!document.getElementById('screen-kitchen').classList.contains('hide')) window.startIncomingOrderAlert();
-                            else {
-                                const tempAudio = new Audio(sounds[soundState.choice]);
-                                tempAudio.play().catch(() => { });
+                            const orderData = change.doc.data(); // order data ကို ယူမယ်
+
+                            // အကယ်၍ ဒါဟာ ဘေလ်ခွဲထားတဲ့ order (isSplitOrder) မဟုတ်မှသာ အသံမြည်စေမယ်
+                            if (!orderData.isSplitOrder) {
+                                if (!document.getElementById('screen-kitchen').classList.contains('hide')) {
+                                    window.startIncomingOrderAlert();
+                                } else {
+                                    const tempAudio = new Audio(sounds[soundState.choice]);
+                                    tempAudio.play().catch(() => { });
+                                }
                             }
                         }
                     });
@@ -2247,7 +2301,7 @@
                 grid.appendChild(el);
             });
         }
-window.renderAdminOrders = () => {
+        window.renderAdminOrders = () => {
             const grid = document.getElementById('orders-grid');
             grid.innerHTML = '';
             if (state.orders.length === 0) return document.getElementById('no-orders-msg').classList.remove('hidden');
@@ -2275,6 +2329,10 @@ window.renderAdminOrders = () => {
                         <button onclick="window.openTransferModal('${order.id}', '${order.tableId}', '${order.orderType}')" class="flex-1 bg-indigo-900/20 text-indigo-400 border border-indigo-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-900/40 transition flex items-center justify-center" title="Transfer / Merge"><i class="fas fa-object-group"></i></button>
                         <button onclick="window.cancelKitchenOrder('${order.id}')" class="flex-1 bg-red-900/20 text-red-500 border border-red-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-red-900/40 transition flex items-center justify-center"><i class="fas fa-trash-alt"></i></button>
                         <button onclick="${actionBtnFunc}" class="flex-1 bg-white text-dark-900 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-200 transition">${actionBtnLabel}</button>
+                       
+<button onclick="window.openAdvancedBillingModal('${order.id}')" class="flex-1 bg-blue-900/20 text-blue-400 border border-blue-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-900/40 transition flex items-center justify-center" title="Split/Transfer Items">
+    <i class="fas fa-scissors"></i>
+</button>
                     </div>`;
                 } else {
                     btnHtml = `<button onclick="window.printTicket('${order.id}', 'customer')" class="w-full border border-dark-700 text-gray-300 py-2 rounded-xl text-xs font-bold hover:bg-dark-700 transition">Print Receipt</button>`;
@@ -2584,7 +2642,7 @@ window.renderAdminOrders = () => {
             }, true);
         };
 
-       window.renderExpenses = () => {
+        window.renderExpenses = () => {
             const b = document.getElementById('expenses-table-body');
             b.innerHTML = '';
             if (state.expenses.length === 0) { b.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-dark-muted">No expenses recorded</td></tr>'; return; }
@@ -3575,7 +3633,7 @@ window.renderAdminOrders = () => {
         // --- PRINTING FUNCTIONS UPDATE ---
 
         // Updated Print QR
-     window.printQR = () => {
+        window.printQR = () => {
             const qrContent = document.getElementById('qr-container').innerHTML;
             const tableNum = document.getElementById('qr-table-num').value;
             const printArea = document.getElementById('receipt-print-area');
@@ -3600,7 +3658,7 @@ window.renderAdminOrders = () => {
 
             window.showMessage("Printing Receipt...", "success");
             const printArea = document.getElementById('receipt-print-area');
-            
+
             const now = o.timestamp ? new Date(o.timestamp.seconds * 1000) : new Date();
             const dateStr = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
             const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -3808,6 +3866,8 @@ window.renderAdminOrders = () => {
             });
         };
 
+
+
         window.executeTransfer = async () => {
             if (!state.transferOrderId || !state.transferTargetId) return;
             const orderId = state.transferOrderId;
@@ -3843,6 +3903,171 @@ window.renderAdminOrders = () => {
             };
             const upHandler = () => { document.removeEventListener('mousemove', moveHandler); document.removeEventListener('mouseup', upHandler); };
             document.addEventListener('mousemove', moveHandler); document.addEventListener('mouseup', upHandler);
+        };
+
+        // --- ADVANCED BILLING LOGIC FUNCTIONS ---
+
+        // ၁။ Modal ကို ဖွင့်ပြီး Item စာရင်းကို ပြသခြင်း
+        window.openAdvancedBillingModal = (orderId) => {
+            const order = state.orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            stateSplit.sourceOrderId = orderId;
+            stateSplit.selectedItems = []; // စဖွင့်ချင်းမှာ ဘာမှမရွေးရသေး
+            stateSplit.targetTableId = null;
+
+            // Item များစာရင်းကို Modal ထဲ ထည့်ခြင်း
+            const list = document.getElementById('split-items-list');
+            list.innerHTML = order.items.map((item, idx) => `
+        <div class="flex items-center justify-between bg-dark-900 p-3 rounded-2xl border border-dark-700/50 shadow-sm">
+            <div class="flex items-center gap-3">
+                <input type="checkbox" onchange="window.toggleSplitItem(${idx})" id="chk-split-${idx}" class="w-5 h-5 accent-primary cursor-pointer">
+                <div>
+                    <p class="text-sm font-bold text-white">${item.name} ${item.size ? `(${item.size})` : ''}</p>
+                    <p class="text-[10px] text-dark-muted">${item.qty} x ${item.effectivePrice.toLocaleString()} Ks</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] text-dark-muted font-bold uppercase">Qty:</span>
+                <input type="number" id="split-qty-${idx}" value="${item.qty}" min="1" max="${item.qty}" 
+                    class="w-12 bg-dark-800 border border-dark-700 rounded-lg text-center text-xs p-1.5 text-white focus:border-primary outline-none"
+                    onchange="window.updateSplitQty(${idx}, this.value)">
+            </div>
+        </div>
+    `).join('');
+
+            // ပြောင်းရွှေ့လို့ရမယ့် စားပွဲစာရင်း (လက်ရှိစားပွဲကို ချန်လှပ်ထားမယ်)
+            const tableGrid = document.getElementById('adv-target-tables');
+            tableGrid.innerHTML = state.tables.map(t => `
+        <button onclick="window.selectAdvTargetTable('${t.id}')" id="adv-t-${t.id}"
+            class="p-2.5 rounded-xl text-xs font-bold border transition-all ${String(t.id) === String(order.tableId) ? 'bg-dark-700 text-dark-500 border-dark-600 opacity-50 pointer-events-none' : 'bg-dark-800 text-dark-muted border-dark-700 hover:border-primary'}">
+            ${t.id}
+        </button>
+    `).join('');
+
+            document.getElementById('modal-advanced-billing').classList.remove('hide');
+        };
+
+        // ၂။ Checkbox အဖွင့်အပိတ် လုပ်ခြင်း
+        window.toggleSplitItem = (idx) => {
+            const qtyInput = document.getElementById(`split-qty-${idx}`);
+            const index = stateSplit.selectedItems.findIndex(i => i.index === idx);
+
+            if (index > -1) {
+                stateSplit.selectedItems.splice(index, 1); // ရွေးထားတာ ပြန်ဖြုတ်
+            } else {
+                stateSplit.selectedItems.push({ index: idx, qty: parseInt(qtyInput.value) });
+            }
+        };
+
+        // ၃။ ခွဲထုတ်မယ့် အရေအတွက် (Qty) ကို Update လုပ်ခြင်း
+        window.updateSplitQty = (idx, val) => {
+            const item = stateSplit.selectedItems.find(i => i.index === idx);
+            if (item) item.qty = parseInt(val);
+        };
+
+        // ၄။ ရွှေ့မယ့် စားပွဲနံပါတ်ကို ရွေးခြင်း
+        window.selectAdvTargetTable = (tId) => {
+            stateSplit.targetTableId = tId;
+            document.querySelectorAll('[id^="adv-t-"]').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white', 'border-primary');
+                btn.classList.add('bg-dark-800', 'text-dark-muted', 'border-dark-700');
+            });
+            const selectedBtn = document.getElementById(`adv-t-${tId}`);
+            if (selectedBtn) {
+                selectedBtn.classList.remove('bg-dark-800', 'text-dark-muted', 'border-dark-700');
+                selectedBtn.classList.add('bg-primary', 'text-white', 'border-primary');
+            }
+        };
+
+        // ၅။ အဓိက အလုပ်လုပ်မယ့် အပိုင်း (Split/Transfer အတည်ပြုခြင်း)
+        window.executeSplitBill = async (type) => {
+            if (stateSplit.selectedItems.length === 0) return window.showMessage("Please select items to move", "error");
+            if (type === 'transfer' && !stateSplit.targetTableId) return window.showMessage("Please select target table", "error");
+
+            const sourceOrder = state.orders.find(o => o.id === stateSplit.sourceOrderId);
+            if (!sourceOrder) return;
+
+            const splitItems = [];
+            const remainingItems = JSON.parse(JSON.stringify(sourceOrder.items)); // Deep copy ယူမယ်
+
+            // ဇယားထဲကနေ item တွေကို ဖြတ်ထုတ်တဲ့အခါ index မလွဲအောင် နောက်ဆုံးကနေ စဖြတ်ရမယ်
+            const sortedSelected = [...stateSplit.selectedItems].sort((a, b) => b.index - a.index);
+
+            sortedSelected.forEach(sel => {
+                const originalItem = remainingItems[sel.index];
+                const moveQty = sel.qty;
+
+                // ခွဲထုတ်လိုက်တဲ့ Item အသစ်
+                const newItem = {
+                    ...originalItem,
+                    qty: moveQty,
+                    lineTotal: moveQty * (originalItem.effectivePrice || originalItem.price),
+                    lineCost: moveQty * (originalItem.cost || 0)
+                };
+                splitItems.push(newItem);
+
+                // မူရင်း Item ထဲကနေ အရေအတွက် လျှော့ချမယ်
+                if (moveQty >= originalItem.qty) {
+                    remainingItems.splice(sel.index, 1); // အားလုံးရွှေ့ရင် အဲဒီ line ကို ဖြုတ်လိုက်မယ်
+                } else {
+                    originalItem.qty -= moveQty;
+                    originalItem.lineTotal = originalItem.qty * (originalItem.effectivePrice || originalItem.price);
+                    originalItem.lineCost = originalItem.qty * (originalItem.cost || 0);
+                }
+            });
+
+            try {
+                // စုစုပေါင်း ဈေးနှုန်းတွေ ပြန်တွက်မယ်
+                const calcTotals = (items) => ({
+                    totalPrice: items.reduce((a, b) => a + b.lineTotal, 0),
+                    totalCost: items.reduce((a, b) => a + (b.lineCost || 0), 0),
+                    subtotal: items.reduce((a, b) => a + (b.price * b.qty), 0),
+                    discount: items.reduce((a, b) => a + ((b.discount || 0) * b.qty), 0),
+                    tax: items.reduce((a, b) => a + ((b.taxAmount || 0) * b.qty), 0)
+                });
+
+                const newT = calcTotals(splitItems);
+                const remT = calcTotals(remainingItems);
+
+                // Firebase မှာ တစ်ပြိုင်တည်း Update လုပ်ဖို့ Batch သုံးမယ်
+                const { writeBatch, doc, collection } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                const batch = writeBatch(db);
+
+                // ၁။ မူရင်း Bill ကို Update လုပ်မယ် (သို့မဟုတ် အားလုံးပြောင်းသွားရင် ဖျက်မယ်)
+                const sourceRef = doc(db, 'artifacts', appId, 'public', 'data', 'orders', sourceOrder.id);
+                if (remainingItems.length === 0) {
+                    batch.delete(sourceRef);
+                } else {
+                    batch.update(sourceRef, {
+                        items: remainingItems,
+                        ...remT
+                    });
+                }
+
+                // ၂။ Bill အသစ်တစ်ခု ဖန်တီးမယ်
+                const newOrderRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'));
+                const newOrderData = {
+                    ...sourceOrder,
+                    tableId: type === 'transfer' ? stateSplit.targetTableId : sourceOrder.tableId,
+                    items: splitItems,
+                    ...newT,
+                    timestamp: new Date(),
+                    status: 'pending', // Bill အသစ်ကို pending အဖြစ်ထားမယ်
+                    isSplitOrder: true
+                };
+                delete newOrderData.id; // ID အဟောင်းကို ဖျက်မယ်
+
+                batch.set(newOrderRef, newOrderData);
+
+                await batch.commit();
+                window.closeModal('modal-advanced-billing');
+                window.showMessage("Bill Processed Successfully", "success");
+
+            } catch (e) {
+                console.error("Advanced Billing Error:", e);
+                window.showMessage("Failed to process bill", "error");
+            }
         };
 
         init();
