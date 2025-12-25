@@ -536,7 +536,12 @@
                         </div>
 
                         <!-- Row 2 (Nested Grid for Stats) -->
-                        <div class="col-span-2 md:col-span-4 grid grid-cols-3 gap-3">
+                        <div class="col-span-2 md:col-span-4 grid grid-cols-4 gap-3">
+                            <div>
+                                <label class="form-label">Stock Qty</label>
+                                <input id="new-prod-stock" type="number" placeholder="∞"
+                                    class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition text-yellow-400">
+                            </div>
                             <div>
                                 <label class="form-label">Cost (COGS)</label>
                                 <input id="new-prod-cost" type="number" placeholder="Cost"
@@ -590,7 +595,7 @@
 
             <div class="flex-1 overflow-y-auto p-5 pb-20">
                 <!-- REDESIGNED LIST CONTAINER (REPLACING TABLE) -->
-                <div id="menu-list-container" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
+                <div id="menu-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
             </div>
         </div>
 
@@ -1141,98 +1146,134 @@
                         </div>
                     </label>
                 </div>
+                <!-- GLOBAL TAX & SVC SETTINGS -->
+                <div class="mt-4 p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-3">
+                    <h4
+                        class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2">
+                        Billing Settings
+                    </h4>
+
+                    <!-- NEW: Tax Type Toggle -->
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold text-dark-muted">Tax Type</label>
+                        <div class="flex bg-dark-800 rounded-lg p-0.5 border border-dark-600">
+                            <button onclick="setTaxType('exclusive')" id="btn-tax-excl"
+                                class="px-2 py-1 rounded text-[10px] font-bold transition bg-primary text-white">Exclusive
+                                (+)</button>
+                            <button onclick="setTaxType('inclusive')" id="btn-tax-incl"
+                                class="px-2 py-1 rounded text-[10px] font-bold transition text-dark-muted hover:text-white">Inclusive
+                                (in)</button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-bold text-dark-muted">Service Charge (%)</label>
+                        <input type="number" id="setting-svc" value="0" onchange="saveGlobalSettings()"
+                            class="w-20 bg-dark-800 text-white text-right font-bold border border-dark-600 rounded p-1 outline-none focus:border-primary">
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-bold text-dark-muted">Global Tax (%)</label>
+                        <input type="number" id="setting-tax" value="0" onchange="saveGlobalSettings()"
+                            class="w-20 bg-dark-800 text-white text-right font-bold border border-dark-600 rounded p-1 outline-none focus:border-primary">
+                    </div>
+                </div>
+                <!-- ALERT TONE SECTION (Collapsible) -->
                 <div>
-                    <p class="text-xs font-bold text-dark-muted uppercase tracking-wider mb-3">Alert Tone</p>
-                    <div class="space-y-2">
+                    <p class="text-xs font-bold text-dark-muted uppercase tracking-wider mb-2">Alert Tone</p>
+
+                    <!-- Dropdown Header (နှိပ်လိုက်ရင် ပွင့်မည့် ခလုတ်) -->
+                    <div onclick="toggleSoundList()"
+                        class="w-full p-3 bg-dark-900 rounded-xl border border-dark-700 flex justify-between items-center cursor-pointer hover:bg-dark-700 transition select-none">
+                        <span id="selected-sound-name" class="font-bold text-white text-sm">Select Tone...</span>
+                        <i id="sound-chevron"
+                            class="fas fa-chevron-down text-dark-muted transition-transform duration-300"></i>
+                    </div>
+
+                    <!-- Hidden List (စာရင်းအရှည်ကြီး) -->
+                    <div id="sound-list-container"
+                        class="hide mt-2 space-y-2 max-h-48 overflow-y-auto custom-scroll p-1">
+                        <!-- List Items -->
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice" value="classic"
-                                    class="accent-primary" onchange="selectSound('classic')"><span
-                                    class="text-sm font-bold text-white">Classic Bell 🔔</span></div>
-                            <button onclick="event.preventDefault(); previewSound('classic')"
+                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sound-choice" value="classic" class="accent-primary"
+                                    onchange="selectSound('classic', 'Classic Bell 🔔')">
+                                <span class="text-sm font-bold text-white">Classic Bell 🔔</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); previewSound('classic')"
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
+
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice" value="digital"
-                                    class="accent-primary" onchange="selectSound('digital')"><span
-                                    class="text-sm font-bold text-white">Kitchen Beep 📟</span></div>
-                            <button onclick="event.preventDefault(); previewSound('digital')"
+                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sound-choice" value="digital" class="accent-primary"
+                                    onchange="selectSound('digital', 'Kitchen Beep 📟')">
+                                <span class="text-sm font-bold text-white">Kitchen Beep 📟</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); previewSound('digital')"
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
+
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice" value="soft"
-                                    class="accent-primary" onchange="selectSound('soft')"><span
-                                    class="text-sm font-bold text-white">Soft Chime ✨</span></div>
-                            <button onclick="event.preventDefault(); previewSound('soft')"
+                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sound-choice" value="soft" class="accent-primary"
+                                    onchange="selectSound('soft', 'Soft Chime ✨')">
+                                <span class="text-sm font-bold text-white">Soft Chime ✨</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); previewSound('soft')"
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
+
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice"
-                                    value="chime_up" class="accent-primary" onchange="selectSound('chime_up')"><span
-                                    class="text-sm font-bold text-white">Positive Chime 🎶</span></div>
-                            <button onclick="event.preventDefault(); previewSound('chime_up')"
+                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sound-choice" value="chime_up" class="accent-primary"
+                                    onchange="selectSound('chime_up', 'Positive Chime 🎶')">
+                                <span class="text-sm font-bold text-white">Positive Chime 🎶</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); previewSound('chime_up')"
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
+
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice" value="clash"
-                                    class="accent-primary" onchange="selectSound('clash')"><span
-                                    class="text-sm font-bold text-white">Metal Clash ⚙️</span></div>
-                            <button onclick="event.preventDefault(); previewSound('clash')"
+                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sound-choice" value="clash" class="accent-primary"
+                                    onchange="selectSound('clash', 'Metal Clash ⚙️')">
+                                <span class="text-sm font-bold text-white">Metal Clash ⚙️</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); previewSound('clash')"
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
+
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice"
-                                    value="pop_alert" class="accent-primary" onchange="selectSound('pop_alert')"><span
-                                    class="text-sm font-bold text-white">Pop Alert 📣</span></div>
-                            <button onclick="event.preventDefault(); previewSound('pop_alert')"
+                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sound-choice" value="pop_alert" class="accent-primary"
+                                    onchange="selectSound('pop_alert', 'Pop Alert 📣')">
+                                <span class="text-sm font-bold text-white">Pop Alert 📣</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); previewSound('pop_alert')"
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
+
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice"
-                                    value="bell_ring" class="accent-primary" onchange="selectSound('bell_ring')"><span
-                                    class="text-sm font-bold text-white">Telephone Ring 📞</span></div>
-                            <button onclick="event.preventDefault(); previewSound('bell_ring')"
-                                class="text-dark-muted hover:text-white px-2"><i
-                                    class="fas fa-play text-xs"></i></button>
-                        </label>
-                        <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice" value="fanfare"
-                                    class="accent-primary" onchange="selectSound('fanfare')"><span
-                                    class="text-sm font-bold text-white">Triumphal Ding 💡</span></div>
-                            <button onclick="event.preventDefault(); previewSound('fanfare')"
-                                class="text-dark-muted hover:text-white px-2"><i
-                                    class="fas fa-play text-xs"></i></button>
-                        </label>
-                        <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice"
-                                    value="cute_jingle" class="accent-primary"
-                                    onchange="selectSound('cute_jingle')"><span
-                                    class="text-sm font-bold text-white">Cute Jingle 🎵</span></div>
-                            <button onclick="event.preventDefault(); previewSound('cute_jingle')"
-                                class="text-dark-muted hover:text-white px-2"><i
-                                    class="fas fa-play text-xs"></i></button>
-                        </label>
-                        <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-900 hover:bg-dark-800 transition group">
-                            <div class="flex items-center gap-3"><input type="radio" name="sound-choice"
-                                    value="victory_song" class="accent-primary"
-                                    onchange="selectSound('victory_song')"><span
-                                    class="text-sm font-bold text-white">Victory Tune 🏆</span></div>
-                            <button onclick="event.preventDefault(); previewSound('victory_song')"
+                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sound-choice" value="bell_ring" class="accent-primary"
+                                    onchange="selectSound('bell_ring', 'Telephone Ring 📞')">
+                                <span class="text-sm font-bold text-white">Telephone Ring 📞</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); previewSound('bell_ring')"
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
@@ -1641,8 +1682,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+        import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc, setDoc, getDoc, serverTimestamp, writeBatch, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Canvas Animation Script (Injected)
         (function () {
@@ -1777,25 +1817,129 @@
         // playSingleBeep disabled for non-essential actions as requested
         window.playSingleBeep = () => { };
 
+        // Settings Modal ဖွင့်တဲ့အခါ အလုပ်လုပ်မည့် Function
         window.openSettingsModal = () => {
+            // ၁. Modal ကို ဖော်မယ်
             document.getElementById('modal-settings').classList.remove('hide');
-            document.getElementById('chk-sound-enabled').checked = soundState.enabled;
-            const radio = document.querySelector(`input[name="sound-choice"][value="${soundState.choice}"]`);
-            if (radio) radio.checked = true;
-        };
 
+            // ၂. အသံဖွင့်/ပိတ် ခလုတ်ကို ချိန်ညှိမယ်
+            document.getElementById('chk-sound-enabled').checked = soundState.enabled;
+
+            // ၃. လက်ရှိ ရွေးထားတဲ့ အသံ (soundState.choice) နဲ့ တူတဲ့ Radio Button ကို ရှာမယ်
+            const radio = document.querySelector(`input[name="sound-choice"][value="${soundState.choice}"]`);
+
+            if (radio) {
+                // Radio ကို checked လုပ်မယ်
+                radio.checked = true;
+
+                // အရေးကြီးသည် - Radio ဘေးနားက စာသား (span tag) ကို ယူပြီး Header မှာ ပြမယ်
+                // HTML မှာ <input> ပြီးရင် <span> လာတာမို့ nextElementSibling ကို သုံးပါတယ်
+                const soundLabelName = radio.nextElementSibling.innerText;
+                document.getElementById('selected-sound-name').innerText = soundLabelName;
+            }
+
+            // ၄. Modal ဖွင့်တိုင်း Dropdown စာရင်းကို ပိတ်ထားမယ် (မပွင့်နေစေချင်လို့ပါ)
+            document.getElementById('sound-list-container').classList.add('hide');
+            document.getElementById('sound-chevron').style.transform = 'rotate(0deg)';
+        };
         window.toggleSoundSetting = (val) => {
             soundState.enabled = val;
             localStorage.setItem('pingpos_sound_enabled', val);
             if (!val) window.stopIncomingOrderAlert();
         };
 
-        window.selectSound = (val) => {
-            soundState.choice = val;
-            localStorage.setItem('pingpos_sound_choice', val);
-            audioEl.src = sounds[val];
+        // 1. Load Settings
+        function loadGlobalSettings() {
+            const savedTax = localStorage.getItem('pingpos_tax');
+            const savedSvc = localStorage.getItem('pingpos_svc');
+            const savedType = localStorage.getItem('pingpos_tax_type'); // New
+
+            state.globalSettings.tax = savedTax ? parseFloat(savedTax) : 0;
+            state.globalSettings.serviceCharge = savedSvc ? parseFloat(savedSvc) : 0;
+            state.globalSettings.taxType = savedType || 'exclusive'; // New
+
+            // UI Update
+            const taxInput = document.getElementById('setting-tax');
+            const svcInput = document.getElementById('setting-svc');
+            if (taxInput) taxInput.value = state.globalSettings.tax;
+            if (svcInput) svcInput.value = state.globalSettings.serviceCharge;
+
+            // Update Toggle Button UI
+            updateTaxTypeUI();
+        }
+
+        // Helper to switch tax type
+        window.setTaxType = (type) => {
+            state.globalSettings.taxType = type;
+            updateTaxTypeUI();
+            saveGlobalSettings();
         };
 
+        function updateTaxTypeUI() {
+            const btnExcl = document.getElementById('btn-tax-excl');
+            const btnIncl = document.getElementById('btn-tax-incl');
+            if (state.globalSettings.taxType === 'inclusive') {
+                btnIncl.className = "px-2 py-1 rounded text-[10px] font-bold transition bg-primary text-white shadow";
+                btnExcl.className = "px-2 py-1 rounded text-[10px] font-bold transition text-dark-muted hover:text-white";
+            } else {
+                btnExcl.className = "px-2 py-1 rounded text-[10px] font-bold transition bg-primary text-white shadow";
+                btnIncl.className = "px-2 py-1 rounded text-[10px] font-bold transition text-dark-muted hover:text-white";
+            }
+        }
+
+        // 2. Save Settings
+        window.saveGlobalSettings = () => {
+            const taxVal = document.getElementById('setting-tax').value;
+            const svcVal = document.getElementById('setting-svc').value;
+
+            state.globalSettings.tax = parseFloat(taxVal) || 0;
+            state.globalSettings.serviceCharge = parseFloat(svcVal) || 0;
+            // taxType is already updated by setTaxType, but we save everything now
+
+            localStorage.setItem('pingpos_tax', state.globalSettings.tax);
+            localStorage.setItem('pingpos_svc', state.globalSettings.serviceCharge);
+            localStorage.setItem('pingpos_tax_type', state.globalSettings.taxType);
+
+            window.showMessage("Billing Settings Saved", "success");
+        };
+        // init() function ထဲမှာ loadGlobalSettings(); ကို ခေါ်ပေးရပါမယ်။
+        // async function init() { ... } ထဲက updateContent(); ရဲ့ အောက်နားမှာ ထည့်လိုက်ပါ။
+
+        // အသံရွေးချယ်လိုက်တဲ့အခါ အလုပ်လုပ်မည့် Function
+        window.selectSound = (val, name) => {
+            // ၁. State ထဲမှာ တန်ဖိုးပြောင်းမယ်
+            soundState.choice = val;
+            localStorage.setItem('pingpos_sound_choice', val);
+
+            // ၂. Audio Source ပြောင်းမယ်
+            audioEl.src = sounds[val];
+
+            // ၃. Dropdown ခေါင်းစဉ် (Header) မှာ ရွေးလိုက်တဲ့ နာမည်ကို ပြောင်းမယ်
+            // HTML ထဲမှာ onchange="selectSound('classic', 'Classic Bell 🔔')" လို့ ရေးထားလို့ name ပါလာပါလိမ့်မယ်
+            if (name) {
+                document.getElementById('selected-sound-name').innerText = name;
+            }
+
+            // ၄. (စိတ်ကြိုက်) ရွေးပြီးတာနဲ့ List ကို ပြန်ပိတ်ချင်ရင် ဒီအောက်က ၂ ကြောင်းကို Comment ပြန်ဖွင့်ပါ
+            // document.getElementById('sound-list-container').classList.add('hide');
+            // document.getElementById('sound-chevron').style.transform = 'rotate(0deg)';
+        };
+        // Dropdown အဖွင့်/အပိတ် လုပ်မည့် Function
+        window.toggleSoundList = () => {
+            const list = document.getElementById('sound-list-container');
+            const chevron = document.getElementById('sound-chevron'); // မြှား Icon
+
+            if (list.classList.contains('hide')) {
+                // ပိတ်နေရင် ဖွင့်မယ်
+                list.classList.remove('hide');
+                list.classList.add('animate-slide-up'); // Animation ထည့်မယ်
+                chevron.style.transform = 'rotate(180deg)'; // မြှားကို အပေါ်လှန်မယ်
+            } else {
+                // ဖွင့်နေရင် ပိတ်မယ်
+                list.classList.add('hide');
+                chevron.style.transform = 'rotate(0deg)'; // မြှားကို ပြန်လှည့်မယ်
+            }
+        };
         window.previewSound = (val) => {
             const preview = new Audio(sounds[val]);
             preview.play().catch(() => { });
@@ -1932,7 +2076,9 @@
             transferOrderId: null,
             transferTargetId: null,
             transferMode: 'transfer', // 'transfer' or 'merge'
-            paymentOrderId: null
+            paymentOrderId: null,
+            globalSettings: { tax: 0, serviceCharge: 0 },
+            globalSettings: { tax: 0, serviceCharge: 0, taxType: 'exclusive' },
         };
         let stateSplit = {
             sourceOrderId: null,
@@ -2050,6 +2196,7 @@
             if (autoRet !== null) document.getElementById('chk-auto-return').checked = (autoRet === 'true');
 
             updateContent();
+            loadGlobalSettings();
 
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('table')) state.tableId = urlParams.get('table');
@@ -2268,7 +2415,7 @@
 
             filteredProducts.forEach(p => {
                 const imgHtml = (p.image && p.image.startsWith('http')) ? `<img src="${p.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">` : `<div class="w-full h-full flex items-center justify-center text-4xl text-dark-700"><i class="fas fa-utensils"></i></div>`;
-                const isSoldOut = p.isSoldOut === true;
+                const isSoldOut = p.isSoldOut === true || (p.stock !== null && p.stock !== undefined && p.stock <= 0);
                 const discountAmt = p.discount || 0;
                 // Tax is separate calculation, here we just show base price minus discount
                 const effectiveBasePrice = p.price - discountAmt;
@@ -2281,6 +2428,9 @@
                 el.innerHTML = `
                     ${isSoldOut ? `<div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"><span class="bg-red-600/90 text-white border-2 border-white font-black text-xl px-6 py-2 transform -rotate-12 shadow-2xl tracking-widest rounded-lg">${resources[state.lang]['sold_out'] || 'SOLD OUT'}</span></div>` : ""}
                     ${discountAmt > 0 && !isSoldOut ? `<div class="absolute top-2 left-2 z-20 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-lg flex items-center gap-1"><i class="fas fa-tag"></i> Save -${discountAmt}</div>` : ''}
+                    ${(p.stock !== null && p.stock !== undefined && p.stock <= 10 && !isSoldOut)
+                        ? `<div class="absolute top-2 right-2 z-20 bg-orange-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-lg animate-pulse">Only ${p.stock} left!</div>`
+                        : ''}
                     <div class="${isSoldOut ? 'sold-out-filter' : ''} w-full h-full">
                         <div class="absolute inset-0 w-full h-full">${imgHtml}</div>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90"></div>
@@ -2301,41 +2451,61 @@
                 grid.appendChild(el);
             });
         }
+        // UPDATED ADMIN ORDER RENDER (With Separate Print Buttons)
         window.renderAdminOrders = () => {
             const grid = document.getElementById('orders-grid');
             grid.innerHTML = '';
-            if (state.orders.length === 0) return document.getElementById('no-orders-msg').classList.remove('hidden');
-            document.getElementById('no-orders-msg').classList.add('hidden');
+
+            // Cancelled မဖြစ်သေးတဲ့ Order တွေကို ယူမယ်
             const activeOrders = state.orders.filter(o => o.status !== 'cancelled');
+
             if (activeOrders.length === 0) return document.getElementById('no-orders-msg').classList.remove('hidden');
+            document.getElementById('no-orders-msg').classList.add('hidden');
 
             activeOrders.forEach(order => {
-                let statusColor, stText, actionBtnLabel, actionBtnFunc;
+                let statusColor, stText, actionBtn;
                 let cardClass = "bg-dark-800 rounded-2xl shadow-lg border border-dark-700 p-4 flex flex-col gap-3";
+
+                // Print Buttons Logic
+                // ဒီနေရာမှာ Food နဲ့ Drink အတွက် ခလုတ်အသေးလေး ၂ ခု ဖန်တီးပါမယ်
+                const printBtnGroup = `
+            <div class="flex gap-1 mt-2">
+                <button onclick="window.printTicket('${order.id}', 'kitchen', 'kitchen')" class="flex-1 bg-dark-700 text-white border border-dark-600 py-1.5 rounded-lg text-[10px] font-bold hover:bg-dark-600 hover:border-gray-400 transition flex items-center justify-center gap-1" title="Print Food Only">
+                    <i class="fas fa-utensils text-orange-400"></i> Food
+                </button>
+                <button onclick="window.printTicket('${order.id}', 'kitchen', 'bar')" class="flex-1 bg-dark-700 text-white border border-dark-600 py-1.5 rounded-lg text-[10px] font-bold hover:bg-dark-600 hover:border-gray-400 transition flex items-center justify-center gap-1" title="Print Drinks Only">
+                    <i class="fas fa-cocktail text-blue-400"></i> Bar
+                </button>
+            </div>
+        `;
+
                 if (order.status === 'pending') {
-                    statusColor = "bg-yellow-900/20 text-yellow-400 border-yellow-900/50"; stText = "Pending";
-                    actionBtnLabel = "Start"; actionBtnFunc = `window.startOrder('${order.id}')`;
+                    statusColor = "bg-yellow-900/20 text-yellow-400 border-yellow-900/50";
+                    stText = "Pending";
+                    // Start ခလုတ်နှိပ်ရင် Food Ticket ကို Auto ထုတ်ပေးမယ် (Default)
+                    actionBtn = `<button onclick="window.startOrder('${order.id}')" class="flex-1 bg-white text-dark-900 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-200 transition">Start & Print Food</button>`;
                 } else if (order.status === 'cooking') {
-                    statusColor = "bg-blue-900/20 text-blue-400 border-blue-900/50"; stText = "Cooking";
-                    actionBtnLabel = "Serve"; actionBtnFunc = `window.confirmServedPaymentModal('${order.id}')`;
+                    statusColor = "bg-blue-900/20 text-blue-400 border-blue-900/50";
+                    stText = "Cooking";
+                    actionBtn = `<button onclick="window.confirmServedPaymentModal('${order.id}')" class="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-green-600 transition">Serve</button>`;
                 } else if (order.status === 'served') {
-                    statusColor = "bg-gray-700/50 text-gray-400 border-gray-700"; stText = "Served";
+                    statusColor = "bg-gray-700/50 text-gray-400 border-gray-700";
+                    stText = "Served";
                 }
 
-                let btnHtml = '';
+                let mainControls = '';
                 if (order.status !== 'served') {
-                    btnHtml = `
-                    <div class="flex w-full gap-2 mt-1">
-                        <button onclick="window.openTransferModal('${order.id}', '${order.tableId}', '${order.orderType}')" class="flex-1 bg-indigo-900/20 text-indigo-400 border border-indigo-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-900/40 transition flex items-center justify-center" title="Transfer / Merge"><i class="fas fa-object-group"></i></button>
-                        <button onclick="window.cancelKitchenOrder('${order.id}')" class="flex-1 bg-red-900/20 text-red-500 border border-red-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-red-900/40 transition flex items-center justify-center"><i class="fas fa-trash-alt"></i></button>
-                        <button onclick="${actionBtnFunc}" class="flex-1 bg-white text-dark-900 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-200 transition">${actionBtnLabel}</button>
-                       
-<button onclick="window.openAdvancedBillingModal('${order.id}')" class="flex-1 bg-blue-900/20 text-blue-400 border border-blue-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-900/40 transition flex items-center justify-center" title="Split/Transfer Items">
-    <i class="fas fa-scissors"></i>
-</button>
-                    </div>`;
+                    mainControls = `
+            <div class="flex w-full gap-2 mt-1">
+                <button onclick="window.openTransferModal('${order.id}', '${order.tableId}', '${order.orderType}')" class="w-10 bg-indigo-900/20 text-indigo-400 border border-indigo-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-900/40 transition flex items-center justify-center"><i class="fas fa-object-group"></i></button>
+                <button onclick="window.cancelKitchenOrder('${order.id}')" class="w-10 bg-red-900/20 text-red-500 border border-red-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-red-900/40 transition flex items-center justify-center"><i class="fas fa-trash-alt"></i></button>
+                ${actionBtn}
+                <button onclick="window.openAdvancedBillingModal('${order.id}')" class="w-10 bg-blue-900/20 text-blue-400 border border-blue-900/50 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-900/40 transition flex items-center justify-center">
+                    <i class="fas fa-scissors"></i>
+                </button>
+            </div>`;
                 } else {
-                    btnHtml = `<button onclick="window.printTicket('${order.id}', 'customer')" class="w-full border border-dark-700 text-gray-300 py-2 rounded-xl text-xs font-bold hover:bg-dark-700 transition">Print Receipt</button>`;
+                    mainControls = `<button onclick="window.printTicket('${order.id}', 'customer')" class="w-full border border-dark-700 text-gray-300 py-2 rounded-xl text-xs font-bold hover:bg-dark-700 transition">Print Full Receipt</button>`;
                 }
 
                 const isTakeaway = order.orderType === 'takeaway';
@@ -2344,21 +2514,53 @@
 
                 const div = document.createElement('div');
                 div.className = cardClass;
-                div.innerHTML = `<div class="flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-dark-900 flex items-center justify-center font-bold text-white border border-dark-700 shadow-inner">${order.tableId}</div><span class="text-xs font-bold text-gray-400">#${order.id.slice(0, 4)}</span></div><div class="flex items-center">${typeBadge}${pMethodBadge}<span class="px-2 py-1 rounded-lg text-[10px] font-bold border ${statusColor} ml-2">${stText}</span></div></div><div class="flex-1 overflow-y-auto max-h-32 space-y-2 py-2 border-t border-b border-dark-700 custom-scroll">${order.items.map(i => `<div class="flex justify-between font-bold text-white text-sm"><span>${i.qty}x ${i.name} ${i.size ? `(${i.size})` : ''}</span></div>`).join('')}</div><div class="flex flex-col gap-2"><div class="flex justify-between items-center px-1"><span class="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Total</span><span class="font-bold text-base text-white">${order.totalPrice.toLocaleString()} Ks</span></div>${btnHtml}</div>`;
+                div.innerHTML = `
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-dark-900 flex items-center justify-center font-bold text-white border border-dark-700 shadow-inner">${order.tableId}</div>
+                    <span class="text-xs font-bold text-gray-400">#${order.id.slice(0, 4)}</span>
+                </div>
+                <div class="flex items-center">
+                    ${typeBadge}${pMethodBadge}
+                    <span class="px-2 py-1 rounded-lg text-[10px] font-bold border ${statusColor} ml-2">${stText}</span>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto max-h-32 space-y-2 py-2 border-t border-b border-dark-700 custom-scroll">
+                ${order.items.map(i => {
+                    // အရောင်ခွဲပြမယ် (Bar Items ကို အပြာရောင်ဖျော့ဖျော့လေးပြမယ်)
+                    const isBarItem = ['Drink', 'Dessert', 'Beverage'].includes(i.category);
+                    const textColor = isBarItem ? "text-blue-300" : "text-white";
+                    return `<div class="flex justify-between font-bold ${textColor} text-sm"><span>${i.qty}x ${i.name} ${i.size ? `(${i.size})` : ''}</span></div>`
+                }).join('')}
+            </div>
+            
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Total</span>
+                    <span class="font-bold text-base text-white">${order.totalPrice.toLocaleString()} Ks</span>
+                </div>
+                <!-- Manual Print Buttons -->
+                ${order.status !== 'served' ? printBtnGroup : ''}
+                
+                ${mainControls}
+            </div>`;
                 grid.appendChild(div);
             });
         };
-
         window.startOrder = async (id) => {
             window.stopIncomingOrderAlert();
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', id), { status: 'cooking' });
-                window.printTicket(id, 'kitchen');
+
+                // ပြင်လိုက်တဲ့အချက်: 
+                // ဒီနေရာမှာ (id, 'kitchen', 'kitchen') လို့ ပြောင်းလိုက်တဲ့အတွက် 
+                // Start နှိပ်လိုက်တာနဲ့ "အစားအသောက် (Food)" ကိုပဲ အရင်ဆုံး Print ထုတ်ပေးပါလိမ့်မယ်။
+                window.printTicket(id, 'kitchen', 'kitchen');
             } catch (e) {
                 console.error(e);
             }
         };
-
         // NEW FEATURE: served with payment selection
         window.confirmServedPaymentModal = (id) => {
             state.paymentOrderId = id;
@@ -2399,67 +2601,70 @@
             }
         };
 
-        function renderMenuManager() {
-            document.getElementById('menu-list-container').innerHTML = state.products.map(p => {
-                const isSoldOut = p.isSoldOut === true;
-                const disc = p.discount || 0;
-                const tax = p.tax || 0;
-                const imageSrc = (p.image && p.image.startsWith('http')) ? p.image : 'https://placehold.co/100x100/1F2937/9CA3AF?text=Food';
+       window.renderMenuManager = () => {
+    const listContainer = document.getElementById('menu-list-container');
+    
+    // ဒီနေရာမှာ Stock ပြတဲ့ Logic တွေပါ ထည့်ပေါင်းရေးပေးထားပါတယ်
+    listContainer.innerHTML = state.products.map(p => {
+        // Stock 0 ဖြစ်ရင် Sold Out ပြမယ့် Logic
+        const isSoldOut = p.isSoldOut === true || (p.stock !== null && p.stock !== undefined && p.stock <= 0);
+        const disc = p.discount || 0;
+        const tax = p.tax || 0;
+        const imageSrc = (p.image && p.image.startsWith('http')) ? p.image : 'https://placehold.co/100x100/1F2937/9CA3AF?text=Food';
 
-                return `
-                <div class="bg-dark-800 rounded-xl p-3 flex gap-3 items-center border border-dark-700 shadow-sm relative overflow-hidden group">
-                    <!-- Status overlay if sold out -->
-                    ${isSoldOut ? '<div class="absolute inset-0 bg-dark-900/60 z-10 flex items-center justify-center backdrop-blur-[1px]"><span class="text-red-500 font-black -rotate-12 border-2 border-red-500 px-2 py-1 rounded text-xs tracking-widest uppercase shadow-lg bg-dark-900/80">Sold Out</span></div>' : ''}
+        return `
+        <div class="bg-dark-800 rounded-xl p-3 flex gap-3 items-center border border-dark-700 shadow-sm relative overflow-hidden group">
+            ${isSoldOut ? '<div class="absolute inset-0 bg-dark-900/60 z-10 flex items-center justify-center backdrop-blur-[1px]"><span class="text-red-500 font-black -rotate-12 border-2 border-red-500 px-2 py-1 rounded text-xs tracking-widest uppercase shadow-lg bg-dark-900/80">Sold Out</span></div>' : ''}
 
-                    <!-- Image -->
-                    <div class="w-16 h-16 shrink-0 rounded-lg bg-dark-900 overflow-hidden border border-dark-600">
-                        <img src="${imageSrc}" class="w-full h-full object-cover">
-                    </div>
+            <div class="w-16 h-16 shrink-0 rounded-lg bg-dark-900 overflow-hidden border border-dark-600">
+                <img src="${imageSrc}" class="w-full h-full object-cover">
+            </div>
 
-                    <!-- Info -->
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-bold text-sm truncate">${p.name}</h4>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[10px] bg-dark-700 text-dark-muted px-1.5 py-0.5 rounded border border-dark-600 uppercase font-bold tracking-wide">${p.category || 'Other'}</span>
-                            ${disc > 0 ? `<span class="text-[10px] text-green-400 font-bold bg-green-900/20 px-1 rounded">-${disc}</span>` : ''}
-                        </div>
-                        <div class="font-bold text-primary text-sm mt-1 font-mono flex items-center gap-2">
-                            ${p.price.toLocaleString()} Ks
-                            ${tax > 0 ? `<span class="text-[9px] text-blue-400 border border-blue-500/30 px-1 rounded bg-blue-900/10">+${tax}% Tax</span>` : ''}
-                        </div>
-                    </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="text-white font-bold text-sm truncate">${p.name}</h4>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[10px] bg-dark-700 text-dark-muted px-1.5 py-0.5 rounded border border-dark-600 uppercase font-bold tracking-wide">${p.category || 'Other'}</span>
+                    
+                    <!-- Stock လက်ကျန်ပြမယ့်နေရာ -->
+                    ${(p.stock !== null && p.stock !== undefined) 
+                        ? `<span class="text-[10px] ${p.stock > 5 ? 'text-yellow-400 bg-yellow-900/20' : 'text-red-400 bg-red-900/20'} font-bold px-1.5 py-0.5 rounded border border-white/10">Stock: ${p.stock}</span>` 
+                        : ''}
 
-                    <!-- Actions -->
-                    <div class="flex flex-col gap-2 z-20 shrink-0 border-l border-dark-700 pl-3">
-                        <button onclick="window.toggleStock('${p.id}', ${isSoldOut})" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isSoldOut ? 'bg-red-900/20 text-red-400 border border-red-900/50' : 'bg-green-900/20 text-green-400 border border-green-900/50 hover:bg-green-900/30'}" title="Toggle Stock">
-                            <i class="fas ${isSoldOut ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
-                        </button>
-                        <div class="flex gap-2">
-                            <button onclick="window.editProduct('${p.id}')" class="w-8 h-8 rounded-lg bg-dark-700 text-white hover:bg-primary hover:shadow-lg transition-all flex items-center justify-center border border-dark-600">
-                                <i class="fas fa-pen text-xs"></i>
-                            </button>
-                            <button onclick="window.deleteProduct('${p.id}')" class="w-8 h-8 rounded-lg bg-dark-700 text-red-400 hover:bg-red-900/30 hover:text-red-300 hover:border-red-900/50 transition-all flex items-center justify-center border border-dark-600">
-                                <i class="fas fa-trash text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+                    ${disc > 0 ? `<span class="text-[10px] text-green-400 font-bold bg-green-900/20 px-1 rounded">-${disc}</span>` : ''}
+                </div>
+                <div class="font-bold text-primary text-sm mt-1 font-mono flex items-center gap-2">
+                    ${p.price.toLocaleString()} Ks
+                    ${tax > 0 ? `<span class="text-[9px] text-blue-400 border border-blue-500/30 px-1 rounded bg-blue-900/10">+${tax}% Tax</span>` : ''}
+                </div>
+            </div>
 
-            const select = document.getElementById('new-prod-category');
-            if (select) {
-                const options = state.customCategories.map(cat => `<option value="${cat}">${resources[state.lang][cat] || cat}</option>`).join('') + `<option value="Other">${resources[state.lang]['Other'] || 'Other'}</option>`;
-                select.innerHTML = options;
-                if (state.editingProductId) {
-                    const p = state.products.find(x => x.id === state.editingProductId);
-                    if (p) select.value = p.category || 'Other';
-                }
-            }
-            if (document.getElementById('screen-categories') && !document.getElementById('screen-categories').classList.contains('hide')) {
-                window.renderCategoryManager();
-            }
+            <div class="flex flex-col gap-2 z-20 shrink-0 border-l border-dark-700 pl-3">
+                <button onclick="window.toggleStock('${p.id}', ${isSoldOut})" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isSoldOut ? 'bg-red-900/20 text-red-400 border border-red-900/50' : 'bg-green-900/20 text-green-400 border border-green-900/50 hover:bg-green-900/30'}" title="Toggle Stock">
+                    <i class="fas ${isSoldOut ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="window.editProduct('${p.id}')" class="w-8 h-8 rounded-lg bg-dark-700 text-white hover:bg-primary hover:shadow-lg transition-all flex items-center justify-center border border-dark-600">
+                        <i class="fas fa-pen text-xs"></i>
+                    </button>
+                    <button onclick="window.deleteProduct('${p.id}')" class="w-8 h-8 rounded-lg bg-dark-700 text-red-400 hover:bg-red-900/30 hover:text-red-300 hover:border-red-900/50 transition-all flex items-center justify-center border border-dark-600">
+                        <i class="fas fa-trash text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }).join(''); // <--- ဒီနေရာမှာ .join('') ပါမှ ဘယ်/ညာ ကွက်တိ ဝင်မှာပါ
+
+    // Dropdown ပြန် update လုပ်တဲ့ အပိုင်း
+    const select = document.getElementById('new-prod-category');
+    if (select) {
+        const options = state.customCategories.map(cat => `<option value="${cat}">${resources[state.lang][cat] || cat}</option>`).join('') + `<option value="Other">${resources[state.lang]['Other'] || 'Other'}</option>`;
+        select.innerHTML = options;
+        if (state.editingProductId) {
+            const p = state.products.find(x => x.id === state.editingProductId);
+            if (p) select.value = p.category || 'Other';
         }
-
+    }
+};
         window.toggleStock = async (id, currentStatus) => { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id), { isSoldOut: !currentStatus }); } catch (e) { console.error(e); } };
 
         window.toggleMenuForm = (forceState = null) => {
@@ -2490,6 +2695,7 @@
 
             document.getElementById('new-prod-name').value = p.name;
             document.getElementById('new-prod-price').value = p.price;
+            document.getElementById('new-prod-stock').value = (p.stock !== undefined && p.stock !== null) ? p.stock : '';
             document.getElementById('new-prod-cost').value = p.cost || '';
             document.getElementById('new-prod-discount').value = p.discount || '';
             document.getElementById('new-prod-tax').value = p.tax || '';
@@ -2531,6 +2737,9 @@
         };
 
         window.saveProduct = async () => {
+            const stockVal = document.getElementById('new-prod-stock').value;
+            const stock = stockVal === '' ? null : parseInt(stockVal); // ဘာမှမရေးရင် Unlimited (null) လို့ သတ်မှတ်မယ်
+
             const n = document.getElementById('new-prod-name').value;
             const p = parseInt(document.getElementById('new-prod-price').value);
             const cost = parseInt(document.getElementById('new-prod-cost').value) || 0;
@@ -2559,6 +2768,7 @@
             const data = {
                 name: n,
                 price: p,
+                stock: stock,
                 cost: cost,
                 discount: disc,
                 tax: tax,
@@ -2764,6 +2974,18 @@
         window.updateQty = (c) => { let q = state.selectedProduct.qty + c; if (q >= 1) { state.selectedProduct.qty = q; document.getElementById('mp-qty').innerText = q; } };
 
         window.addToCart = () => {
+            const currentStock = state.selectedProduct.stock;
+            if (currentStock !== null && currentStock !== undefined) {
+                // Cart ထဲမှာ ရှိပြီးသား အရေအတွက်ကိုပါ ပေါင်းစစ်ရမယ်
+                const existingItem = state.cart.find(i => i.id === state.selectedProduct.id);
+                const existingQty = existingItem ? existingItem.qty : 0;
+                const requestedQty = state.selectedProduct.qty;
+
+                if (existingQty + requestedQty > currentStock) {
+                    window.showMessage(`Sorry, only ${currentStock} item(s) available.`, 'error');
+                    return; // Stock မလောက်ရင် ဆက်မလုပ်တော့ဘူး
+                }
+            }
             const checkboxes = document.querySelectorAll('input[name="prod_option"]:checked');
             const remark = document.getElementById('prod-remark').value.trim();
 
@@ -2849,47 +3071,163 @@
         };
 
         window.updateCheckoutTotals = () => {
+            // 1. Basic Totals
             const totalSubtotal = state.cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-            const totalDiscount = state.cart.reduce((acc, item) => acc + ((item.discount || 0) * item.qty), 0);
-            const totalTax = state.cart.reduce((acc, item) => acc + ((item.taxAmount || 0) * item.qty), 0);
-            const grandTotal = state.cart.reduce((acc, item) => acc + item.lineTotal, 0);
+            const totalItemDiscount = state.cart.reduce((acc, item) => acc + ((item.discount || 0) * item.qty), 0);
+            const taxableAmount = totalSubtotal - totalItemDiscount; // This is the Base Amount
 
+            const scRate = state.globalSettings.serviceCharge || 0;
+            const taxRate = state.globalSettings.tax || 0;
+            const isInclusive = state.globalSettings.taxType === 'inclusive';
+
+            let totalServiceCharge = 0;
+            let totalTax = 0;
+            let grandTotal = 0;
+
+            if (isInclusive) {
+                // INCLUSIVE CALCULATION
+                // Base Amount ထဲမှာ Tax ပါပြီးသား။ 
+                // Service Charge ကတော့ Base Amount အပေါ်မှာ ထပ်ပေါင်းလေ့ရှိတယ်။
+
+                // 1. SC တွက်မယ် (မူရင်းဈေးပေါ်မှာပဲ တွက်လေ့ရှိသည်)
+                totalServiceCharge = taxableAmount * (scRate / 100);
+
+                // 2. Grand Total (Price + SC)
+                grandTotal = taxableAmount + totalServiceCharge;
+
+                // 3. Tax ကို ပြန်ထုတ်မယ် (Display Only)
+                // Tax Formula: Amount - (Amount / (1 + Rate/100))
+                // Note: Tax က SC အပေါ်မှာပါ ကောက်လေ့ရှိရင် (taxableAmount + totalServiceCharge) ပေါ်တွက်
+                totalTax = grandTotal - (grandTotal / (1 + (taxRate / 100)));
+
+            } else {
+                // EXCLUSIVE CALCULATION (Old Way)
+                // 1. SC တွက်မယ်
+                totalServiceCharge = taxableAmount * (scRate / 100);
+
+                // 2. Tax တွက်မယ် (Amount + SC) အပေါ်မှာကောက်
+                totalTax = (taxableAmount + totalServiceCharge) * (taxRate / 100);
+
+                // 3. Grand Total
+                grandTotal = taxableAmount + totalServiceCharge + totalTax;
+            }
+
+            // UI Update
             document.getElementById('checkout-subtotal').innerText = totalSubtotal.toLocaleString() + ' Ks';
-            document.getElementById('checkout-discount-val').innerText = '-' + totalDiscount.toLocaleString() + ' Ks';
-            document.getElementById('checkout-tax-val').innerText = '+' + totalTax.toLocaleString() + ' Ks';
-            document.getElementById('checkout-grand-total').innerText = grandTotal.toLocaleString() + ' Ks';
-        };
+            document.getElementById('checkout-discount-val').innerText = '-' + totalItemDiscount.toLocaleString() + ' Ks';
 
+            // Update Tax Display
+            let taxLabel = isInclusive ? `Tax (Incl. ${taxRate}%)` : `Total Tax (${taxRate}%)`;
+            // Update Tax Value
+            let taxEl = document.getElementById('checkout-tax-val');
+            taxEl.innerText = (isInclusive ? '' : '+') + Math.round(totalTax).toLocaleString() + ' Ks';
+
+            // Update Label logic specifically for tax row text if needed, 
+            // but for now, we just update the value. You might want to update the label text too in HTML.
+            taxEl.previousElementSibling.innerText = taxLabel;
+
+            // Service Charge Logic (Inject/Update Row)
+            let scRow = document.getElementById('row-checkout-svc');
+            if (!scRow && totalServiceCharge > 0) {
+                const taxRow = taxEl.parentElement;
+                const newRow = document.createElement('div');
+                newRow.id = 'row-checkout-svc';
+                newRow.className = "flex justify-between items-center text-xs text-orange-400";
+                newRow.innerHTML = `<span>Service Charge (${scRate}%)</span><span id="checkout-svc-val">+${Math.round(totalServiceCharge).toLocaleString()} Ks</span>`;
+                taxRow.parentNode.insertBefore(newRow, taxRow);
+            } else if (scRow) {
+                document.getElementById('checkout-svc-val').innerText = '+' + Math.round(totalServiceCharge).toLocaleString() + ' Ks';
+                if (totalServiceCharge === 0) scRow.remove();
+            }
+
+            document.getElementById('checkout-grand-total').innerText = Math.round(grandTotal).toLocaleString() + ' Ks';
+        };
         window.removeFromCart = (i) => { state.cart.splice(i, 1); if (state.cart.length === 0) closeModal('modal-checkout'); else window.openCheckoutModal(); updateCartUI(); };
 
         window.submitOrder = async () => {
-            if (!state.user) return window.showMessage(resources[state.lang]['not_connected'] || "Not Connected", 'error');
+            // ၁. Login ဝင်ထားလား စစ်မယ်
+            if (!state.user) return window.showMessage("Not Connected", 'error');
 
+            // ၂. ပိုက်ဆံတွေ အရင်တွက်မယ် (ဒီအတိုင်း ကူးထည့်လိုက်ပါ)
             const totalSubtotal = state.cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-            const totalDiscount = state.cart.reduce((acc, item) => acc + ((item.discount || 0) * item.qty), 0);
-            const totalTax = state.cart.reduce((acc, item) => acc + ((item.taxAmount || 0) * item.qty), 0);
-            const grandTotal = state.cart.reduce((acc, item) => acc + item.lineTotal, 0);
+            const totalItemDiscount = state.cart.reduce((acc, item) => acc + ((item.discount || 0) * item.qty), 0);
+            const taxableAmount = totalSubtotal - totalItemDiscount;
+
+            const scRate = state.globalSettings.serviceCharge || 0;
+            const taxRate = state.globalSettings.tax || 0;
+            const isInclusive = state.globalSettings.taxType === 'inclusive';
+
+            let totalServiceCharge = 0;
+            let totalTax = 0;
+            let grandTotal = 0;
+
+            // Inclusive / Exclusive တွက်နည်း
+            if (isInclusive) {
+                totalServiceCharge = taxableAmount * (scRate / 100);
+                grandTotal = taxableAmount + totalServiceCharge;
+                totalTax = grandTotal - (grandTotal / (1 + (taxRate / 100)));
+            } else {
+                totalServiceCharge = taxableAmount * (scRate / 100);
+                totalTax = (taxableAmount + totalServiceCharge) * (taxRate / 100);
+                grandTotal = taxableAmount + totalServiceCharge + totalTax;
+            }
             const totalCost = state.cart.reduce((acc, item) => acc + (item.lineCost || 0), 0);
 
+
+            // ၃. Database ထဲ စတင်သိမ်းဆည်းမယ့် အပိုင်း
             try {
+                // အဆင့် (က) - Order စာရင်းကို Database ထဲ အရင်သိမ်းမယ်
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), {
                     tableId: state.tableId,
                     items: state.cart,
                     subtotal: totalSubtotal,
-                    discount: totalDiscount,
-                    tax: totalTax,
-                    totalPrice: grandTotal,
+                    discount: totalItemDiscount,
+                    serviceCharge: Math.round(totalServiceCharge),
+                    tax: Math.round(totalTax),
+                    taxRate: taxRate,
+                    scRate: scRate,
+                    taxType: state.globalSettings.taxType,
+                    totalPrice: Math.round(grandTotal),
                     totalCost: totalCost,
                     status: 'pending',
                     timestamp: serverTimestamp(),
                     userId: state.user.uid,
                     orderType: state.orderType
                 });
-                state.cart = []; updateCartUI(); closeModal('modal-checkout');
-                const msg = resources[state.lang]['order_sent_success'] || 'Order Sent Successfully!';
-                window.showMessage(msg, 'success');
-                if (state.isPOSMode) { const autoReturn = document.getElementById('chk-auto-return').checked; if (autoReturn) setTimeout(() => exitPOSMode(), 1000); }
-            } catch (e) { console.error(e); window.showMessage(resources[state.lang]['failed'] || "Failed", 'error'); }
+
+                // အဆင့် (ခ) - Cart ထဲက ပစ္စည်းတွေကို လိုက်စစ်ပြီး Stock လျှော့မယ်
+                state.cart.forEach(async (item) => {
+                    // Stock ရှိတဲ့ ပစ္စည်း (Unlimited မဟုတ်တဲ့ ပစ္စည်း) ဆိုရင်
+                    if (item.stock !== null && item.stock !== undefined) {
+
+                        // အဲ့ဒီ ပစ္စည်းရဲ့ Database နေရာကို လှမ်းချိတ်မယ်
+                        const productRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', item.id);
+
+                        // လက်ရှိ Stock ထဲကနေ မှာလိုက်တဲ့ အရေအတွက် (item.qty) ကို နှုတ်မယ်
+                        // increment(-item.qty) ဆိုတာ ရှိရင်းစွဲထဲကနေ အလိုအလျောက် နှုတ်ပေးတာပါ
+                        await updateDoc(productRef, {
+                            stock: increment(-item.qty)
+                        });
+                    }
+                });
+
+                // ၄. ပြီးသွားရင် လက်ကျန်ရှင်းလင်းရေး လုပ်မယ်
+                state.cart = []; // ခြင်းတောင်းကို ရှင်းမယ်
+                updateCartUI(); // မျက်နှာပြင်မှာ 0 လို့ပြမယ်
+                closeModal('modal-checkout'); // ဘေလ် Modal ပိတ်မယ်
+
+                window.showMessage("Order Sent Successfully!", 'success');
+
+                // POS Mode ဖြစ်နေရင် ခဏနေရင် မူလနေရာ ပြန်ပို့မယ်
+                if (state.isPOSMode) {
+                    const autoReturn = document.getElementById('chk-auto-return').checked;
+                    if (autoReturn) setTimeout(() => exitPOSMode(), 1000);
+                }
+
+            } catch (e) {
+                console.error(e);
+                window.showMessage("Failed to submit order", 'error');
+            }
         };
 
         // LOGIN MODAL LOGIC (KEYPAD)
@@ -3652,95 +3990,114 @@
             triggerPrint();
         };
 
-        // Professional Receipt (English Only)
-        window.printTicket = (id, type) => {
-            const o = state.orders.find(x => x.id === id); if (!o) return;
+        // UPDATED PRINT TICKET FUNCTION (With Routing)
+        window.printTicket = (id, type, filterMode = 'all') => {
+            const o = state.orders.find(x => x.id === id);
+            if (!o) return;
 
-            window.showMessage("Printing Receipt...", "success");
+            // ၁. Filter Logic (အစားအသောက် နဲ့ အအေး ခွဲခြင်း)
+            // Bar နဲ့ သက်ဆိုင်တဲ့ Category တွေကို ဒီမှာ သတ်မှတ်ပါ
+            const barCategories = ['Drink', 'Dessert', 'Beverage'];
+
+            let itemsToPrint = o.items;
+            let headerTitle = "";
+
+            if (type === 'kitchen') {
+                if (filterMode === 'kitchen') {
+                    // Bar item မဟုတ်တာတွေပဲ ယူမယ်
+                    itemsToPrint = o.items.filter(i => !barCategories.includes(i.category));
+                    headerTitle = "KITCHEN TICKET (FOOD)";
+                } else if (filterMode === 'bar') {
+                    // Bar item တွေပဲ ယူမယ်
+                    itemsToPrint = o.items.filter(i => barCategories.includes(i.category));
+                    headerTitle = "BAR TICKET (DRINKS)";
+                } else {
+                    // အားလုံး
+                    headerTitle = "KITCHEN TICKET (ALL)";
+                }
+            } else {
+                headerTitle = "RECEIPT"; // Customer Receipt ကတော့ အကုန်ပါမယ်
+            }
+
+            // ပစ္စည်းမရှိရင် မထုတ်ဘူး (ဥပမာ - အအေးမပါတဲ့ Order ကို Bar Ticket နှိပ်မိရင် ဘာမှမလုပ်ဘူး)
+            if (itemsToPrint.length === 0) {
+                window.showMessage("No items for this station", "error");
+                return;
+            }
+
+            window.showMessage("Printing " + headerTitle + "...", "success");
             const printArea = document.getElementById('receipt-print-area');
 
             const now = o.timestamp ? new Date(o.timestamp.seconds * 1000) : new Date();
-            const dateStr = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            const dateStr = now.toLocaleDateString('en-GB');
             const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            let headerTitle = (type === 'kitchen') ? "KITCHEN TICKET" : "RECEIPT";
-
-            let itemsHtml = o.items.map(i => {
+            let itemsHtml = itemsToPrint.map(i => {
                 let mods = i.modifiers && i.modifiers.length ? `<div style="font-size: 10px; color: #444; margin-left: 10px;">+ ${i.modifiers.join(', ')}</div>` : '';
                 let remarks = i.remarks ? `<div style="font-size: 11px; font-weight: bold; font-style: italic; margin-left: 10px;">* ${i.remarks}</div>` : '';
                 let priceHtml = type === 'kitchen' ? '' : `<td style="text-align: right; vertical-align: top; font-weight: bold;">${(i.effectivePrice * i.qty).toLocaleString()}</td>`;
 
                 return `
-                    <tr style="border-bottom: 1px dashed #ccc;">
-                        <td style="padding: 6px 0; vertical-align: top;">
-                            <div style="font-weight: bold; font-size: 13px;">${i.qty} x ${i.name} ${i.size ? `(${i.size})` : ''}</div>
-                            ${mods} ${remarks}
-                        </td>
-                        ${priceHtml}
-                    </tr>
-                `;
+            <tr style="border-bottom: 1px dashed #ccc;">
+                <td style="padding: 6px 0; vertical-align: top;">
+                    <div style="font-weight: bold; font-size: 13px;">${i.qty} x ${i.name} ${i.size ? `(${i.size})` : ''}</div>
+                    ${mods} ${remarks}
+                </td>
+                ${priceHtml}
+            </tr>
+        `;
             }).join('');
 
             let footerHtml = '';
             if (type !== 'kitchen') {
-                const subtotal = o.subtotal || o.totalPrice;
+                // Receipt Footer Logic (Same as before)
+                const subtotal = o.subtotal || 0;
                 const discount = o.discount || 0;
                 const tax = o.tax || 0;
-
+                const svc = o.serviceCharge || 0;
                 footerHtml = `
-                    <div style="margin-top: 10px; border-top: 1px solid black; padding-top: 5px; font-size: 13px;">
-                        <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>${subtotal.toLocaleString()} Ks</span></div>
-                        ${discount > 0 ? `<div style="display: flex; justify-content: space-between;"><span>Discount:</span><span>-${discount.toLocaleString()} Ks</span></div>` : ''}
-                        ${tax > 0 ? `<div style="display: flex; justify-content: space-between;"><span>Tax:</span><span>+${tax.toLocaleString()} Ks</span></div>` : ''}
-                        
-                        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 5px; border-top: 1.5px solid black; padding-top: 5px;">
-                            <span>GRAND TOTAL:</span>
-                            <span>${o.totalPrice.toLocaleString()} Ks</span>
-                        </div>
-
-                        <div style="margin-top: 10px; padding: 6px; border: 1px solid black; text-align: center; font-weight: bold; background-color: #f0f0f0; text-transform: uppercase;">
-                            Payment: ${o.paymentMethod || 'CASH'}
-                        </div>
-                    </div>
-                `;
+            <div style="margin-top: 10px; border-top: 1px solid black; padding-top: 5px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>${subtotal.toLocaleString()} Ks</span></div>
+                ${discount > 0 ? `<div style="display: flex; justify-content: space-between;"><span>Discount:</span><span>-${discount.toLocaleString()} Ks</span></div>` : ''}
+                ${svc > 0 ? `<div style="display: flex; justify-content: space-between;"><span>Service Chg (${o.scRate || ''}%):</span><span>+${svc.toLocaleString()} Ks</span></div>` : ''}
+                ${tax > 0 ? `<div style="display: flex; justify-content: space-between;"><span>Tax (${o.taxRate || ''}%):</span><span>+${tax.toLocaleString()} Ks</span></div>` : ''}
+                <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 5px; border-top: 1.5px solid black; padding-top: 5px;">
+                    <span>GRAND TOTAL:</span>
+                    <span>${o.totalPrice.toLocaleString()} Ks</span>
+                </div>
+                 <div style="margin-top: 10px; padding: 6px; border: 1px solid black; text-align: center; font-weight: bold; background-color: #f0f0f0; text-transform: uppercase;">
+                    Payment: ${o.paymentMethod || 'CASH'}
+                </div>
+            </div>
+        `;
             }
 
             printArea.innerHTML = `
-                <div style="font-family: 'Courier New', Courier, monospace; width: 280px; margin: 0 auto; color: black; padding: 10px; background: white;">
-                    <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 10px;">
-                        <h2 style="margin: 0; font-size: 22px;">PingPOS</h2>
-                        <p style="margin: 2px 0; font-size: 12px;">Restaurant & Cafe</p>
-                        <p style="margin: 2px 0; font-size: 11px;">Ph: 09-XXXXXXXXX</p>
-                        <div style="margin-top: 5px; font-weight: bold; font-size: 14px;">*** ${headerTitle} ***</div>
-                    </div>
-                    
-                    <div style="font-size: 12px; margin-bottom: 10px; line-height: 1.4;">
-                        <div style="display: flex; justify-content: space-between;"><span>Date: ${dateStr}</span><span>Time: ${timeStr}</span></div>
-                        <div style="display: flex; justify-content: space-between;"><span>Voucher: #${o.id.slice(-5).toUpperCase()}</span><span style="font-weight: bold;">Table: ${o.tableId}</span></div>
-                        <div style="text-transform: uppercase; font-weight: bold; margin-top: 2px;">Type: ${o.orderType === 'takeaway' ? 'Takeaway' : 'Dine-in'}</div>
-                    </div>
-                    
-                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                        <tr style="border-bottom: 1px solid black; text-align: left;">
-                            <th style="padding-bottom: 5px;">Item Description</th>
-                            <th style="text-align: right; padding-bottom: 5px;">Price</th>
-                        </tr>
-                        ${itemsHtml}
-                    </table>
-                    
-                    ${footerHtml}
-                    
-                    <div style="text-align: center; margin-top: 25px; font-size: 12px;">
-                        THANK YOU! PLEASE COME AGAIN.
-                        <br><br>
-                        <span style="font-weight: bold; letter-spacing: 2px;">*** PINGPOS ***</span>
-                    </div>
-                </div>
-            `;
+        <div style="font-family: 'Courier New', Courier, monospace; width: 280px; margin: 0 auto; color: black; padding: 10px; background: white;">
+            <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 10px;">
+                <h2 style="margin: 0; font-size: 22px;">PingPOS</h2>
+                <div style="margin-top: 5px; font-weight: bold; font-size: 16px; border: 2px solid black; padding: 5px;">${headerTitle}</div>
+            </div>
+            
+            <div style="font-size: 12px; margin-bottom: 10px; line-height: 1.4;">
+                <div style="display: flex; justify-content: space-between;"><span>Date: ${dateStr}</span><span>Time: ${timeStr}</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>Order: #${o.id.slice(-5).toUpperCase()}</span><span style="font-weight: bold; font-size: 14px;">Table: ${o.tableId}</span></div>
+                <div style="text-transform: uppercase; font-weight: bold; margin-top: 2px;">Type: ${o.orderType === 'takeaway' ? 'Takeaway' : 'Dine-in'}</div>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <tr style="border-bottom: 1px solid black; text-align: left;">
+                    <th style="padding-bottom: 5px;">Item</th>
+                    ${type !== 'kitchen' ? '<th style="text-align: right; padding-bottom: 5px;">Price</th>' : ''}
+                </tr>
+                ${itemsHtml}
+            </table>
+            ${footerHtml}
+        </div>
+    `;
 
             triggerPrint();
         };
-
         function triggerPrint() {
             const printArea = document.getElementById('receipt-print-area');
             printArea.style.display = 'block';
@@ -3750,7 +4107,7 @@
                 setTimeout(() => {
                     printArea.style.display = 'none';
                 }, 1000);
-            }, 250);
+            }, 500);
         }
 
         window.printReceipt = (id) => window.printTicket(id, 'customer');
