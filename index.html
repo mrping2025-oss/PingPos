@@ -636,9 +636,10 @@
                     class="flex-1 py-2 rounded-lg font-bold text-sm text-dark-muted hover:text-white transition">
                     Z-Reports
                 </button>
-                <button onclick="openAIAnalyst()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 border border-indigo-400 transition animate-bounce-slow">
-    <i class="fas fa-robot"></i> <span class="hidden sm:inline">Ask AI</span>
-</button>
+                <button onclick="openAIAnalyst()"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 border border-indigo-400 transition animate-bounce-slow">
+                    <i class="fas fa-robot"></i> <span class="hidden sm:inline">Ask AI</span>
+                </button>
             </div>
 
             <div class="px-5 pb-2 flex flex-wrap gap-3 shrink-0">
@@ -1191,45 +1192,57 @@
             </div>
         </div>
     </div>
-<!-- === MODAL: AI BUSINESS ANALYST === -->
-<div id="modal-ai-analyst" class="fixed inset-0 bg-black/80 z-[150] hide flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-dark-800 w-full max-w-lg rounded-[30px] shadow-2xl border border-dark-700 animate-slide-up flex flex-col max-h-[85vh]">
-        <!-- Header -->
-        <div class="p-5 border-b border-dark-700 flex justify-between items-center bg-gradient-to-r from-indigo-900 to-dark-800 rounded-t-[30px]">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20">
-                    <i class="fas fa-robot text-indigo-300 text-lg"></i>
+    <!-- === MODAL: AI BUSINESS ANALYST === -->
+    <div id="modal-ai-analyst"
+        class="fixed inset-0 bg-black/80 z-[150] hide flex items-center justify-center p-4 backdrop-blur-sm">
+        <div
+            class="bg-dark-800 w-full max-w-lg rounded-[30px] shadow-2xl border border-dark-700 animate-slide-up flex flex-col max-h-[85vh]">
+            <!-- Header -->
+            <div
+                class="p-5 border-b border-dark-700 flex justify-between items-center bg-gradient-to-r from-indigo-900 to-dark-800 rounded-t-[30px]">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20">
+                        <i class="fas fa-robot text-indigo-300 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-white">Ping AI Analyst</h3>
+                        <p class="text-[10px] text-indigo-300">Ask about your sales & business insights</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-lg text-white">Ping AI Analyst</h3>
-                    <p class="text-[10px] text-indigo-300">Ask about your sales & business insights</p>
+                <button onclick="closeModal('modal-ai-analyst')" class="text-white/70 hover:text-white transition"><i
+                        class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <!-- Chat Area -->
+            <div id="ai-chat-history" class="flex-1 overflow-y-auto p-5 space-y-4 bg-dark-900 custom-scroll">
+                <!-- Messages will appear here -->
+                <div class="flex gap-3">
+                    <div
+                        class="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-500/30">
+                        <i class="fas fa-robot text-xs text-indigo-300"></i></div>
+                    <div
+                        class="bg-dark-800 p-3 rounded-2xl rounded-tl-none border border-dark-700 text-sm text-gray-300">
+                        Hello! I've analyzed your sales data. Ask me anything like "What is the best selling item
+                        today?" or "How can I improve profit?".
+                    </div>
                 </div>
             </div>
-            <button onclick="closeModal('modal-ai-analyst')" class="text-white/70 hover:text-white transition"><i class="fas fa-times text-xl"></i></button>
-        </div>
 
-        <!-- Chat Area -->
-        <div id="ai-chat-history" class="flex-1 overflow-y-auto p-5 space-y-4 bg-dark-900 custom-scroll">
-            <!-- Messages will appear here -->
-            <div class="flex gap-3">
-                <div class="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-500/30"><i class="fas fa-robot text-xs text-indigo-300"></i></div>
-                <div class="bg-dark-800 p-3 rounded-2xl rounded-tl-none border border-dark-700 text-sm text-gray-300">
-                    Hello! I've analyzed your sales data. Ask me anything like "What is the best selling item today?" or "How can I improve profit?".
+            <!-- Input Area -->
+            <div class="p-4 bg-dark-800 border-t border-dark-700 rounded-b-[30px]">
+                <div class="flex gap-2">
+                    <input type="text" id="ai-user-input" placeholder="Ask AI something..."
+                        class="flex-1 bg-dark-900 border border-dark-600 rounded-xl px-4 py-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition"
+                        onkeypress="handleAiEnter(event)">
+                    <button onclick="sendToAI()" id="btn-send-ai"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white w-12 rounded-xl flex items-center justify-center transition shadow-lg shadow-indigo-500/20">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="p-4 bg-dark-800 border-t border-dark-700 rounded-b-[30px]">
-            <div class="flex gap-2">
-                <input type="text" id="ai-user-input" placeholder="Ask AI something..." class="flex-1 bg-dark-900 border border-dark-600 rounded-xl px-4 py-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition" onkeypress="handleAiEnter(event)">
-                <button onclick="sendToAI()" id="btn-send-ai" class="bg-indigo-600 hover:bg-indigo-500 text-white w-12 rounded-xl flex items-center justify-center transition shadow-lg shadow-indigo-500/20">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
             </div>
         </div>
     </div>
-</div>
     <!-- === MODAL: OPEN SHIFT === -->
     <div id="modal-shift-open"
         class="fixed inset-0 bg-black/80 z-[130] hide flex items-center justify-center p-4 backdrop-blur-sm">
@@ -1392,16 +1405,21 @@
                     </div>
                 </div>
                 <!-- AI SETTINGS -->
-<div class="mt-4 p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-3">
-    <h4 class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2">
-        <i class="fas fa-robot mr-1 text-indigo-400"></i> AI Configuration
-    </h4>
-    <div>
-        <label class="text-xs font-bold text-dark-muted block mb-1">Gemini API Key</label>
-        <input type="password" id="setting-ai-key" placeholder="Paste your API Key here" onchange="saveAiSettings()" class="w-full bg-dark-800 text-white text-xs border border-dark-600 rounded p-2 outline-none focus:border-indigo-500">
-        <p class="text-[9px] text-dark-muted mt-1">Get free key from <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-400 underline">Google AI Studio</a></p>
-    </div>
-</div>
+                <div class="mt-4 p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-3">
+                    <h4
+                        class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2">
+                        <i class="fas fa-robot mr-1 text-indigo-400"></i> AI Configuration
+                    </h4>
+                    <div>
+                        <label class="text-xs font-bold text-dark-muted block mb-1">Gemini API Key</label>
+                        <input type="password" id="setting-ai-key" placeholder="Paste your API Key here"
+                            onchange="saveAiSettings()"
+                            class="w-full bg-dark-800 text-white text-xs border border-dark-600 rounded p-2 outline-none focus:border-indigo-500">
+                        <p class="text-[9px] text-dark-muted mt-1">Get free key from <a
+                                href="https://aistudio.google.com/" target="_blank"
+                                class="text-indigo-400 underline">Google AI Studio</a></p>
+                    </div>
+                </div>
                 <!-- ALERT TONE SECTION (Collapsible) -->
                 <div>
                     <p class="text-xs font-bold text-dark-muted uppercase tracking-wider mb-2">Alert Tone</p>
@@ -1722,26 +1740,32 @@
                 <i class="fas fa-chevron-right text-dark-muted text-xs"></i>
             </div>
             <!-- AI RECOMMENDATION BOX -->
-<div id="ai-upsell-container" class="hide px-5 pt-0 mb-2">
-    <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-xl p-3 flex items-center justify-between relative overflow-hidden group">
-        <div class="absolute inset-0 bg-indigo-500/5 animate-pulse"></div>
-        <div class="flex items-center gap-3 z-10">
-            <div class="w-10 h-10 rounded-lg bg-dark-900/80 flex items-center justify-center border border-indigo-500/50 text-xl shadow-lg">
-                🤖
+            <div id="ai-upsell-container" class="hide px-5 pt-0 mb-2">
+                <div
+                    class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-xl p-3 flex items-center justify-between relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-indigo-500/5 animate-pulse"></div>
+                    <div class="flex items-center gap-3 z-10">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-dark-900/80 flex items-center justify-center border border-indigo-500/50 text-xl shadow-lg">
+                            🤖
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1">
+                                <i class="fas fa-sparkles text-yellow-400"></i> AI Suggestion
+                            </p>
+                            <p id="ai-upsell-text" class="text-xs font-bold text-white leading-tight truncate">Loading
+                                suggestion...</p>
+                            <p id="ai-upsell-reason" class="text-[9px] text-gray-400 italic truncate">Based on your cart
+                            </p>
+                        </div>
+                    </div>
+                    <button id="btn-add-upsell" onclick=""
+                        class="z-10 bg-white text-indigo-900 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg hover:bg-indigo-50 transition active:scale-95 flex items-center gap-1">
+                        <span>Add</span> <i class="fas fa-plus"></i>
+                    </button>
+                </div>
             </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1">
-                    <i class="fas fa-sparkles text-yellow-400"></i> AI Suggestion
-                </p>
-                <p id="ai-upsell-text" class="text-xs font-bold text-white leading-tight truncate">Loading suggestion...</p>
-                <p id="ai-upsell-reason" class="text-[9px] text-gray-400 italic truncate">Based on your cart</p>
-            </div>
-        </div>
-        <button id="btn-add-upsell" onclick="" class="z-10 bg-white text-indigo-900 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg hover:bg-indigo-50 transition active:scale-95 flex items-center gap-1">
-            <span>Add</span> <i class="fas fa-plus"></i>
-        </button>
-    </div>
-</div>
 
             <div id="checkout-items" class="p-4 overflow-y-auto flex-1 space-y-3 bg-dark-900 mt-2"></div>
             <!-- Checkout Modal Footer Area -->
@@ -3552,14 +3576,14 @@
             updateCheckoutTotals();
             document.getElementById('modal-checkout').classList.remove('hide');
 
-             if(state.isPOSMode) {
-        // Staff မို့လို့ AI မလိုရင် ပိတ်ထားနိုင်တယ်၊ သို့မဟုတ် Staff ကို ကူညီဖို့ ဖွင့်ထားနိုင်တယ်။
-        // လောလောဆယ် အမြဲဖွင့်ထားပါမယ်။
-        window.triggerAIUpsell(); 
-    } else {
-        // Customer View
-        window.triggerAIUpsell();
-    }
+            if (state.isPOSMode) {
+                // Staff မို့လို့ AI မလိုရင် ပိတ်ထားနိုင်တယ်၊ သို့မဟုတ် Staff ကို ကူညီဖို့ ဖွင့်ထားနိုင်တယ်။
+                // လောလောဆယ် အမြဲဖွင့်ထားပါမယ်။
+                window.triggerAIUpsell();
+            } else {
+                // Customer View
+                window.triggerAIUpsell();
+            }
         };
 
         // Updated Checkout Calculation (Compact Grid Layout)
@@ -5664,60 +5688,60 @@
             }, true); // PIN လိုအပ်သည်
         };
         // ==========================================
-// PING POS AI SYSTEM (GEMINI INTEGRATION)
-// ==========================================
+        // PING POS AI SYSTEM (GEMINI INTEGRATION)
+        // ==========================================
 
-let aiState = {
-    apiKey: localStorage.getItem('pingpos_ai_key') || '',
-    isThinking: false,
-    suggestedProductId: null
-};
+        let aiState = {
+            apiKey: localStorage.getItem('pingpos_ai_key') || '',
+            isThinking: false,
+            suggestedProductId: null
+        };
 
-// 1. Settings
-window.saveAiSettings = () => {
-    const key = document.getElementById('setting-ai-key').value.trim();
-    if(key) {
-        aiState.apiKey = key;
-        localStorage.setItem('pingpos_ai_key', key);
-        window.showMessage("AI Key Saved", "success");
-    }
-};
+        // 1. Settings
+        window.saveAiSettings = () => {
+            const key = document.getElementById('setting-ai-key').value.trim();
+            if (key) {
+                aiState.apiKey = key;
+                localStorage.setItem('pingpos_ai_key', key);
+                window.showMessage("AI Key Saved", "success");
+            }
+        };
 
-// Load Key on Init
-setTimeout(() => {
-    const savedKey = localStorage.getItem('pingpos_ai_key');
-    if(savedKey && document.getElementById('setting-ai-key')) {
-        document.getElementById('setting-ai-key').value = savedKey;
-    }
-}, 1000);
+        // Load Key on Init
+        setTimeout(() => {
+            const savedKey = localStorage.getItem('pingpos_ai_key');
+            if (savedKey && document.getElementById('setting-ai-key')) {
+                document.getElementById('setting-ai-key').value = savedKey;
+            }
+        }, 1000);
 
-// ==========================================
-// FEATURE 1: AI RECOMMENDER (SMART UPSELL)
-// ==========================================
+        // ==========================================
+        // FEATURE 1: AI RECOMMENDER (SMART UPSELL)
+        // ==========================================
 
-// Call this function inside openCheckoutModal()
-window.triggerAIUpsell = async () => {
-    if (!aiState.apiKey || state.cart.length === 0) {
-        document.getElementById('ai-upsell-container').classList.add('hide');
-        return;
-    }
+        // Call this function inside openCheckoutModal()
+        window.triggerAIUpsell = async () => {
+            if (!aiState.apiKey || state.cart.length === 0) {
+                document.getElementById('ai-upsell-container').classList.add('hide');
+                return;
+            }
 
-    const container = document.getElementById('ai-upsell-container');
-    const textEl = document.getElementById('ai-upsell-text');
-    const reasonEl = document.getElementById('ai-upsell-reason');
-    const btn = document.getElementById('btn-add-upsell');
+            const container = document.getElementById('ai-upsell-container');
+            const textEl = document.getElementById('ai-upsell-text');
+            const reasonEl = document.getElementById('ai-upsell-reason');
+            const btn = document.getElementById('btn-add-upsell');
 
-    // Show Loading State
-    container.classList.remove('hide');
-    textEl.innerText = "Thinking...";
-    reasonEl.innerText = "Looking for best match...";
-    btn.classList.add('hide');
+            // Show Loading State
+            container.classList.remove('hide');
+            textEl.innerText = "Thinking...";
+            reasonEl.innerText = "Looking for best match...";
+            btn.classList.add('hide');
 
-    // Prepare Data
-    const cartItems = state.cart.map(i => i.name).join(', ');
-    const menuItems = state.products.filter(p => !p.isSoldOut).map(p => `${p.name} (ID:${p.id})`).join(', ');
+            // Prepare Data
+            const cartItems = state.cart.map(i => i.name).join(', ');
+            const menuItems = state.products.filter(p => !p.isSoldOut).map(p => `${p.name} (ID:${p.id})`).join(', ');
 
-    const prompt = `
+            const prompt = `
         Context: Restaurant POS. 
         Cart: [${cartItems}]. 
         Menu: [${menuItems}].
@@ -5725,55 +5749,55 @@ window.triggerAIUpsell = async () => {
         Output Format: JSON only { "id": "PRODUCT_ID", "name": "PRODUCT_NAME", "reason": "Short reason why (max 5 words)" }
     `;
 
-    try {
-        const result = await callGeminiAPI(prompt);
-        const jsonMatch = result.match(/\{[\s\S]*\}/); // Extract JSON
-        if (!jsonMatch) throw new Error("No JSON found");
-        
-        const data = JSON.parse(jsonMatch[0]);
-        const product = state.products.find(p => p.id === data.id);
+            try {
+                const result = await callGeminiAPI(prompt);
+                const jsonMatch = result.match(/\{[\s\S]*\}/); // Extract JSON
+                if (!jsonMatch) throw new Error("No JSON found");
 
-        if (product) {
-            textEl.innerText = `Try: ${data.name}`;
-            reasonEl.innerText = data.reason;
-            aiState.suggestedProductId = data.id;
-            
-            // Setup Button
-            btn.onclick = () => {
-                state.selectedProduct = { ...product, qty: 1 }; // Prepare for addToCart
-                window.addToCart(); // Use existing function
-                window.showMessage(`Added ${data.name}!`, "success");
-                container.classList.add('hide'); // Hide after adding
-            };
-            btn.classList.remove('hide');
-        } else {
-            container.classList.add('hide'); // Hide if product not found
-        }
-    } catch (e) {
-        console.error("AI Upsell Error:", e);
-        container.classList.add('hide');
-    }
-};
+                const data = JSON.parse(jsonMatch[0]);
+                const product = state.products.find(p => p.id === data.id);
 
-// ==========================================
-// FEATURE 2: AI BUSINESS ANALYST
-// ==========================================
+                if (product) {
+                    textEl.innerText = `Try: ${data.name}`;
+                    reasonEl.innerText = data.reason;
+                    aiState.suggestedProductId = data.id;
 
-window.openAIAnalyst = () => {
-    if (!aiState.apiKey) return window.showMessage("Please set API Key in Settings first", "error");
-    document.getElementById('modal-ai-analyst').classList.remove('hide');
-};
+                    // Setup Button
+                    btn.onclick = () => {
+                        state.selectedProduct = { ...product, qty: 1 }; // Prepare for addToCart
+                        window.addToCart(); // Use existing function
+                        window.showMessage(`Added ${data.name}!`, "success");
+                        container.classList.add('hide'); // Hide after adding
+                    };
+                    btn.classList.remove('hide');
+                } else {
+                    container.classList.add('hide'); // Hide if product not found
+                }
+            } catch (e) {
+                console.error("AI Upsell Error:", e);
+                container.classList.add('hide');
+            }
+        };
 
-window.handleAiEnter = (e) => { if (e.key === 'Enter') window.sendToAI(); };
+        // ==========================================
+        // FEATURE 2: AI BUSINESS ANALYST
+        // ==========================================
 
-window.sendToAI = async () => {
-    const input = document.getElementById('ai-user-input');
-    const history = document.getElementById('ai-chat-history');
-    const question = input.value.trim();
-    if (!question) return;
+        window.openAIAnalyst = () => {
+            if (!aiState.apiKey) return window.showMessage("Please set API Key in Settings first", "error");
+            document.getElementById('modal-ai-analyst').classList.remove('hide');
+        };
 
-    // 1. Add User Message
-    history.innerHTML += `
+        window.handleAiEnter = (e) => { if (e.key === 'Enter') window.sendToAI(); };
+
+        window.sendToAI = async () => {
+            const input = document.getElementById('ai-user-input');
+            const history = document.getElementById('ai-chat-history');
+            const question = input.value.trim();
+            if (!question) return;
+
+            // 1. Add User Message
+            history.innerHTML += `
         <div class="flex gap-3 flex-row-reverse animate-slide-up">
             <div class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center shrink-0"><i class="fas fa-user text-xs text-white"></i></div>
             <div class="bg-indigo-600 p-3 rounded-2xl rounded-tr-none text-sm text-white shadow-lg">
@@ -5781,12 +5805,12 @@ window.sendToAI = async () => {
             </div>
         </div>
     `;
-    input.value = '';
-    history.scrollTop = history.scrollHeight;
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
 
-    // 2. Add Loading Message
-    const loadingId = 'ai-loading-' + Date.now();
-    history.innerHTML += `
+            // 2. Add Loading Message
+            const loadingId = 'ai-loading-' + Date.now();
+            history.innerHTML += `
         <div id="${loadingId}" class="flex gap-3 animate-pulse">
             <div class="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-500/30"><i class="fas fa-robot text-xs text-indigo-300"></i></div>
             <div class="bg-dark-800 p-3 rounded-2xl rounded-tl-none border border-dark-700 text-sm text-gray-400">
@@ -5794,18 +5818,18 @@ window.sendToAI = async () => {
             </div>
         </div>
     `;
-    history.scrollTop = history.scrollHeight;
+            history.scrollTop = history.scrollHeight;
 
-    // 3. Prepare Data Context
-    const todaySales = document.getElementById('rpt-ov-total')?.innerText || '0';
-    const topItem = document.querySelector('#rpt-top-list p')?.innerText || 'None';
-    
-    // Aggregate Data Summary
-    const totalOrders = state.orders.length;
-    const cancelledOrders = state.orders.filter(o => o.status === 'cancelled').length;
-    const profit = document.getElementById('rpt-ov-profit')?.innerText || '0';
+            // 3. Prepare Data Context
+            const todaySales = document.getElementById('rpt-ov-total')?.innerText || '0';
+            const topItem = document.querySelector('#rpt-top-list p')?.innerText || 'None';
 
-    const prompt = `
+            // Aggregate Data Summary
+            const totalOrders = state.orders.length;
+            const cancelledOrders = state.orders.filter(o => o.status === 'cancelled').length;
+            const profit = document.getElementById('rpt-ov-profit')?.innerText || '0';
+
+            const prompt = `
         Role: Restaurant Business Consultant.
         Data Context:
         - Total Revenue: ${todaySales}
@@ -5819,13 +5843,13 @@ window.sendToAI = async () => {
         Task: Answer briefly, professionally, and provide one actionable business tip. Format with simple HTML tags (<b>, <br>) if needed for readability.
     `;
 
-    // 4. Call API
-    try {
-        const response = await callGeminiAPI(prompt);
-        document.getElementById(loadingId).remove(); // Remove loading
-        
-        // Add AI Response
-        history.innerHTML += `
+            // 4. Call API
+            try {
+                const response = await callGeminiAPI(prompt);
+                document.getElementById(loadingId).remove(); // Remove loading
+
+                // Add AI Response
+                history.innerHTML += `
             <div class="flex gap-3 animate-slide-up">
                 <div class="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-500/30"><i class="fas fa-robot text-xs text-indigo-300"></i></div>
                 <div class="bg-dark-800 p-3 rounded-2xl rounded-tl-none border border-dark-700 text-sm text-gray-200 shadow-md">
@@ -5833,31 +5857,46 @@ window.sendToAI = async () => {
                 </div>
             </div>
         `;
-    } catch (e) {
-        document.getElementById(loadingId).innerHTML = `<span class="text-red-400">Error: Could not connect to AI. Check API Key.</span>`;
-    }
-    history.scrollTop = history.scrollHeight;
-};
+            } catch (e) {
+                document.getElementById(loadingId).innerHTML = `<span class="text-red-400">Error: Could not connect to AI. Check API Key.</span>`;
+            }
+            history.scrollTop = history.scrollHeight;
+        };
 
-// ==========================================
-// SHARED: API CALLER (Google Gemini)
-// ==========================================
-async function callGeminiAPI(promptText) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiState.apiKey}`;
-    
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
-        })
-    });
+        // ==========================================
+        // SHARED: API CALLER (Google Gemini) - 2025 FIXED VERSION
+        // ==========================================
+        async function callGeminiAPI(promptText) {
+            // 2025 ဒီဇင်ဘာလအတွက် နောက်ဆုံးထွက် Model နာမည်အသစ်ကို သုံးပါမယ်
+            const modelName = "gemini-2.5-flash";
 
-    if (!response.ok) throw new Error("API Error");
-    
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
-}
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${aiState.apiKey}`;
+
+            console.log("Calling AI URL using model:", modelName);
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptText }] }]
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                console.error("Gemini API Error Details:", errText);
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (!data.candidates || data.candidates.length === 0) {
+                throw new Error("No response from AI");
+            }
+
+            return data.candidates[0].content.parts[0].text;
+        }
+
         init();
     </script>
 </body>
