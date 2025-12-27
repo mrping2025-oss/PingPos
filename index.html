@@ -1287,6 +1287,8 @@
                         <h3 class="font-bold text-white text-lg flex items-center gap-2">
                             <span data-i18n="table_map">Tables</span>
                         </h3>
+                        <!-- ဒီစာကြောင်းလေး လိုနေလို့ Error တက်နေတာပါ -->
+                        <p id="table-map-subtitle" class="text-[10px] text-dark-muted">Select a table to take order</p>
                     </div>
                 </div>
 
@@ -1302,18 +1304,21 @@
                     </button>
                 </div>
 
-                <!-- Edit Button (Hidden in Grid Mode) -->
                 <div id="layout-edit-controls"
                     class="hide absolute top-16 right-4 flex items-center gap-2 bg-dark-800 p-2 rounded-xl border border-dark-600 shadow-xl z-50">
-                    <!-- (Edit controls code remains same) -->
-                    <button onclick="addNewTable()"
-                        class="bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-bold"><i
-                            class="fas fa-plus"></i></button>
-                    <button onclick="saveLayout()"
-                        class="bg-primary text-white px-3 py-1.5 rounded-md text-xs font-bold"><i
-                            class="fas fa-save"></i></button>
-                </div>
 
+                    <!-- Add Button -->
+                    <button onclick="addNewTable()"
+                        class="bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500 transition">
+                        <i class="fas fa-plus"></i>
+                    </button>
+
+                    <!-- Save Button (ID ထည့်လိုက်ပါပြီ) -->
+                    <button id="btn-save-layout" onclick="saveLayout()"
+                        class="bg-primary text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-600 transition flex items-center gap-1">
+                        <i class="fas fa-save"></i> <span>Save</span>
+                    </button>
+                </div>
                 <button onclick="toggleLayoutEdit()" id="btn-edit-layout"
                     class="ml-2 border border-dark-600 text-dark-muted hover:text-white hover:bg-dark-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
                     <i class="fas fa-pen"></i>
@@ -1335,24 +1340,61 @@
                 </div>
             </div>
 
-            <!-- Bottom Panel (Legend/Properties) -->
             <div id="map-bottom-panel"
-                class="p-4 bg-dark-800 border-t border-dark-700 z-10 min-h-[60px] flex justify-center items-center shrink-0">
+                class="p-4 bg-dark-800 border-t border-dark-700 z-10 min-h-[80px] flex justify-center items-center shrink-0 safe-pb">
+
+                <!-- Legend (ပုံမှန်အချိန်မှာ ပြမယ်) -->
                 <div id="map-legend" class="flex gap-6 text-xs font-bold text-dark-muted">
                     <span class="flex items-center gap-2"><span
                             class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></span> Free</span>
                     <span class="flex items-center gap-2"><span
                             class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]"></span> Occupied</span>
                 </div>
-                <!-- Properties Panel (Keep existing code) -->
+
+                <!-- Properties Panel (Edit Mode ဖွင့်ပြီး စားပွဲရွေးမှ ပြမယ်) -->
                 <div id="table-properties"
-                    class="hide w-full flex justify-between items-center max-w-2xl animate-slide-up">
-                    <!-- ... (Keep existing properties controls) ... -->
+                    class="hide w-full flex justify-between items-center max-w-3xl animate-slide-up gap-4">
+
+                    <!-- Table Name Display -->
+                    <div class="bg-dark-900 px-4 py-2 rounded-lg border border-dark-600">
+                        <span class="text-[10px] text-dark-muted uppercase font-bold block">Selected</span>
+                        <span id="prop-id" class="text-lg font-bold text-primary">T-1</span>
+                    </div>
+
+                    <!-- Controls Container -->
+                    <div
+                        class="flex-1 flex items-center gap-4 bg-dark-900 p-2 rounded-xl border border-dark-600 overflow-x-auto">
+
+                        <!-- Shape Selector -->
+                        <div class="flex flex-col min-w-[80px]">
+                            <label class="text-[9px] text-dark-muted font-bold uppercase mb-1">Shape</label>
+                            <select onchange="window.updateTableProperty('shape', this.value)"
+                                class="bg-dark-800 text-white text-xs border border-dark-600 rounded p-1 outline-none focus:border-primary">
+                                <option value="round">Round ●</option>
+                                <option value="rect">Square ■</option>
+                            </select>
+                        </div>
+
+                        <!-- Size Slider -->
+                        <div class="flex flex-col flex-1 min-w-[120px]">
+                            <div class="flex justify-between">
+                                <label class="text-[9px] text-dark-muted font-bold uppercase mb-1">Size</label>
+                                <span class="text-[9px] text-white" id="size-val-display">1.0x</span>
+                            </div>
+                            <input type="range" id="prop-size" min="0.5" max="2" step="0.1"
+                                oninput="document.getElementById('size-val-display').innerText=this.value+'x'; window.updateTableProperty('size', this.value)"
+                                class="w-full h-1 bg-dark-700 rounded-lg appearance-none cursor-pointer accent-primary">
+                        </div>
+                    </div>
+
+                    <!-- Delete Button -->
                     <button onclick="deleteSelectedTable()"
-                        class="bg-red-900/20 text-red-500 border border-red-900/50 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i
-                            class="fas fa-trash"></i> Delete</button>
+                        class="bg-red-900/20 text-red-500 border border-red-900/50 px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-red-600 hover:text-white transition whitespace-nowrap">
+                        <i class="fas fa-trash"></i> <span class="hidden sm:inline">Delete</span>
+                    </button>
                 </div>
             </div>
+
         </div>
         <!-- === SCREEN: MEMBER MANAGER (NEW) === -->
         <div id="screen-members" class="page-view hide animate-slide-in">
@@ -1575,7 +1617,8 @@
                     <div class="flex items-center gap-3">
                         <div
                             class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center text-primary border border-dark-700">
-                            <i class="fas fa-volume-up"></i></div>
+                            <i class="fas fa-volume-up"></i>
+                        </div>
                         <div>
                             <p class="font-bold text-white text-sm">Notification Sound</p>
                             <p class="text-[10px] text-dark-muted">Play sound on new order</p>
