@@ -289,6 +289,21 @@
             margin-bottom: 0.25rem;
             letter-spacing: 0.05em;
         }
+
+        /* Sidebar Hover Effect Improvement */
+        aside button:hover i {
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        /* Glass effect refinement for sidebar */
+        aside {
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
     </style>
 </head>
 
@@ -428,188 +443,373 @@
             </div>
         </div>
 
-        <!-- === SCREEN: KITCHEN / ADMIN DASHBOARD === -->
-        <div id="screen-kitchen" class="h-full flex flex-col hide bg-dark-900">
-            <div
-                class="bg-dark-800 border-b border-dark-700 px-4 py-3 flex flex-wrap gap-3 justify-between items-center shadow-md z-10 shrink-0">
-                <div class="flex items-center gap-2">
-                    <h2 class="font-bold text-lg text-white" data-i18n="kitchen_display">Kitchen Display</h2>
-                    <span id="live-indicator" class="flex h-2 w-2 relative"><span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span><span
-                            class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
-                </div>
-                <div class="flex gap-2">
+        <!-- === SCREEN: KITCHEN / ADMIN DASHBOARD (RESPONSIVE) === -->
+        <div id="screen-kitchen" class="h-full flex hide bg-dark-900 overflow-hidden relative">
 
+            <!-- 1. DESKTOP SIDEBAR (Hidden on Mobile) -->
+            <aside
+                class="hidden lg:flex w-[240px] bg-dark-800/90 backdrop-blur-xl border-r border-dark-700 flex-col justify-between z-20 shrink-0">
+                <!-- Logo Area -->
+                <div class="h-16 flex items-center px-6 border-b border-dark-700/50">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-red-600 flex items-center justify-center shadow-lg shadow-red-500/30">
+                        <i class="fas fa-utensils text-white text-lg"></i>
+                    </div>
+                    <span class="ml-3 font-extrabold text-xl text-white tracking-tight">Ping<span
+                            class="text-primary">POS</span></span>
+                </div>
+
+                <!-- Navigation Menu -->
+                <div class="flex-1 overflow-y-auto py-4 space-y-2 px-3 custom-scroll">
                     <button onclick="navigateTo('screen-tables')"
-                        class="px-3 py-1 bg-orange-600 text-white rounded-full text-xs font-bold hover:bg-orange-500 shadow-lg flex items-center gap-1 transition">
-                        <i class="fas fa-th"></i> <span data-i18n="pos_mode">POS</span>
+                        class="w-full flex items-center gap-3 p-3 rounded-xl bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white transition-all group">
+                        <i class="fas fa-th-large text-xl"></i> <span class="font-bold text-sm">POS Mode</span>
                     </button>
-                    <button onclick="openAIAnalyst()"
-                        class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2 border border-indigo-400 transition animate-bounce-slow">
-                        <i class="fas fa-robot"></i> <span class="hidden sm:inline">Ask AI</span>
-                    </button>
-                    <button onclick="openSettingsModal()"
-                        class="w-9 h-9 rounded-full bg-dark-700 text-dark-muted hover:bg-dark-600 hover:text-white flex items-center justify-center transition">
-                        <i class="fas fa-cog text-xs"></i>
-                    </button>
-                    <button onclick="openChangePinModal()"
-                        class="w-9 h-9 rounded-full bg-dark-700 text-dark-muted hover:bg-dark-600 hover:text-white flex items-center justify-center transition"><i
-                            class="fas fa-key text-xs"></i></button>
-
-                    <!-- MEMBER BUTTON -->
-                    <button onclick="navigateTo('screen-members')"
-                        class="w-9 h-9 rounded-full bg-indigo-900/30 text-indigo-400 hover:bg-indigo-900/50 flex items-center justify-center transition"
-                        title="Member List">
-                        <i class="fas fa-users text-xs"></i>
-                    </button>
-                    <!-- EXPENSES BUTTON -->
-                    <button onclick="navigateTo('screen-expenses')"
-                        class="w-9 h-9 rounded-full bg-red-900/30 text-red-400 hover:bg-red-900/50 flex items-center justify-center transition"
-                        title="Expenses"><i class="fas fa-file-invoice-dollar text-xs"></i></button>
-                    <!-- SHIFT BUTTON (Insert inside #screen-kitchen header) -->
-                    <button onclick="window.handleShiftClick()" id="btn-shift-control"
-                        class="px-3 py-1 bg-indigo-900/30 text-indigo-400 border border-indigo-500/30 rounded-full text-xs font-bold hover:bg-indigo-900/50 shadow-lg flex items-center gap-1 transition">
-                        <i class="fas fa-cash-register"></i> <span id="shift-status-text">Shift</span>
-                    </button>
-
-                    <!-- Analytics Button -->
-                    <button onclick="navigateTo('screen-analytics')"
-                        class="w-9 h-9 rounded-full bg-purple-900/30 text-purple-400 hover:bg-purple-900/50 flex items-center justify-center transition"><i
-                            class="fas fa-chart-bar text-xs"></i></button>
-
-                    <button onclick="openQRModal()"
-                        class="w-9 h-9 rounded-full bg-blue-900/30 text-blue-400 hover:bg-blue-900/50 flex items-center justify-center transition"><i
-                            class="fas fa-qrcode text-xs"></i></button>
-
-                    <!-- CATEGORY BUTTON -->
-                    <button onclick="navigateTo('screen-categories')"
-                        class="px-3 py-1 bg-yellow-600/30 text-yellow-400 rounded-full text-xs font-bold hover:bg-yellow-900/50 shadow-lg flex items-center gap-1"><i
-                            class="fas fa-list-alt"></i> Categories</button>
-
-                    <!-- Menu Button -->
+                    <div class="my-2 border-t border-dark-700/50 mx-2"></div>
                     <button onclick="navigateTo('screen-menu')"
-                        class="px-3 py-1 bg-primary text-white rounded-full text-xs font-bold hover:bg-red-600 shadow-lg flex items-center gap-1"><i
-                            class="fas fa-plus"></i> <span data-i18n="menu">Menu</span></button>
-                </div>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-dark-900">
-                <div id="orders-grid"
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start"></div>
-                <div id="no-orders-msg" class="hidden h-full flex flex-col items-center justify-center text-dark-700"><i
-                        class="fas fa-check-circle text-6xl mb-4 opacity-20"></i>
-                    <p data-i18n="kitchen_clear">Kitchen is clear</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SCREEN: MENU MANAGER (FULL PAGE) === -->
-        <div id="screen-menu" class="page-view hide animate-slide-in">
-            <div class="p-4 border-b border-dark-700 flex justify-between items-center bg-dark-800 sticky top-0 z-20">
-                <div class="flex items-center gap-3">
-                    <button onclick="navigateTo('screen-kitchen')"
-                        class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-white hover:bg-dark-600 transition"><i
-                            class="fas fa-arrow-left"></i></button>
-                    <h3 class="font-bold text-xl text-white" data-i18n="menu_manager">Menu Manager</h3>
-                </div>
-            </div>
-
-            <!-- REDESIGNED & COLLAPSIBLE Add/Edit Form -->
-            <div class="m-4 rounded-2xl border border-dark-700 bg-dark-800 overflow-hidden transition-all duration-300">
-                <div onclick="toggleMenuForm()" id="menu-form-header"
-                    class="p-3 flex justify-between items-center cursor-pointer hover:bg-dark-700 transition select-none">
-                    <h4 class="font-bold text-white text-sm uppercase tracking-wide flex items-center gap-3"
-                        id="menu-form-title">
-                        <span
-                            class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] text-white shadow-md"><i
-                                class="fas fa-plus"></i></span>
-                        <span data-i18n="add_item">Add New Item</span>
-                    </h4>
-                    <i class="fas fa-chevron-down text-dark-muted transition-transform duration-300"
-                        id="menu-form-chevron"></i>
+                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                            class="fas fa-hamburger text-lg"></i> <span class="font-medium text-sm">Menu</span></button>
+                    <button onclick="navigateTo('screen-categories')"
+                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                            class="fas fa-list-alt text-lg"></i> <span
+                            class="font-medium text-sm">Categories</span></button>
+                    <button onclick="navigateTo('screen-tables')"
+                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                            class="fas fa-map-marked-alt text-lg"></i> <span
+                            class="font-medium text-sm">Tables</span></button>
+                    <button onclick="navigateTo('screen-members')"
+                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                            class="fas fa-users text-lg"></i> <span class="font-medium text-sm">Members</span></button>
+                    <div class="my-2 border-t border-dark-700/50 mx-2"></div>
+                    <button onclick="navigateTo('screen-analytics')"
+                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                            class="fas fa-chart-pie text-lg"></i> <span
+                            class="font-medium text-sm">Analytics</span></button>
+                    <button onclick="navigateTo('screen-expenses')"
+                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                            class="fas fa-file-invoice-dollar text-lg"></i> <span
+                            class="font-medium text-sm">Expenses</span></button>
+                    <button onclick="openAIAnalyst()"
+                        class="w-full flex items-center gap-3 p-3 rounded-xl text-indigo-400 bg-indigo-900/10 hover:bg-indigo-600 hover:text-white transition-all mt-4 border border-indigo-500/20"><i
+                            class="fas fa-robot text-lg animate-pulse"></i> <span class="font-bold text-sm">Ask
+                            AI</span></button>
                 </div>
 
-                <div id="menu-form-content" class="hide border-t border-dark-700 p-4 bg-dark-800">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <!-- Row 1 -->
-                        <div class="col-span-2 md:col-span-2">
-                            <label class="form-label">Name</label>
-                            <input id="new-prod-name" placeholder="Item Name"
-                                class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                        </div>
-                        <div class="col-span-1 md:col-span-1">
-                            <label class="form-label">Price</label>
-                            <input id="new-prod-price" type="number" placeholder="Price"
-                                class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                        </div>
-                        <div class="col-span-1 md:col-span-1">
-                            <label class="form-label">Category</label>
-                            <select id="new-prod-category"
-                                class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
+                <!-- Bottom Actions -->
+                <div class="p-3 border-t border-dark-700/50 bg-dark-900/50 space-y-1">
+                    <button onclick="openSettingsModal()"
+                        class="w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                            class="fas fa-cog text-lg"></i> <span class="font-medium text-sm">Settings</span></button>
+                    <button onclick="openChangePinModal()"
+                        class="w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                            class="fas fa-key text-lg"></i> <span class="font-medium text-sm">PIN</span></button>
+                    <button onclick="openQRModal()"
+                        class="w-full flex items-center gap-3 p-3 rounded-xl text-blue-400 hover:bg-blue-600 hover:text-white transition-all"><i
+                            class="fas fa-qrcode text-lg"></i> <span class="font-medium text-sm">Table
+                            QR</span></button>
+                </div>
+            </aside>
 
-                        <!-- Row 2 (Nested Grid for Stats) -->
-                        <div class="col-span-2 md:col-span-4 grid grid-cols-4 gap-3">
-                            <div>
-                                <label class="form-label">Stock Qty</label>
-                                <input id="new-prod-stock" type="number" placeholder="∞"
-                                    class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition text-yellow-400">
-                            </div>
-                            <div>
-                                <label class="form-label">Cost (COGS)</label>
-                                <input id="new-prod-cost" type="number" placeholder="Cost"
-                                    class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                            </div>
-                            <div>
-                                <label class="form-label">Discount</label>
-                                <input id="new-prod-discount" type="number" placeholder="Discount"
-                                    class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition text-green-400">
-                            </div>
-                            <div>
-                                <label class="form-label">Tax %</label>
-                                <input id="new-prod-tax" type="number" placeholder="Tax"
-                                    class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition text-red-400">
-                            </div>
-                        </div>
+            <!-- 2. MAIN CONTENT AREA -->
+            <div class="flex-1 flex flex-col min-w-0 bg-dark-900 relative h-full">
 
-                        <!-- Row 3 -->
-                        <div class="col-span-2 md:col-span-4">
-                            <label class="form-label">Image URL</label>
-                            <input id="new-prod-img" placeholder="http://..."
-                                class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
+                <!-- Header -->
+                <header
+                    class="h-14 bg-dark-800/90 backdrop-blur-md border-b border-dark-700 flex justify-between items-center px-4 sticky top-0 z-10 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <!-- Mobile Logo (Only visible on mobile) -->
+                        <div
+                            class="lg:hidden w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-red-600 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-utensils text-white text-xs"></i>
                         </div>
+                        <div>
+                            <h2 class="font-bold text-base text-white flex items-center gap-2">
+                                Kitchen
+                                <span id="live-indicator" class="flex h-2 w-2 relative">
+                                    <span
+                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                </span>
+                            </h2>
+                        </div>
+                    </div>
 
-                        <!-- Row 4 -->
-                        <div class="col-span-2 md:col-span-2">
-                            <label class="form-label">Options (comma sep)</label>
-                            <input id="new-prod-options" placeholder="Spicy, No MSG..."
-                                class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                        </div>
-                        <div class="col-span-2 md:col-span-2">
-                            <label class="form-label">Sizes (Name:Price)</label>
-                            <input id="new-prod-sizes" placeholder="Small:1000, Large:2000"
-                                class="w-full p-2.5 rounded-xl border border-dark-700 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition">
-                        </div>
+                    <!-- Shift Control -->
+                    <button onclick="window.handleShiftClick()" id="btn-shift-control"
+                        class="px-3 py-1.5 bg-dark-700 border border-dark-600 rounded-full text-[10px] font-bold text-dark-muted hover:text-white shadow-sm flex items-center gap-1.5 transition-all">
+                        <i class="fas fa-clock"></i> <span id="shift-status-text">Shift</span>
+                    </button>
+                </header>
 
-                        <!-- Row 5 -->
-                        <div class="col-span-2 md:col-span-4 pt-1">
-                            <button id="btn-save-prod" onclick="saveProduct()"
-                                class="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-lg hover:bg-red-600 transition flex items-center justify-center gap-2 transform active:scale-[0.98]">Save
-                                Item</button>
-                            <button id="btn-cancel-edit" onclick="cancelEdit()"
-                                class="hide w-full mt-2 text-red-400 font-bold text-xs hover:text-white transition">Cancel
-                                Edit</button>
-                        </div>
+                <!-- Orders Grid Content (Padding bottom added for mobile nav) -->
+                <div class="flex-1 overflow-y-auto p-3 pb-24 lg:p-6 lg:pb-6 custom-scroll">
+                    <div id="orders-grid"
+                        class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 items-start">
+                        <!-- Orders injected via JS -->
+                    </div>
+                    <div id="no-orders-msg"
+                        class="hidden h-full flex flex-col items-center justify-center text-dark-700 py-20">
+                        <i class="fas fa-check-circle text-5xl mb-4 opacity-20"></i>
+                        <p class="font-bold">All caught up!</p>
                     </div>
                 </div>
             </div>
 
-            <div id="edit-controls" class="px-5 py-2 flex justify-end bg-dark-900 hide border-b border-dark-700"></div>
+            <!-- 3. MOBILE BOTTOM NAVIGATION (Hidden on Desktop) -->
+            <div
+                class="lg:hidden fixed bottom-0 left-0 w-full bg-dark-800/95 backdrop-blur-lg border-t border-dark-700 pb-safe z-50">
+                <div class="flex justify-around items-center h-16 px-2">
+                    <!-- Kitchen (Home) -->
+                    <button onclick="navigateTo('screen-kitchen')"
+                        class="flex flex-col items-center justify-center w-full h-full text-primary space-y-1">
+                        <i class="fas fa-th-list text-lg"></i>
+                        <span class="text-[9px] font-bold">Orders</span>
+                    </button>
 
-            <div class="flex-1 overflow-y-auto p-5 pb-20">
-                <!-- REDESIGNED LIST CONTAINER (REPLACING TABLE) -->
-                <div id="menu-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                    <!-- Tables (POS) -->
+                    <button onclick="navigateTo('screen-tables')"
+                        class="flex flex-col items-center justify-center w-full h-full text-dark-muted hover:text-white transition space-y-1">
+                        <i class="fas fa-th-large text-lg"></i>
+                        <span class="text-[9px] font-bold">POS</span>
+                    </button>
+
+                    <!-- Menu (Manage) -->
+                    <button onclick="navigateTo('screen-menu')"
+                        class="flex flex-col items-center justify-center w-full h-full text-dark-muted hover:text-white transition space-y-1">
+                        <i class="fas fa-hamburger text-lg"></i>
+                        <span class="text-[9px] font-bold">Menu</span>
+                    </button>
+
+                    <!-- Analytics -->
+                    <button onclick="navigateTo('screen-analytics')"
+                        class="flex flex-col items-center justify-center w-full h-full text-dark-muted hover:text-white transition space-y-1">
+                        <i class="fas fa-chart-pie text-lg"></i>
+                        <span class="text-[9px] font-bold">Report</span>
+                    </button>
+
+                    <!-- More (Opens Modal) -->
+                    <button onclick="document.getElementById('modal-mobile-menu').classList.remove('hide')"
+                        class="flex flex-col items-center justify-center w-full h-full text-dark-muted hover:text-white transition space-y-1">
+                        <div
+                            class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center border border-dark-600">
+                            <i class="fas fa-bars text-xs"></i>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. MOBILE MORE MENU MODAL -->
+        <div id="modal-mobile-menu"
+            class="fixed inset-0 bg-black/80 z-[100] hide flex items-end justify-center backdrop-blur-sm lg:hidden">
+            <div class="bg-dark-800 w-full rounded-t-[30px] border-t border-dark-700 p-6 pb-safe animate-slide-up">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-xl text-white">More Options</h3>
+                    <button onclick="document.getElementById('modal-mobile-menu').classList.add('hide')"
+                        class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-dark-muted hover:text-white"><i
+                            class="fas fa-times"></i></button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <button
+                        onclick="navigateTo('screen-categories'); document.getElementById('modal-mobile-menu').classList.add('hide')"
+                        class="flex flex-col items-center gap-2">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-dark-700 flex items-center justify-center text-orange-400 text-xl shadow-lg border border-dark-600">
+                            <i class="fas fa-list-alt"></i>
+                        </div>
+                        <span class="text-[10px] text-dark-muted font-bold">Category</span>
+                    </button>
+                    <button
+                        onclick="navigateTo('screen-members'); document.getElementById('modal-mobile-menu').classList.add('hide')"
+                        class="flex flex-col items-center gap-2">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-dark-700 flex items-center justify-center text-purple-400 text-xl shadow-lg border border-dark-600">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span class="text-[10px] text-dark-muted font-bold">Members</span>
+                    </button>
+                    <button
+                        onclick="navigateTo('screen-expenses'); document.getElementById('modal-mobile-menu').classList.add('hide')"
+                        class="flex flex-col items-center gap-2">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-dark-700 flex items-center justify-center text-red-400 text-xl shadow-lg border border-dark-600">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <span class="text-[10px] text-dark-muted font-bold">Expense</span>
+                    </button>
+                    <button
+                        onclick="openAIAnalyst(); document.getElementById('modal-mobile-menu').classList.add('hide')"
+                        class="flex flex-col items-center gap-2">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-indigo-900/40 flex items-center justify-center text-indigo-400 text-xl shadow-lg border border-indigo-500/30 animate-pulse">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <span class="text-[10px] text-dark-muted font-bold">AI Bot</span>
+                    </button>
+                </div>
+
+                <div class="space-y-2">
+                    <button
+                        onclick="openSettingsModal(); document.getElementById('modal-mobile-menu').classList.add('hide')"
+                        class="w-full p-4 rounded-xl bg-dark-900 border border-dark-700 flex items-center justify-between text-white font-bold text-sm">
+                        <span class="flex items-center gap-3"><i class="fas fa-cog text-dark-muted"></i> Settings</span>
+                        <i class="fas fa-chevron-right text-xs text-dark-600"></i>
+                    </button>
+                    <button
+                        onclick="openChangePinModal(); document.getElementById('modal-mobile-menu').classList.add('hide')"
+                        class="w-full p-4 rounded-xl bg-dark-900 border border-dark-700 flex items-center justify-between text-white font-bold text-sm">
+                        <span class="flex items-center gap-3"><i class="fas fa-key text-dark-muted"></i> Change
+                            PIN</span>
+                        <i class="fas fa-chevron-right text-xs text-dark-600"></i>
+                    </button>
+                    <button onclick="openQRModal(); document.getElementById('modal-mobile-menu').classList.add('hide')"
+                        class="w-full p-4 rounded-xl bg-dark-900 border border-dark-700 flex items-center justify-between text-white font-bold text-sm">
+                        <span class="flex items-center gap-3"><i class="fas fa-qrcode text-dark-muted"></i> Table QR
+                            Code</span>
+                        <i class="fas fa-chevron-right text-xs text-dark-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- === SCREEN: MENU MANAGER (FIXED SCROLLING) === -->
+        <div id="screen-menu" class="page-view hide animate-slide-in flex flex-col h-full bg-dark-900">
+
+            <!-- 1. STICKY HEADER (အတည်နေရာ) -->
+            <div
+                class="p-4 border-b border-dark-700 flex justify-between items-center bg-dark-800 sticky top-0 z-30 shadow-md shrink-0">
+                <div class="flex items-center gap-3">
+                    <button onclick="navigateTo('screen-kitchen')"
+                        class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-white hover:bg-dark-600 transition">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3 class="font-bold text-xl text-white" data-i18n="menu_manager">Menu Manager</h3>
+                </div>
+            </div>
+
+            <!-- 2. SCROLLABLE CONTENT AREA (Form + List ပေါင်းထားသည်) -->
+            <div class="flex-1 overflow-y-auto custom-scroll relative bg-dark-900 pb-safe">
+
+                <!-- Add/Edit Form Section -->
+                <div
+                    class="m-4 mb-6 rounded-2xl border border-dark-700 bg-dark-800 overflow-hidden transition-all duration-300 shadow-lg">
+
+                    <!-- Form Header (Toggle) -->
+                    <div onclick="toggleMenuForm()" id="menu-form-header"
+                        class="p-4 flex justify-between items-center cursor-pointer hover:bg-dark-700 transition select-none bg-dark-800 border-b border-dark-700/50">
+                        <h4 class="font-bold text-white text-sm uppercase tracking-wide flex items-center gap-3"
+                            id="menu-form-title">
+                            <span
+                                class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs text-white shadow-md shadow-red-500/30">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span data-i18n="add_item">Add New Item</span>
+                        </h4>
+                        <div
+                            class="w-8 h-8 rounded-full bg-dark-900 flex items-center justify-center text-dark-muted border border-dark-700">
+                            <i class="fas fa-chevron-down transition-transform duration-300" id="menu-form-chevron"></i>
+                        </div>
+                    </div>
+
+                    <!-- Form Content -->
+                    <div id="menu-form-content" class="hide p-4 bg-dark-800">
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Basic Info -->
+                            <div class="col-span-2">
+                                <label class="form-label text-primary">Item Name</label>
+                                <input id="new-prod-name" placeholder="e.g. Shan Noodle"
+                                    class="w-full p-3 rounded-xl border border-dark-600 bg-dark-900 text-white focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition font-bold">
+                            </div>
+
+                            <div class="col-span-1">
+                                <label class="form-label">Price (Ks)</label>
+                                <input id="new-prod-price" type="number" placeholder="0"
+                                    class="w-full p-3 rounded-xl border border-dark-600 bg-dark-900 text-white focus:border-primary outline-none font-mono">
+                            </div>
+
+                            <div class="col-span-1">
+                                <label class="form-label">Category</label>
+                                <div class="relative">
+                                    <select id="new-prod-category"
+                                        class="w-full p-3 rounded-xl border border-dark-600 bg-dark-900 text-white focus:border-primary outline-none appearance-none">
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-3 top-3.5 text-dark-muted text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- Image URL -->
+                            <div class="col-span-2">
+                                <label class="form-label">Image Link (URL)</label>
+                                <input id="new-prod-img" placeholder="https://..."
+                                    class="w-full p-3 rounded-xl border border-dark-600 bg-dark-900 text-white focus:border-primary outline-none text-xs">
+                            </div>
+
+                            <!-- Advanced Details (Collapsible Look) -->
+                            <div
+                                class="col-span-2 grid grid-cols-4 gap-2 bg-dark-900/50 p-3 rounded-xl border border-dark-700/50">
+                                <div class="col-span-1">
+                                    <label class="form-label text-[9px]">Stock</label>
+                                    <input id="new-prod-stock" type="number" placeholder="∞"
+                                        class="w-full p-2 rounded-lg border border-dark-600 bg-dark-800 text-white text-center text-xs focus:border-primary outline-none text-yellow-400 font-bold">
+                                </div>
+                                <div class="col-span-1">
+                                    <label class="form-label text-[9px]">Cost</label>
+                                    <input id="new-prod-cost" type="number" placeholder="0"
+                                        class="w-full p-2 rounded-lg border border-dark-600 bg-dark-800 text-white text-center text-xs focus:border-primary outline-none">
+                                </div>
+                                <div class="col-span-1">
+                                    <label class="form-label text-[9px]">Disc</label>
+                                    <input id="new-prod-discount" type="number" placeholder="0"
+                                        class="w-full p-2 rounded-lg border border-dark-600 bg-dark-800 text-white text-center text-xs focus:border-primary outline-none text-green-400">
+                                </div>
+                                <div class="col-span-1">
+                                    <label class="form-label text-[9px]">Tax %</label>
+                                    <input id="new-prod-tax" type="number" placeholder="0"
+                                        class="w-full p-2 rounded-lg border border-dark-600 bg-dark-800 text-white text-center text-xs focus:border-primary outline-none text-red-400">
+                                </div>
+                            </div>
+
+                            <!-- Options & Sizes -->
+                            <div class="col-span-2">
+                                <label class="form-label">Options (Example: Spicy, No Spicy)</label>
+                                <input id="new-prod-options" placeholder="Comma separated..."
+                                    class="w-full p-3 rounded-xl border border-dark-600 bg-dark-900 text-white focus:border-primary outline-none text-sm">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="form-label">Sizes (Format -> Name:Price)</label>
+                                <input id="new-prod-sizes" placeholder="Small:1000, Large:2000"
+                                    class="w-full p-3 rounded-xl border border-dark-600 bg-dark-900 text-white focus:border-primary outline-none text-sm">
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="col-span-2 pt-4 flex gap-3 flex-col sm:flex-row">
+                                <button id="btn-save-prod" onclick="saveProduct()"
+                                    class="flex-1 bg-gradient-to-r from-primary to-red-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-red-500/20 hover:scale-[1.02] transition active:scale-95 flex items-center justify-center gap-2">
+                                    <i class="fas fa-save"></i> <span>Save Item</span>
+                                </button>
+                                <button id="btn-cancel-edit" onclick="cancelEdit()"
+                                    class="hide flex-1 bg-dark-700 text-white py-3.5 rounded-xl font-bold hover:bg-dark-600 transition active:scale-95">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product List Section -->
+                <div class="px-4 pb-24">
+                    <h4 class="font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fas fa-list text-dark-muted"></i> All Items
+                    </h4>
+
+                    <!-- Grid Container -->
+                    <div id="menu-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <!-- JS Will Inject Items Here -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -624,24 +824,28 @@
                 </div>
             </div>
 
-            <div class="flex bg-dark-900 p-1 m-5 mb-2 rounded-xl border border-dark-700 shrink-0">
+            <!-- Analytics Tab Navigation (Scrollable Pill Design) -->
+            <div class="flex items-center gap-3 overflow-x-auto p-1 mx-4 mb-2 no-scrollbar pb-2">
                 <button onclick="switchReportTab('overview')" id="tab-overview"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm bg-dark-700 text-white shadow-sm transition"
-                    data-i18n="overview">Overview</button>
+                    class="whitespace-nowrap flex-shrink-0 px-4 py-2 rounded-full font-bold text-xs bg-dark-700 text-white shadow-sm transition border border-dark-600">
+                    Overview
+                </button>
                 <button onclick="switchReportTab('history')" id="tab-history"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm text-dark-muted hover:text-white transition"
-                    data-i18n="history">History</button>
+                    class="whitespace-nowrap flex-shrink-0 px-4 py-2 rounded-full font-bold text-xs text-dark-muted border border-transparent hover:bg-dark-800 hover:text-white transition">
+                    History
+                </button>
                 <button onclick="switchReportTab('cancelled')" id="tab-cancelled"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm text-dark-muted hover:text-white transition">Cancelled</button>
+                    class="whitespace-nowrap flex-shrink-0 px-4 py-2 rounded-full font-bold text-xs text-dark-muted border border-transparent hover:bg-dark-800 hover:text-white transition">
+                    Cancelled
+                </button>
                 <button onclick="switchReportTab('top')" id="tab-top"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm text-dark-muted hover:text-white transition"
-                    data-i18n="top_items">Top Items</button>
-                <!-- မူရင်းခလုတ်များနောက်တွင် ထည့်ပါ -->
+                    class="whitespace-nowrap flex-shrink-0 px-4 py-2 rounded-full font-bold text-xs text-dark-muted border border-transparent hover:bg-dark-800 hover:text-white transition">
+                    Top Items
+                </button>
                 <button onclick="switchReportTab('shifts')" id="tab-shifts"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm text-dark-muted hover:text-white transition">
+                    class="whitespace-nowrap flex-shrink-0 px-4 py-2 rounded-full font-bold text-xs text-dark-muted border border-transparent hover:bg-dark-800 hover:text-white transition">
                     Z-Reports
                 </button>
-
             </div>
 
             <div class="px-5 pb-2 flex flex-wrap gap-3 shrink-0">
@@ -1009,127 +1213,144 @@
             </div>
         </div>
 
-        <!-- === SCREEN: CATEGORY MANAGER (FULL PAGE) === -->
-        <div id="screen-categories" class="page-view hide animate-slide-in">
-            <div class="p-4 border-b border-dark-700 flex justify-between items-center bg-dark-800 sticky top-0 z-20">
+        <!-- === SCREEN: CATEGORY MANAGER (REDESIGNED) === -->
+        <div id="screen-categories" class="page-view hide animate-slide-in flex flex-col h-full bg-dark-900">
+
+            <!-- 1. STICKY HEADER -->
+            <div
+                class="p-4 border-b border-dark-700 flex justify-between items-center bg-dark-800 sticky top-0 z-30 shadow-md shrink-0">
                 <div class="flex items-center gap-3">
                     <button onclick="navigateTo('screen-kitchen')"
-                        class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-white hover:bg-dark-600 transition"><i
-                            class="fas fa-arrow-left"></i></button>
+                        class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-white hover:bg-dark-600 transition">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
                     <h3 class="font-bold text-xl text-white" data-i18n="category_manager">Category Manager</h3>
                 </div>
             </div>
 
-            <!-- Add Category Form -->
-            <div class="p-5 bg-dark-900 flex gap-3 border-b border-dark-700 items-center">
-                <input id="new-cat-name" placeholder="New Category Name (e.g., Seafood)"
-                    class="flex-1 p-3 rounded-xl border border-dark-700 bg-dark-800 text-white placeholder-dark-700 focus:border-primary outline-none">
-                <button id="btn-save-cat" onclick="saveCategory()"
-                    class="bg-primary text-white p-3 rounded-xl font-bold shadow-lg hover:bg-red-600 transition flex items-center justify-center gap-2 shrink-0">Add
-                    Category</button>
-            </div>
+            <!-- 2. SCROLLABLE CONTENT -->
+            <div class="flex-1 overflow-y-auto custom-scroll pb-safe">
 
-            <div class="flex-1 overflow-y-auto p-5 pb-20">
-                <h4 class="font-bold text-lg text-white mb-3">Current Categories (Excluding 'All')</h4>
-                <div class="space-y-2" id="categories-list">
-                    <!-- Categories will be rendered here -->
+                <!-- Add Category Form (Card Style) -->
+                <div class="m-4 p-5 bg-dark-800 rounded-2xl border border-dark-700 shadow-lg">
+                    <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                        <span
+                            class="w-6 h-6 rounded-lg bg-orange-500/20 text-orange-500 flex items-center justify-center text-xs"><i
+                                class="fas fa-plus"></i></span>
+                        Create New Category
+                    </h4>
+
+                    <!-- Mobile: Flex-Col (Stack), Desktop: Flex-Row -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input id="new-cat-name" placeholder="Category Name (e.g., Seafood)"
+                            class="flex-1 p-3.5 rounded-xl border border-dark-600 bg-dark-900 text-white placeholder-dark-600 focus:border-primary outline-none focus:ring-1 focus:ring-primary/50 transition font-bold">
+
+                        <button id="btn-save-cat" onclick="saveCategory()"
+                            class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-primary to-red-600 text-white rounded-xl font-bold shadow-lg hover:shadow-red-500/30 transition active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap">
+                            <i class="fas fa-save"></i> <span>Add</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="mt-8 p-4 text-xs text-dark-muted border border-dark-700 rounded-xl bg-dark-900">
-                    <i class="fas fa-info-circle text-primary mr-1"></i> Removing a category will set all associated
-                    items to 'Other'.
+
+                <!-- Category List -->
+                <div class="px-4 pb-24">
+                    <h4 class="font-bold text-dark-muted text-xs uppercase tracking-widest mb-3 ml-1">Existing
+                        Categories</h4>
+
+                    <!-- Grid Container -->
+                    <div id="categories-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Items injected via JS -->
+                    </div>
+
+                    <div class="mt-6 p-4 rounded-xl bg-blue-900/10 border border-blue-500/20 flex gap-3 items-start">
+                        <i class="fas fa-info-circle text-blue-400 mt-0.5"></i>
+                        <p class="text-xs text-blue-200/80 leading-relaxed">
+                            Deleting a category will NOT delete the items inside it. Instead, those items will be moved
+                            to <span class="font-bold text-white">'Other'</span> automatically.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- === SCREEN: TABLE MAP (UPDATED WITH GRID VIEW) === -->
+        <div id="screen-tables" class="page-view hide animate-slide-in flex flex-col h-full bg-dark-900">
 
-        <!-- === SCREEN: TABLE MAP (FULL PAGE) === -->
-        <div id="screen-tables" class="page-view hide animate-slide-in">
+            <!-- Header -->
             <div
                 class="p-4 border-b border-dark-700 flex justify-between items-center bg-dark-800 z-10 shrink-0 sticky top-0">
                 <div class="flex items-center gap-3">
                     <button onclick="navigateTo('screen-kitchen')"
-                        class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-white hover:bg-dark-600 transition"><i
-                            class="fas fa-arrow-left"></i></button>
+                        class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-white hover:bg-dark-600 transition">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
                     <div>
-                        <h3 class="font-bold text-white text-xl flex items-center gap-2">
-                            <i class="fas fa-store text-orange-500"></i> <span data-i18n="table_map">Table Layout</span>
+                        <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                            <span data-i18n="table_map">Tables</span>
                         </h3>
-                        <p class="text-xs text-dark-muted mt-1" data-i18n="select_table_msg" id="table-map-subtitle">
-                            Select a table to take order</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div id="layout-edit-controls"
-                        class="hide flex items-center gap-2 mr-2 bg-dark-900/50 p-1 rounded-lg border border-dark-700">
-                        <div class="flex items-center gap-1">
-                            <select id="new-table-shape"
-                                class="bg-dark-800 text-white text-xs border border-dark-600 rounded px-2 py-1.5 focus:border-primary outline-none">
-                                <option value="round">Round ⚪</option>
-                                <option value="rect">Square ⬜</option>
-                            </select>
-                            <button onclick="addNewTable()"
-                                class="bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-500 shadow flex items-center gap-1">
-                                <i class="fas fa-plus"></i> Add
-                            </button>
-                        </div>
-                        <div class="w-px h-6 bg-dark-600 mx-1"></div>
-                        <button id="btn-save-layout" onclick="saveLayout()"
-                            class="bg-primary text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-600 shadow flex items-center gap-1"><i
-                                class="fas fa-save"></i> Save</button>
-                    </div>
 
-                    <button onclick="toggleLayoutEdit()" id="btn-edit-layout"
-                        class="border border-dark-600 text-dark-muted hover:text-white hover:bg-dark-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                        <i class="fas fa-pen mr-1"></i> Edit
+                <!-- View Toggle (Map vs Grid) -->
+                <div class="flex bg-dark-900 rounded-lg p-1 border border-dark-700">
+                    <button onclick="toggleTableView('map')" id="btn-view-map"
+                        class="px-3 py-1.5 rounded-md text-xs font-bold bg-primary text-white shadow transition">
+                        <i class="fas fa-map-marked-alt mr-1"></i> Map
+                    </button>
+                    <button onclick="toggleTableView('grid')" id="btn-view-grid"
+                        class="px-3 py-1.5 rounded-md text-xs font-bold text-dark-muted hover:text-white transition">
+                        <i class="fas fa-th mr-1"></i> Grid
                     </button>
                 </div>
+
+                <!-- Edit Button (Hidden in Grid Mode) -->
+                <div id="layout-edit-controls"
+                    class="hide absolute top-16 right-4 flex items-center gap-2 bg-dark-800 p-2 rounded-xl border border-dark-600 shadow-xl z-50">
+                    <!-- (Edit controls code remains same) -->
+                    <button onclick="addNewTable()"
+                        class="bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-bold"><i
+                            class="fas fa-plus"></i></button>
+                    <button onclick="saveLayout()"
+                        class="bg-primary text-white px-3 py-1.5 rounded-md text-xs font-bold"><i
+                            class="fas fa-save"></i></button>
+                </div>
+
+                <button onclick="toggleLayoutEdit()" id="btn-edit-layout"
+                    class="ml-2 border border-dark-600 text-dark-muted hover:text-white hover:bg-dark-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                    <i class="fas fa-pen"></i>
+                </button>
             </div>
 
+            <!-- VIEW 1: MAP CONTAINER (Original) -->
             <div onclick="deselectTable()"
                 class="flex-1 overflow-auto bg-dark-900 relative cursor-grab active:cursor-grabbing"
                 id="table-map-container"
                 style="background-image: radial-gradient(#374151 1px, transparent 1px); background-size: 20px 20px;">
+                <!-- Tables will be injected here -->
             </div>
 
-            <div id="map-bottom-panel"
-                class="p-4 bg-dark-800 border-t border-dark-700 z-10 min-h-[70px] flex justify-center items-center">
-                <div id="map-legend" class="flex gap-6 text-xs font-bold text-dark-muted">
-                    <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-500"></span>
-                        Free</span>
-                    <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span>
-                        Occupied</span>
-                    <span class="hide text-orange-400 ml-4" id="edit-hint"><i class="fas fa-mouse-pointer"></i> Select a
-                        table to edit</span>
+            <!-- VIEW 2: GRID CONTAINER (New for Mobile) -->
+            <div id="table-grid-container" class="hide flex-1 overflow-y-auto p-4 bg-dark-900">
+                <div id="table-grid-content" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                    <!-- Grid items injected here -->
                 </div>
+            </div>
 
+            <!-- Bottom Panel (Legend/Properties) -->
+            <div id="map-bottom-panel"
+                class="p-4 bg-dark-800 border-t border-dark-700 z-10 min-h-[60px] flex justify-center items-center shrink-0">
+                <div id="map-legend" class="flex gap-6 text-xs font-bold text-dark-muted">
+                    <span class="flex items-center gap-2"><span
+                            class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></span> Free</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]"></span> Occupied</span>
+                </div>
+                <!-- Properties Panel (Keep existing code) -->
                 <div id="table-properties"
                     class="hide w-full flex justify-between items-center max-w-2xl animate-slide-up">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-dark-900 px-3 py-1 rounded-lg border border-dark-700">
-                            <span class="text-[10px] text-dark-muted uppercase font-bold">Selected</span>
-                            <p class="text-white font-bold text-lg" id="prop-id">T-1</p>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <span class="text-[10px] text-dark-muted uppercase font-bold">Shape</span>
-                            <div class="flex bg-dark-900 rounded-lg p-0.5 border border-dark-700">
-                                <button onclick="updateTableProperty('shape', 'round')"
-                                    class="px-3 py-1 rounded-md text-xs font-bold transition hover:bg-dark-700 text-dark-muted"
-                                    id="btn-shape-round"><i class="fas fa-circle"></i></button>
-                                <button onclick="updateTableProperty('shape', 'rect')"
-                                    class="px-3 py-1 rounded-md text-xs font-bold transition hover:bg-dark-700 text-dark-muted"
-                                    id="btn-shape-rect"><i class="fas fa-square"></i></button>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-1 w-32">
-                            <span class="text-[10px] text-dark-muted uppercase font-bold">Size</span>
-                            <input type="range" min="0.5" max="2" step="0.1" id="prop-size"
-                                oninput="updateTableProperty('size', this.value)"
-                                class="accent-primary h-2 bg-dark-700 rounded-lg appearance-none cursor-pointer">
-                        </div>
-                    </div>
+                    <!-- ... (Keep existing properties controls) ... -->
                     <button onclick="deleteSelectedTable()"
-                        class="bg-red-900/20 text-red-500 border border-red-900/50 hover:bg-red-900/40 hover:text-red-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition">
-                        <i class="fas fa-trash"></i> Delete Table
-                    </button>
+                        class="bg-red-900/20 text-red-500 border border-red-900/50 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i
+                            class="fas fa-trash"></i> Delete</button>
                 </div>
             </div>
         </div>
@@ -1328,21 +1549,33 @@
         </div>
     </div>
 
-    <!-- Settings Modal (Removed Global Defaults) -->
+    <!-- Settings Modal (Redesigned for Mobile Scrolling) -->
     <div id="modal-settings"
-        class="fixed inset-0 bg-black/80 z-[100] hide flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-dark-800 w-full max-sm rounded-3xl shadow-2xl p-6 border border-dark-700 animate-slide-up">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg text-white">System Settings</h3>
+        class="fixed inset-0 bg-black/80 z-[100] hide flex items-end sm:items-center justify-center backdrop-blur-sm sm:p-4">
+
+        <!-- Modal Container: Mobile မှာ အောက်ကပ်မယ်, Desktop မှာ အလယ်ရောက်မယ် -->
+        <div
+            class="bg-dark-800 w-full sm:max-w-md rounded-t-[30px] sm:rounded-3xl shadow-2xl border-t sm:border border-dark-700 animate-slide-up flex flex-col max-h-[90vh] sm:max-h-[85vh]">
+
+            <!-- 1. STICKY HEADER (အပိတ်ခလုတ် ဒီမှာပါ) -->
+            <div
+                class="flex justify-between items-center p-5 border-b border-dark-700 bg-dark-800 rounded-t-[30px] sm:rounded-t-3xl sticky top-0 z-10 shrink-0">
+                <h3 class="font-bold text-xl text-white">System Settings</h3>
                 <button onclick="closeModal('modal-settings')"
-                    class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-dark-muted hover:text-white transition"><i
-                        class="fas fa-times"></i></button>
+                    class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-dark-muted hover:text-white transition">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="space-y-6">
+
+            <!-- 2. SCROLLABLE CONTENT AREA -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-5 custom-scroll">
+
+                <!-- Notification Sound -->
                 <div class="flex justify-between items-center p-4 bg-dark-900 rounded-xl border border-dark-700">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center text-primary"><i
-                                class="fas fa-volume-up"></i></div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center text-primary border border-dark-700">
+                            <i class="fas fa-volume-up"></i></div>
                         <div>
                             <p class="font-bold text-white text-sm">Notification Sound</p>
                             <p class="text-[10px] text-dark-muted">Play sound on new order</p>
@@ -1356,22 +1589,23 @@
                         </div>
                     </label>
                 </div>
-                <!-- GLOBAL TAX & SVC SETTINGS -->
-                <div class="mt-4 p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-3">
+
+                <!-- BILLING SETTINGS -->
+                <div class="p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-4">
                     <h4
-                        class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2">
-                        Billing Settings
+                        class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2 flex items-center gap-2">
+                        <i class="fas fa-file-invoice-dollar text-green-400"></i> Billing Settings
                     </h4>
 
-                    <!-- NEW: Tax Type Toggle -->
-                    <div class="flex justify-between items-center mb-2">
+                    <!-- Tax Type Toggle -->
+                    <div class="flex justify-between items-center">
                         <label class="text-xs font-bold text-dark-muted">Tax Type</label>
-                        <div class="flex bg-dark-800 rounded-lg p-0.5 border border-dark-600">
+                        <div class="flex bg-dark-800 rounded-lg p-1 border border-dark-600">
                             <button onclick="setTaxType('exclusive')" id="btn-tax-excl"
-                                class="px-2 py-1 rounded text-[10px] font-bold transition bg-primary text-white">Exclusive
+                                class="px-3 py-1.5 rounded text-[10px] font-bold transition bg-primary text-white">Exclusive
                                 (+)</button>
                             <button onclick="setTaxType('inclusive')" id="btn-tax-incl"
-                                class="px-2 py-1 rounded text-[10px] font-bold transition text-dark-muted hover:text-white">Inclusive
+                                class="px-3 py-1.5 rounded text-[10px] font-bold transition text-dark-muted hover:text-white">Inclusive
                                 (in)</button>
                         </div>
                     </div>
@@ -1379,27 +1613,28 @@
                     <div class="flex justify-between items-center">
                         <label class="text-xs font-bold text-dark-muted">Service Charge (%)</label>
                         <input type="number" id="setting-svc" value="0" onchange="saveGlobalSettings()"
-                            class="w-20 bg-dark-800 text-white text-right font-bold border border-dark-600 rounded p-1 outline-none focus:border-primary">
+                            class="w-20 bg-dark-800 text-white text-right font-bold border border-dark-600 rounded-lg p-2 outline-none focus:border-primary text-sm">
                     </div>
 
                     <div class="flex justify-between items-center">
                         <label class="text-xs font-bold text-dark-muted">Global Tax (%)</label>
                         <input type="number" id="setting-tax" value="0" onchange="saveGlobalSettings()"
-                            class="w-20 bg-dark-800 text-white text-right font-bold border border-dark-600 rounded p-1 outline-none focus:border-primary">
+                            class="w-20 bg-dark-800 text-white text-right font-bold border border-dark-600 rounded-lg p-2 outline-none focus:border-primary text-sm">
                     </div>
                 </div>
+
                 <!-- PRINTING SETTINGS -->
-                <div class="mt-4 p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-3">
+                <div class="p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-3">
                     <h4
-                        class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2">
-                        Printing Settings
+                        class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2 flex items-center gap-2">
+                        <i class="fas fa-print text-blue-400"></i> Printing Settings
                     </h4>
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-xs font-bold text-white">Ticket Mode</p>
                             <p class="text-[10px] text-dark-muted" id="print-mode-desc">Separate Food & Drink</p>
                         </div>
-                        <div class="flex bg-dark-800 rounded-lg p-0.5 border border-dark-600">
+                        <div class="flex bg-dark-800 rounded-lg p-1 border border-dark-600">
                             <button onclick="setPrintMode('split')" id="btn-print-split"
                                 class="px-3 py-1.5 rounded text-[10px] font-bold transition bg-primary text-white">Split</button>
                             <button onclick="setPrintMode('combined')" id="btn-print-combined"
@@ -1407,40 +1642,39 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- AI SETTINGS -->
-                <div class="mt-4 p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-3">
+                <div class="p-4 bg-dark-900 rounded-xl border border-dark-700 space-y-3">
                     <h4
-                        class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2">
-                        <i class="fas fa-robot mr-1 text-indigo-400"></i> AI Configuration
+                        class="font-bold text-white text-sm uppercase tracking-wider border-b border-dark-700 pb-2 mb-2 flex items-center gap-2">
+                        <i class="fas fa-robot text-indigo-400"></i> AI Configuration
                     </h4>
                     <div>
-                        <label class="text-xs font-bold text-dark-muted block mb-1">Gemini API Key</label>
+                        <label class="text-xs font-bold text-dark-muted block mb-2">Gemini API Key</label>
                         <input type="password" id="setting-ai-key" placeholder="Paste your API Key here"
                             onchange="saveAiSettings()"
-                            class="w-full bg-dark-800 text-white text-xs border border-dark-600 rounded p-2 outline-none focus:border-indigo-500">
-                        <p class="text-[9px] text-dark-muted mt-1">Get free key from <a
+                            class="w-full bg-dark-800 text-white text-sm border border-dark-600 rounded-xl p-3 outline-none focus:border-indigo-500 transition">
+                        <p class="text-[10px] text-dark-muted mt-2">Get free key from <a
                                 href="https://aistudio.google.com/" target="_blank"
                                 class="text-indigo-400 underline">Google AI Studio</a></p>
                     </div>
                 </div>
-                <!-- ALERT TONE SECTION (Collapsible) -->
-                <div>
-                    <p class="text-xs font-bold text-dark-muted uppercase tracking-wider mb-2">Alert Tone</p>
 
-                    <!-- Dropdown Header (နှိပ်လိုက်ရင် ပွင့်မည့် ခလုတ်) -->
+                <!-- ALERT TONE SECTION -->
+                <div class="pb-6">
+                    <p class="text-xs font-bold text-dark-muted uppercase tracking-wider mb-2 ml-1">Alert Tone</p>
                     <div onclick="toggleSoundList()"
-                        class="w-full p-3 bg-dark-900 rounded-xl border border-dark-700 flex justify-between items-center cursor-pointer hover:bg-dark-700 transition select-none">
+                        class="w-full p-4 bg-dark-900 rounded-xl border border-dark-700 flex justify-between items-center cursor-pointer hover:bg-dark-700 transition select-none">
                         <span id="selected-sound-name" class="font-bold text-white text-sm">Select Tone...</span>
                         <i id="sound-chevron"
                             class="fas fa-chevron-down text-dark-muted transition-transform duration-300"></i>
                     </div>
 
-                    <!-- Hidden List (စာရင်းအရှည်ကြီး) -->
+                    <!-- Dropdown List -->
                     <div id="sound-list-container"
-                        class="hide mt-2 space-y-2 max-h-48 overflow-y-auto custom-scroll p-1">
-                        <!-- List Items -->
+                        class="hide mt-2 space-y-2 bg-dark-900 p-2 rounded-xl border border-dark-700">
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            class="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-dark-800 transition">
                             <div class="flex items-center gap-3">
                                 <input type="radio" name="sound-choice" value="classic" class="accent-primary"
                                     onchange="selectSound('classic', 'Classic Bell 🔔')">
@@ -1450,9 +1684,8 @@
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
-
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            class="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-dark-800 transition">
                             <div class="flex items-center gap-3">
                                 <input type="radio" name="sound-choice" value="digital" class="accent-primary"
                                     onchange="selectSound('digital', 'Kitchen Beep 📟')">
@@ -1462,72 +1695,29 @@
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
-
                         <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="sound-choice" value="soft" class="accent-primary"
-                                    onchange="selectSound('soft', 'Soft Chime ✨')">
-                                <span class="text-sm font-bold text-white">Soft Chime ✨</span>
-                            </div>
-                            <button onclick="event.stopPropagation(); previewSound('soft')"
-                                class="text-dark-muted hover:text-white px-2"><i
-                                    class="fas fa-play text-xs"></i></button>
-                        </label>
-
-                        <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="sound-choice" value="chime_up" class="accent-primary"
-                                    onchange="selectSound('chime_up', 'Positive Chime 🎶')">
-                                <span class="text-sm font-bold text-white">Positive Chime 🎶</span>
-                            </div>
-                            <button onclick="event.stopPropagation(); previewSound('chime_up')"
-                                class="text-dark-muted hover:text-white px-2"><i
-                                    class="fas fa-play text-xs"></i></button>
-                        </label>
-
-                        <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="sound-choice" value="clash" class="accent-primary"
-                                    onchange="selectSound('clash', 'Metal Clash ⚙️')">
-                                <span class="text-sm font-bold text-white">Metal Clash ⚙️</span>
-                            </div>
-                            <button onclick="event.stopPropagation(); previewSound('clash')"
-                                class="text-dark-muted hover:text-white px-2"><i
-                                    class="fas fa-play text-xs"></i></button>
-                        </label>
-
-                        <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="sound-choice" value="pop_alert" class="accent-primary"
-                                    onchange="selectSound('pop_alert', 'Pop Alert 📣')">
-                                <span class="text-sm font-bold text-white">Pop Alert 📣</span>
-                            </div>
-                            <button onclick="event.stopPropagation(); previewSound('pop_alert')"
-                                class="text-dark-muted hover:text-white px-2"><i
-                                    class="fas fa-play text-xs"></i></button>
-                        </label>
-
-                        <label
-                            class="flex items-center justify-between p-3 rounded-xl border border-dark-700 cursor-pointer bg-dark-800 hover:bg-dark-700 transition group">
+                            class="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-dark-800 transition">
                             <div class="flex items-center gap-3">
                                 <input type="radio" name="sound-choice" value="bell_ring" class="accent-primary"
-                                    onchange="selectSound('bell_ring', 'Telephone Ring 📞')">
-                                <span class="text-sm font-bold text-white">Telephone Ring 📞</span>
+                                    onchange="selectSound('bell_ring', 'Telephone 📞')">
+                                <span class="text-sm font-bold text-white">Telephone 📞</span>
                             </div>
                             <button onclick="event.stopPropagation(); previewSound('bell_ring')"
                                 class="text-dark-muted hover:text-white px-2"><i
                                     class="fas fa-play text-xs"></i></button>
                         </label>
+                        <!-- Add more sounds as needed -->
                     </div>
                 </div>
             </div>
+
+            <!-- Footer for Mobile Safe Area -->
+            <div class="p-4 bg-dark-800 border-t border-dark-700 pb-safe sm:hidden">
+                <button onclick="closeModal('modal-settings')"
+                    class="w-full bg-dark-700 text-white py-3 rounded-xl font-bold">Done</button>
+            </div>
         </div>
     </div>
-
     <!-- Category Modal (Mobile) -->
     <div id="modal-category"
         class="fixed inset-0 bg-black/80 z-[100] hide flex items-end sm:items-center justify-center">
@@ -1699,157 +1889,143 @@
         </div>
     </div>
 
-    <!-- Checkout -->
+    <!-- Checkout Modal (Redesigned) -->
     <div id="modal-checkout"
-        class="fixed inset-0 bg-black/80 z-[100] hide flex items-end sm:items-center justify-center">
+        class="fixed inset-0 bg-black/80 z-[100] hide flex items-end sm:items-center justify-center backdrop-blur-sm">
         <div
-            class="bg-dark-800 w-full sm:w-[450px] sm:rounded-3xl rounded-t-[30px] shadow-2xl animate-slide-up overflow-hidden flex flex-col max-h-[85vh] border-t border-dark-700 sm:border">
-            <div class="p-5 border-b border-dark-700 flex justify-between items-center bg-dark-800">
-                <div>
-                    <h3 class="font-bold text-xl text-white" data-i18n="your_tray">Your Tray</h3>
-                    <p class="text-xs text-dark-muted mt-0.5" data-i18n="check_items">Check your items</p>
-                </div>
-                <button onclick="closeModal('modal-checkout')"
-                    class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-dark-muted hover:text-white hover:bg-dark-600 transition"><i
-                        class="fas fa-times"></i></button>
-            </div>
+            class="bg-dark-800 w-full sm:w-[450px] sm:rounded-3xl rounded-t-[30px] shadow-2xl animate-slide-up overflow-hidden flex flex-col max-h-[90vh] border-t border-dark-700 sm:border relative">
 
-            <div class="px-5 pt-4 pb-0">
-                <div class="bg-dark-900 p-1 rounded-xl flex border border-dark-700 relative mb-3">
-                    <button onclick="setOrderType('dine_in')" id="btn-type-dine"
-                        class="flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 bg-primary text-white shadow-md">
-                        <i class="fas fa-utensils"></i> <span data-i18n="dine_in">Dine In</span>
-                    </button>
-                    <button onclick="setOrderType('takeaway')" id="btn-type-take"
-                        class="flex-1 py-2.5 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition flex items-center justify-center gap-2">
-                        <i class="fas fa-shopping-bag"></i> <span data-i18n="takeaway">Takeaway</span>
-                    </button>
-                </div>
-            </div>
-            <!-- Checkout Modal ထဲမှာ ထည့်ရန် -->
-            <div id="member-checkout-btn" onclick="window.openMemberModal()"
-                class="cursor-pointer bg-dark-900 border border-dark-700 p-3 rounded-xl flex items-center justify-between mb-3 mt-2 hover:bg-dark-700 transition group active:scale-[0.98]">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="w-8 h-8 rounded-full bg-indigo-900/30 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
-                        <i class="fas fa-user-tag text-xs"></i>
-                    </div>
+            <!-- Header Area -->
+            <div class="px-5 py-4 border-b border-dark-700 bg-dark-800 shrink-0 z-20 relative">
+                <div class="flex justify-between items-center mb-3">
                     <div>
-                        <p class="text-xs font-bold text-dark-muted uppercase tracking-wider">Member / Loyalty</p>
-                        <p class="text-sm font-bold text-white group-hover:text-indigo-300 transition"
-                            id="checkout-mem-name">Tap to Add Member</p>
+                        <h3 class="font-bold text-xl text-white" data-i18n="your_tray">Your Tray</h3>
+                        <!-- Member Name will appear here -->
+                        <p id="checkout-subtitle" class="text-xs text-dark-muted mt-0.5">Check your items</p>
                     </div>
+                    <button onclick="closeModal('modal-checkout')"
+                        class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center text-dark-muted hover:text-white transition"><i
+                            class="fas fa-times"></i></button>
                 </div>
-                <i class="fas fa-chevron-right text-dark-muted text-xs"></i>
-            </div>
-            <!-- AI RECOMMENDATION BOX -->
-            <div id="ai-upsell-container" class="hide px-5 pt-0 mb-2">
-                <div
-                    class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-xl p-3 flex items-center justify-between relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-indigo-500/5 animate-pulse"></div>
-                    <div class="flex items-center gap-3 z-10">
-                        <div
-                            class="w-10 h-10 rounded-lg bg-dark-900/80 flex items-center justify-center border border-indigo-500/50 text-xl shadow-lg">
-                            🤖
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p
-                                class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1">
-                                <i class="fas fa-sparkles text-yellow-400"></i> AI Suggestion
-                            </p>
-                            <p id="ai-upsell-text" class="text-xs font-bold text-white leading-tight truncate">Loading
-                                suggestion...</p>
-                            <p id="ai-upsell-reason" class="text-[9px] text-gray-400 italic truncate">Based on your cart
-                            </p>
-                        </div>
+
+                <!-- Control Row: Order Type + Member Button -->
+                <div class="flex gap-2">
+                    <!-- Order Type Toggle -->
+                    <div class="flex-1 bg-dark-900 p-1 rounded-xl flex border border-dark-700">
+                        <button onclick="setOrderType('dine_in')" id="btn-type-dine"
+                            class="flex-1 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 bg-primary text-white shadow-md">
+                            <i class="fas fa-utensils"></i> <span data-i18n="dine_in">Dine In</span>
+                        </button>
+                        <button onclick="setOrderType('takeaway')" id="btn-type-take"
+                            class="flex-1 py-2 rounded-lg text-xs font-bold text-dark-muted hover:text-white transition flex items-center justify-center gap-2">
+                            <i class="fas fa-shopping-bag"></i> <span data-i18n="takeaway">Takeaway</span>
+                        </button>
                     </div>
-                    <button id="btn-add-upsell" onclick=""
-                        class="z-10 bg-white text-indigo-900 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg hover:bg-indigo-50 transition active:scale-95 flex items-center gap-1">
-                        <span>Add</span> <i class="fas fa-plus"></i>
+
+                    <!-- Member Button (Compact) -->
+                    <button id="btn-member-toggle" onclick="window.openMemberModal()"
+                        class="w-[42px] rounded-xl bg-dark-900 border border-dark-700 text-dark-muted flex items-center justify-center hover:bg-dark-700 hover:text-white transition relative group"
+                        title="Add Member">
+                        <i class="fas fa-user-plus"></i>
+                        <!-- Active Indicator Dot -->
+                        <div id="mem-active-dot"
+                            class="hide absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full shadow-lg shadow-green-500/50">
+                        </div>
                     </button>
                 </div>
             </div>
 
-            <div id="checkout-items" class="p-4 overflow-y-auto flex-1 space-y-3 bg-dark-900 mt-2"></div>
-            <!-- Checkout Modal Footer Area -->
-            <div class="p-4 bg-dark-800 border-t border-dark-700 pb-6 sm:pb-4">
+            <!-- Item List (Expanded Space) -->
+            <div id="checkout-items"
+                class="p-4 overflow-y-auto flex-1 space-y-3 bg-dark-900 custom-scroll pb-24 relative">
+                <!-- Items injected via JS -->
+            </div>
 
-                <!-- 1. COMPACT Bill Discount Input -->
+            <!-- FLOATING AI SUGGESTION (Moved Up) -->
+            <div id="ai-upsell-container" class="hide absolute bottom-[160px] right-4 z-40 animate-slide-up">
+
+                <!-- Main Bubble Container -->
+                <div
+                    class="cursor-move flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-1.5 pr-3 rounded-full shadow-[0_8px_25px_rgba(79,70,229,0.6)] border border-indigo-400/50 backdrop-blur-md hover:scale-105 transition-transform duration-300">
+
+                    <!-- 1. Icon Circle -->
+                    <div
+                        class="w-10 h-10 rounded-full bg-white text-indigo-600 flex items-center justify-center shrink-0 shadow-sm">
+                        <i class="fas fa-sparkles animate-pulse text-sm"></i>
+                    </div>
+
+                    <!-- 2. Text Area -->
+                    <div class="flex flex-col leading-none mr-1">
+                        <span class="text-[8px] text-indigo-200 font-bold uppercase tracking-wider mb-0.5">AI
+                            Suggests</span>
+                        <span id="ai-upsell-text" class="text-xs font-bold truncate max-w-[120px]">Thinking...</span>
+                    </div>
+
+                    <!-- 3. Add Button -->
+                    <button id="btn-add-upsell"
+                        class="w-8 h-8 rounded-full bg-white/20 hover:bg-white hover:text-indigo-600 flex items-center justify-center transition active:scale-90 border border-white/30 backdrop-blur-sm"
+                        title="Add Item">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+
+                    <!-- 4. Close Button -->
+                    <button onclick="document.getElementById('ai-upsell-container').classList.add('hide')"
+                        class="absolute -top-1.5 -right-1 w-5 h-5 bg-dark-900 text-dark-muted hover:text-white rounded-full flex items-center justify-center text-[10px] border border-dark-600 shadow-md transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Footer Area (Totals) -->
+            <div class="p-4 bg-dark-800 border-t border-dark-700 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+
+                <!-- Compact Discount Row -->
                 <div id="checkout-discount-container"
                     class="flex items-center gap-2 mb-3 bg-dark-900/50 p-1.5 rounded-lg border border-dark-700">
                     <div class="flex items-center gap-2 mr-auto px-1">
                         <i class="fas fa-percent text-xs text-red-400"></i>
                         <span class="text-[10px] font-bold text-dark-muted uppercase">Bill Discount</span>
                     </div>
-
-                    <!-- Toggle Button (% or Amt) -->
                     <div class="flex bg-dark-800 rounded-md p-0.5 border border-dark-600 scale-90">
                         <button onclick="window.setBillDiscType('percent')" id="btn-bd-percent"
                             class="px-2 py-1 rounded text-[10px] font-bold transition bg-primary text-white shadow">%</button>
                         <button onclick="window.setBillDiscType('fixed')" id="btn-bd-fixed"
                             class="px-2 py-1 rounded text-[10px] font-bold transition text-dark-muted hover:text-white">Amt</button>
                     </div>
-
-                    <!-- Input Field -->
                     <input type="number" id="input-bill-disc" placeholder="0" oninput="window.updateCheckoutTotals()"
                         class="w-16 bg-dark-800 border border-dark-600 rounded text-right text-white font-bold p-1 focus:border-primary outline-none text-xs">
                 </div>
 
-                <!-- 2. GRID LAYOUT for Stats (နေရာသက်သာအောင် ဘယ်ညာခွဲလိုက်သည်) -->
+                <!-- Totals Grid -->
                 <div class="grid grid-cols-2 gap-x-4 gap-y-1 mb-4 text-xs">
-                    <!-- Row 1 -->
-                    <div class="flex justify-between items-center text-dark-muted">
-                        <span>Subtotal</span>
-                        <span id="checkout-subtotal" class="font-bold text-white">0 Ks</span>
-                    </div>
-                    <div class="flex justify-between items-center text-green-400/80">
-                        <span>Item Disc</span>
-                        <span id="checkout-item-disc">-0 Ks</span>
-                    </div>
-
-                    <!-- Row 2 -->
-                    <div class="flex justify-between items-center text-green-500 font-bold">
-                        <span>Bill Disc</span>
-                        <span id="checkout-bill-disc">-0 Ks</span>
-                    </div>
-
-                    <!-- Service Charge (Hidden by default, shown via JS) -->
-                    <div id="row-checkout-svc" class="flex justify-between items-center text-orange-400 hide">
-                        <span id="label-checkout-svc">Service Charge</span>
-                        <span id="checkout-svc-val">+0 Ks</span>
-                    </div>
-
-                    <!-- Row 3 -->
+                    <div class="flex justify-between items-center text-dark-muted"><span>Subtotal</span><span
+                            id="checkout-subtotal" class="font-bold text-white">0 Ks</span></div>
+                    <div class="flex justify-between items-center text-green-400/80"><span>Item Disc</span><span
+                            id="checkout-item-disc">-0 Ks</span></div>
+                    <div class="flex justify-between items-center text-green-500 font-bold"><span>Bill Disc</span><span
+                            id="checkout-bill-disc">-0 Ks</span></div>
+                    <div id="row-checkout-svc" class="flex justify-between items-center text-orange-400 hide"><span
+                            id="label-checkout-svc">Service</span><span id="checkout-svc-val">+0 Ks</span></div>
                     <div
                         class="flex justify-between items-center text-red-400 col-span-2 border-t border-dashed border-dark-700 pt-1 mt-1">
-                        <span id="label-checkout-tax">Tax</span>
-                        <span id="checkout-tax-val">+0 Ks</span>
+                        <span id="label-checkout-tax">Tax</span><span id="checkout-tax-val">+0 Ks</span>
                     </div>
                 </div>
 
-                <!-- 3. Total Amount -->
-                <div class="flex justify-between items-center mb-4 pt-2 border-t border-dark-700">
-                    <span class="text-xs font-bold text-dark-muted uppercase tracking-wider"
-                        data-i18n="total_amount">Total Amount</span>
-                    <span id="checkout-grand-total" class="text-3xl font-bold text-white">0 Ks</span>
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex gap-3">
-                    <button onclick="closeModal('modal-checkout')"
-                        class="flex-1 bg-dark-700 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-dark-600 transition active:scale-[0.98]"
-                        data-i18n="cancel">
-                        Cancel
-                    </button>
+                <!-- Grand Total & Confirm -->
+                <div class="flex gap-3 items-center">
+                    <div class="flex-1">
+                        <p class="text-[10px] text-dark-muted font-bold uppercase">Total Amount</p>
+                        <p id="checkout-grand-total" class="text-2xl font-extrabold text-white leading-none">0 Ks</p>
+                    </div>
                     <button onclick="submitOrder()"
-                        class="flex-[2] bg-primary text-white py-3.5 rounded-xl font-bold shadow-xl shadow-primary/20 active:scale-[0.98] transition flex justify-center items-center gap-3 hover:bg-red-600">
-                        <span data-i18n="confirm">Confirm</span>
-                        <i class="fas fa-check-circle"></i>
+                        class="flex-[1.5] bg-gradient-to-r from-primary to-red-600 text-white h-12 rounded-xl font-bold shadow-lg shadow-red-500/30 active:scale-[0.98] transition flex justify-center items-center gap-2 hover:brightness-110">
+                        <span data-i18n="confirm">Confirm</span> <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
     <!-- === MODAL: CRM / MEMBER SYSTEM === -->
     <div id="modal-member"
         class="fixed inset-0 bg-black/80 z-[140] hide flex items-center justify-center p-4 backdrop-blur-sm">
@@ -3533,7 +3709,7 @@
             if (type === 'dine_in') { btnDine.classList.remove('text-dark-muted', 'hover:text-white'); btnDine.classList.add('bg-primary', 'text-white', 'shadow-md'); btnTake.classList.add('text-dark-muted', 'hover:text-white'); btnTake.classList.remove('bg-purple-600', 'text-white', 'shadow-md'); }
             else { btnDine.classList.add('text-dark-muted', 'hover:text-white'); btnDine.classList.remove('bg-primary', 'text-white', 'shadow-md'); btnTake.classList.remove('text-dark-muted', 'hover:text-white'); btnTake.classList.add('bg-purple-600', 'text-white', 'shadow-md'); }
         };
-window.openCheckoutModal = () => {
+        window.openCheckoutModal = () => {
             if (state.cart.length === 0) return;
 
             // Discount State Reset
@@ -3544,9 +3720,9 @@ window.openCheckoutModal = () => {
             // POS Mode Check
             const discContainer = document.getElementById('checkout-discount-container');
             if (state.isPOSMode) {
-                discContainer.classList.remove('hide'); 
+                discContainer.classList.remove('hide');
             } else {
-                discContainer.classList.add('hide');    
+                discContainer.classList.add('hide');
             }
 
             window.setOrderType('dine_in');
@@ -4710,6 +4886,91 @@ window.openCheckoutModal = () => {
             });
             return busy;
         };
+
+        // 1. View State Variable
+        state.tableViewMode = 'map'; // 'map' or 'grid'
+
+        // 2. Toggle Function
+        window.toggleTableView = (mode) => {
+            state.tableViewMode = mode;
+            const btnMap = document.getElementById('btn-view-map');
+            const btnGrid = document.getElementById('btn-view-grid');
+            const divMap = document.getElementById('table-map-container');
+            const divGrid = document.getElementById('table-grid-container');
+            const btnEdit = document.getElementById('btn-edit-layout');
+
+            if (mode === 'grid') {
+                // Grid Mode UI
+                btnGrid.classList.replace('text-dark-muted', 'text-white');
+                btnGrid.classList.add('bg-primary', 'shadow');
+                btnMap.classList.remove('bg-primary', 'text-white', 'shadow');
+                btnMap.classList.add('text-dark-muted');
+
+                divMap.classList.add('hide');
+                divGrid.classList.remove('hide');
+                btnEdit.classList.add('hide'); // Grid mode မှာ Edit ပေးမလုပ်ဘူး
+
+                window.renderTableGrid(); // Grid ကို Render လုပ်မယ်
+            } else {
+                // Map Mode UI
+                btnMap.classList.replace('text-dark-muted', 'text-white');
+                btnMap.classList.add('bg-primary', 'shadow');
+                btnGrid.classList.remove('bg-primary', 'text-white', 'shadow');
+                btnGrid.classList.add('text-dark-muted');
+
+                divGrid.classList.add('hide');
+                divMap.classList.remove('hide');
+                btnEdit.classList.remove('hide');
+
+                window.renderTableMap(); // Map ကို Render လုပ်မယ်
+            }
+        };
+
+        // 3. Render Grid Function (New)
+        window.renderTableGrid = () => {
+            const container = document.getElementById('table-grid-content');
+            container.innerHTML = '';
+            const busyTables = getOccupiedTables();
+
+            // Sort tables by ID (numeric)
+            const sortedTables = [...state.tables].sort((a, b) => {
+                return parseInt(a.id) - parseInt(b.id);
+            });
+
+            sortedTables.forEach(t => {
+                const isBusy = busyTables.has(String(t.id));
+                const colorClass = isBusy
+                    ? "bg-red-500/10 text-red-500 border-red-500/50 hover:bg-red-500 hover:text-white"
+                    : "bg-green-500/10 text-green-500 border-green-500/50 hover:bg-green-500 hover:text-white";
+
+                const statusText = isBusy ? "Occupied" : "Free";
+
+                const div = document.createElement('button');
+                div.className = `flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all active:scale-95 ${colorClass}`;
+                div.onclick = () => window.startPOSMode(t.id);
+
+                div.innerHTML = `
+            <span class="text-xl font-bold mb-1">T-${t.id}</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider opacity-80">${statusText}</span>
+        `;
+                container.appendChild(div);
+            });
+        };
+
+        // 4. Update navigateTo to respect the view
+        const originalNavigateTo = window.navigateTo;
+        window.navigateTo = (screenId) => {
+            originalNavigateTo(screenId);
+            if (screenId === 'screen-tables') {
+                // Default to Grid on Mobile, Map on Desktop if first load
+                const isMobile = window.innerWidth < 640;
+                if (state.tableViewMode === 'map' && isMobile) {
+                    toggleTableView('grid'); // Auto switch to grid for mobile
+                } else {
+                    toggleTableView(state.tableViewMode);
+                }
+            }
+        };
         window.renderTableMap = () => {
             const busyTables = getOccupiedTables(); const container = document.getElementById('table-map-container'); container.innerHTML = '';
 
@@ -5608,28 +5869,142 @@ window.openCheckoutModal = () => {
             }
         };
 
-        // 4. Order အတွက် Member ရွေးချယ်ခြင်း
+        // 1. SELECT MEMBER FOR ORDER (Updated for new UI)
         window.selectMemberForOrder = () => {
             if (!state.tempMember) return;
 
-            state.currentMember = state.tempMember; // Global ထဲ ထည့်လိုက်ပြီ
+            state.currentMember = state.tempMember;
 
-            // Checkout UI ကို ပြင်မယ်
-            const displayEl = document.getElementById('checkout-mem-name');
-            displayEl.innerText = `${state.currentMember.name} (${state.currentMember.points} Pts)`;
-            displayEl.className = "text-sm font-bold text-green-400"; // အရောင်ပြောင်းမယ်
+            // Header က Subtitle နေရာမှာ Member နာမည် ပြောင်းမယ်
+            const subtitle = document.getElementById('checkout-subtitle');
+            subtitle.innerHTML = `<span class="text-green-400 font-bold"><i class="fas fa-user-check mr-1"></i> ${state.currentMember.name}</span> <span class="text-dark-muted text-[10px]">(${state.currentMember.points} Pts)</span>`;
 
-            // Modal ပိတ်မယ်
+            // Button မှာ အစက်စိမ်းလေး ပြမယ် (Active ဖြစ်ကြောင်း)
+            document.getElementById('mem-active-dot').classList.remove('hide');
+            const btn = document.getElementById('btn-member-toggle');
+            btn.classList.add('border-green-500', 'text-green-400');
+            btn.classList.remove('border-dark-700', 'text-dark-muted');
+
             window.closeModal('modal-member');
             window.showMessage("Member Linked", "success");
         };
 
-        // 1. NavigateTo function မှာ screen-members ပါ ထည့်ပေးရပါမယ်
-        // window.navigateTo = (screenId) => { ... } ထဲမှာ အောက်ပါအတိုင်း ပြင်ပါ (သို့) ဖြည့်ပါ။
-        /* 
-           if (screenId === 'screen-members') window.renderMemberList(); 
-           ဆိုတာကို navigateTo function ထဲက if condition တွေထဲမှာ ထည့်ပေးပါ။
-        */
+        // 2. OPEN CHECKOUT MODAL (Reset UI logic)
+        window.openCheckoutModal = () => {
+            if (state.cart.length === 0) return;
+
+            state.billDiscount = { type: 'percent', value: 0 };
+            document.getElementById('input-bill-disc').value = '';
+            window.setBillDiscType('percent');
+
+            // Reset Member UI if no member selected
+            if (!state.currentMember) {
+                document.getElementById('checkout-subtitle').innerText = "Check your items";
+                document.getElementById('mem-active-dot').classList.add('hide');
+                const btn = document.getElementById('btn-member-toggle');
+                btn.classList.remove('border-green-500', 'text-green-400');
+                btn.classList.add('border-dark-700', 'text-dark-muted');
+            }
+
+            const discContainer = document.getElementById('checkout-discount-container');
+            if (state.isPOSMode) discContainer.classList.remove('hide');
+            else discContainer.classList.add('hide');
+
+            window.setOrderType('dine_in');
+
+            // Render Items (Same as before)
+            document.getElementById('checkout-items').innerHTML = state.cart.map((item, i) => `
+        <div class="flex justify-between items-center bg-dark-800/50 p-2 rounded-xl border border-dark-700 mb-2 last:mb-0 group">
+            <div class="flex gap-3 items-center overflow-hidden">
+                <div class="font-bold bg-dark-900 w-8 h-8 rounded-lg flex items-center justify-center text-primary text-xs border border-dark-700 shrink-0 shadow-inner">
+                    ${item.qty}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-sm text-white truncate">${item.name}</p>
+                    <p class="text-[10px] text-dark-muted truncate">
+                        ${item.size ? `<span class="text-primary">${item.size}</span>` : ''} 
+                        ${item.modifiers.length > 0 ? `• ${item.modifiers.join(', ')}` : ''}
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 pl-2 shrink-0">
+                <span class="font-bold text-sm text-white font-mono">${item.lineTotal.toLocaleString()}</span>
+                <button onclick="window.removeFromCart(${i})" class="w-7 h-7 rounded-full bg-dark-900 text-dark-muted hover:text-red-400 hover:bg-red-900/20 transition flex items-center justify-center">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </div>`).join('');
+
+            updateCheckoutTotals();
+            document.getElementById('modal-checkout').classList.remove('hide');
+            window.triggerAIUpsell(); // Call AI
+        };
+
+        window.triggerAIUpsell = async () => {
+            const container = document.getElementById('ai-upsell-container');
+
+            container.style.top = '';
+            container.style.left = '';
+            container.style.bottom = '260px'; // မူလသတ်မှတ်ထားတဲ့ နေရာ
+            container.style.right = '1rem';
+            container.style.position = 'absolute';
+            container.classList.add('hide'); // Reset animation
+
+            if (!aiState.apiKey || state.cart.length === 0) return;
+
+            const textEl = document.getElementById('ai-upsell-text');
+            const btn = document.getElementById('btn-add-upsell');
+            const icon = container.querySelector('.fa-sparkles');
+
+            // Show Loading State
+            container.classList.remove('hide');
+            textEl.innerText = "Analyzing...";
+            btn.classList.add('hidden'); // ခဏဖျောက်ထားမယ်
+            icon.classList.add('animate-spin'); // လည်နေတဲ့ effect ထည့်မယ်
+
+            const cartItems = state.cart.map(i => i.name).join(', ');
+            const menuItems = state.products.filter(p => !p.isSoldOut).map(p => `${p.name} (ID:${p.id})`).join(', ');
+
+            const prompt = `Context: Restaurant POS. Cart: [${cartItems}]. Menu: [${menuItems}]. Recommend ONE item. Output JSON: { "id": "PRODUCT_ID", "name": "PRODUCT_NAME" }`;
+
+            try {
+                const result = await callGeminiAPI(prompt);
+                const jsonMatch = result.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error("No JSON");
+
+                const data = JSON.parse(jsonMatch[0]);
+                const product = state.products.find(p => p.id === data.id);
+
+                if (product) {
+                    // Success State
+                    icon.classList.remove('animate-spin');
+                    icon.classList.add('animate-pulse');
+
+                    textEl.innerText = data.name; // ပစ္စည်းနာမည်ပဲ ပြမယ်
+                    btn.classList.remove('hidden'); // Add ခလုတ် ပြန်ဖော်မယ်
+
+                    btn.onclick = () => {
+                        state.selectedProduct = { ...product, qty: 1 };
+                        window.addToCart();
+
+                        // Success Effect
+                        textEl.innerText = "Added!";
+                        btn.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => {
+                            container.classList.add('hide');
+                            btn.innerHTML = '<i class="fas fa-plus"></i>'; // Reset icon
+                            window.openCheckoutModal(); // Refresh list
+                        }, 800);
+                    };
+                } else {
+                    container.classList.add('hide');
+                }
+            } catch (e) {
+                console.error(e);
+                container.classList.add('hide');
+            }
+        };
+
 
         // ဒါကတော့ navigateTo ထဲမှာ မဟုတ်ဘဲ သီးသန့် Function အသစ်အနေနဲ့ ထည့်ရမှာပါ
         window.renderMemberList = async () => {
@@ -5798,23 +6173,23 @@ window.openCheckoutModal = () => {
         };
 
         window.handleAiEnter = (e) => { if (e.key === 'Enter') window.sendToAI(); };
-        
+
         // ==========================================
-// FEATURE 2: AI BUSINESS ANALYST (FULL DETAIL UPGRADE)
-// ==========================================
+        // FEATURE 2: AI BUSINESS ANALYST (FULL DETAIL UPGRADE)
+        // ==========================================
 
-window.handleAiEnter = (e) => { if (e.key === 'Enter') window.sendToAI(); };
+        window.handleAiEnter = (e) => { if (e.key === 'Enter') window.sendToAI(); };
 
-window.sendToAI = async () => {
-    const input = document.getElementById('ai-user-input');
-    const history = document.getElementById('ai-chat-history');
-    const question = input.value.trim();
-    
-    if (!aiState.apiKey) return window.showMessage("Please set API Key in Settings first", "error");
-    if (!question) return;
+        window.sendToAI = async () => {
+            const input = document.getElementById('ai-user-input');
+            const history = document.getElementById('ai-chat-history');
+            const question = input.value.trim();
 
-    // 1. User Message Display
-    history.innerHTML += `
+            if (!aiState.apiKey) return window.showMessage("Please set API Key in Settings first", "error");
+            if (!question) return;
+
+            // 1. User Message Display
+            history.innerHTML += `
         <div class="flex gap-3 flex-row-reverse animate-slide-up">
             <div class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center shrink-0"><i class="fas fa-user text-xs text-white"></i></div>
             <div class="bg-indigo-600 p-3 rounded-2xl rounded-tr-none text-sm text-white shadow-lg">
@@ -5822,12 +6197,12 @@ window.sendToAI = async () => {
             </div>
         </div>
     `;
-    input.value = '';
-    history.scrollTop = history.scrollHeight;
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
 
-    // 2. Loading Display
-    const loadingId = 'ai-loading-' + Date.now();
-    history.innerHTML += `
+            // 2. Loading Display
+            const loadingId = 'ai-loading-' + Date.now();
+            history.innerHTML += `
         <div id="${loadingId}" class="flex gap-3 animate-pulse">
             <div class="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-500/30"><i class="fas fa-robot text-xs text-indigo-300"></i></div>
             <div class="bg-dark-800 p-3 rounded-2xl rounded-tl-none border border-dark-700 text-sm text-gray-400">
@@ -5835,169 +6210,169 @@ window.sendToAI = async () => {
             </div>
         </div>
     `;
-    history.scrollTop = history.scrollHeight;
+            history.scrollTop = history.scrollHeight;
 
-    try {
-        // --- HELPER FUNCTIONS ---
-        const getWeekNumber = (d) => {
-            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-            var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-            var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-            return d.getUTCFullYear() + "-W" + weekNo;
-        };
+            try {
+                // --- HELPER FUNCTIONS ---
+                const getWeekNumber = (d) => {
+                    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                    var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                    return d.getUTCFullYear() + "-W" + weekNo;
+                };
 
-        // Object ထဲက Value အများဆုံး Key ကို ရှာပေးမယ့် Function (Top Item/Category ရှာရန်)
-        const getTopKey = (obj) => {
-            const arr = Object.entries(obj).sort((a, b) => b[1] - a[1]);
-            return arr.length > 0 ? `${arr[0][0]} (${arr[0][1]})` : "None";
-        };
+                // Object ထဲက Value အများဆုံး Key ကို ရှာပေးမယ့် Function (Top Item/Category ရှာရန်)
+                const getTopKey = (obj) => {
+                    const arr = Object.entries(obj).sort((a, b) => b[1] - a[1]);
+                    return arr.length > 0 ? `${arr[0][0]} (${arr[0][1]})` : "None";
+                };
 
-        // --- DATA GATHERING START ---
-        
-        // 1. Shifts Data
-        const { collection, getDocs, query, orderBy, limit, getCountFromServer } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-        
-        let recentShiftsText = "No Shift Data";
-        try {
-            const shiftQ = query(collection(db, 'artifacts', appId, 'public', 'data', 'shifts'), orderBy('closedAt', 'desc'), limit(5));
-            const shiftSnap = await getDocs(shiftQ);
-            if (!shiftSnap.empty) {
-                recentShiftsText = shiftSnap.docs.map(d => {
-                    const s = d.data();
-                    const dObj = s.closedAt ? new Date(s.closedAt.seconds * 1000) : null;
-                    const dStr = dObj ? dObj.toLocaleDateString('en-CA') : 'N/A';
-                    return `[${dStr}] Cash: ${s.endCash}, Variance: ${s.variance}, Staff: ${s.closedBy}`;
-                }).join('\n');
-            }
-        } catch(e) { console.log("Shift fetch error", e); }
+                // --- DATA GATHERING START ---
 
-        // 2. Member Count
-        let memberCount = 0;
-        try {
-            const coll = collection(db, 'artifacts', appId, 'public', 'data', 'customers');
-            const snapshot = await getCountFromServer(coll);
-            memberCount = snapshot.data().count;
-        } catch(e) { console.log("Member count error", e); }
+                // 1. Shifts Data
+                const { collection, getDocs, query, orderBy, limit, getCountFromServer } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
 
-        // 3. AGGREGATION LOGIC (DETAILED)
-        let dailyData = {};   
-        let weeklyData = {};  
-        let monthlyData = {}; 
-        
-        // Init Structure (အသေးစိတ် အချက်အလက်များ ပါဝင်အောင် ပြင်ထားသည်)
-        const initStats = () => ({ 
-            revenue: 0, 
-            cogs: 0,            // Cost of Goods Sold
-            expenses: 0, 
-            profit: 0, 
-            orders: 0, 
-            cancel: 0,          // Cancelled Orders
-            items: {},          // Item Name -> Qty
-            cats: {},           // Category -> Revenue
-            dineIn: 0,          // Dine-in Count
-            takeaway: 0         // Takeaway Count
-        });
+                let recentShiftsText = "No Shift Data";
+                try {
+                    const shiftQ = query(collection(db, 'artifacts', appId, 'public', 'data', 'shifts'), orderBy('closedAt', 'desc'), limit(5));
+                    const shiftSnap = await getDocs(shiftQ);
+                    if (!shiftSnap.empty) {
+                        recentShiftsText = shiftSnap.docs.map(d => {
+                            const s = d.data();
+                            const dObj = s.closedAt ? new Date(s.closedAt.seconds * 1000) : null;
+                            const dStr = dObj ? dObj.toLocaleDateString('en-CA') : 'N/A';
+                            return `[${dStr}] Cash: ${s.endCash}, Variance: ${s.variance}, Staff: ${s.closedBy}`;
+                        }).join('\n');
+                    }
+                } catch (e) { console.log("Shift fetch error", e); }
 
-        // --- A. Process Expenses ---
-        state.expenses.forEach(e => {
-            if(!e.timestamp) return;
-            const d = new Date(e.timestamp.seconds * 1000);
-            const amt = e.amount || 0;
+                // 2. Member Count
+                let memberCount = 0;
+                try {
+                    const coll = collection(db, 'artifacts', appId, 'public', 'data', 'customers');
+                    const snapshot = await getCountFromServer(coll);
+                    memberCount = snapshot.data().count;
+                } catch (e) { console.log("Member count error", e); }
 
-            const dayKey = d.toLocaleDateString('en-CA');
-            const weekKey = getWeekNumber(d);
-            const monthKey = dayKey.slice(0, 7);
+                // 3. AGGREGATION LOGIC (DETAILED)
+                let dailyData = {};
+                let weeklyData = {};
+                let monthlyData = {};
 
-            if(!dailyData[dayKey]) dailyData[dayKey] = initStats();
-            if(!weeklyData[weekKey]) weeklyData[weekKey] = initStats();
-            if(!monthlyData[monthKey]) monthlyData[monthKey] = initStats();
-
-            dailyData[dayKey].expenses += amt;
-            weeklyData[weekKey].expenses += amt;
-            monthlyData[monthKey].expenses += amt;
-        });
-
-        // --- B. Process Orders (Full Detail) ---
-        let allTimeTopItems = {}; // Overall top items
-
-        state.orders.forEach(o => {
-            if (!o.timestamp) return;
-            const d = new Date(o.timestamp.seconds * 1000);
-            
-            const dayKey = d.toLocaleDateString('en-CA');
-            const weekKey = getWeekNumber(d);
-            const monthKey = dayKey.slice(0, 7);
-
-            if(!dailyData[dayKey]) dailyData[dayKey] = initStats();
-            if(!weeklyData[weekKey]) weeklyData[weekKey] = initStats();
-            if(!monthlyData[monthKey]) monthlyData[monthKey] = initStats();
-
-            const targetStats = [dailyData[dayKey], weeklyData[weekKey], monthlyData[monthKey]];
-
-            if (o.status === 'cancelled') {
-                targetStats.forEach(s => s.cancel++);
-            } else {
-                const price = o.totalPrice || 0;
-                const cost = o.totalCost || 0;
-
-                targetStats.forEach(s => {
-                    s.revenue += price;
-                    s.cogs += cost; // Adding COGS
-                    s.orders++;
-                    
-                    // Order Type Counting
-                    if (o.orderType === 'takeaway') s.takeaway++;
-                    else s.dineIn++;
+                // Init Structure (အသေးစိတ် အချက်အလက်များ ပါဝင်အောင် ပြင်ထားသည်)
+                const initStats = () => ({
+                    revenue: 0,
+                    cogs: 0,            // Cost of Goods Sold
+                    expenses: 0,
+                    profit: 0,
+                    orders: 0,
+                    cancel: 0,          // Cancelled Orders
+                    items: {},          // Item Name -> Qty
+                    cats: {},           // Category -> Revenue
+                    dineIn: 0,          // Dine-in Count
+                    takeaway: 0         // Takeaway Count
                 });
 
-                // Items & Category Breakdown
-                if (o.items && Array.isArray(o.items)) {
-                    o.items.forEach(i => {
-                        const iName = i.name;
-                        const iCat = i.category || 'Other';
-                        const iTotal = i.lineTotal || 0;
+                // --- A. Process Expenses ---
+                state.expenses.forEach(e => {
+                    if (!e.timestamp) return;
+                    const d = new Date(e.timestamp.seconds * 1000);
+                    const amt = e.amount || 0;
 
-                        // All Time Tracking
-                        allTimeTopItems[iName] = (allTimeTopItems[iName] || 0) + i.qty;
+                    const dayKey = d.toLocaleDateString('en-CA');
+                    const weekKey = getWeekNumber(d);
+                    const monthKey = dayKey.slice(0, 7);
+
+                    if (!dailyData[dayKey]) dailyData[dayKey] = initStats();
+                    if (!weeklyData[weekKey]) weeklyData[weekKey] = initStats();
+                    if (!monthlyData[monthKey]) monthlyData[monthKey] = initStats();
+
+                    dailyData[dayKey].expenses += amt;
+                    weeklyData[weekKey].expenses += amt;
+                    monthlyData[monthKey].expenses += amt;
+                });
+
+                // --- B. Process Orders (Full Detail) ---
+                let allTimeTopItems = {}; // Overall top items
+
+                state.orders.forEach(o => {
+                    if (!o.timestamp) return;
+                    const d = new Date(o.timestamp.seconds * 1000);
+
+                    const dayKey = d.toLocaleDateString('en-CA');
+                    const weekKey = getWeekNumber(d);
+                    const monthKey = dayKey.slice(0, 7);
+
+                    if (!dailyData[dayKey]) dailyData[dayKey] = initStats();
+                    if (!weeklyData[weekKey]) weeklyData[weekKey] = initStats();
+                    if (!monthlyData[monthKey]) monthlyData[monthKey] = initStats();
+
+                    const targetStats = [dailyData[dayKey], weeklyData[weekKey], monthlyData[monthKey]];
+
+                    if (o.status === 'cancelled') {
+                        targetStats.forEach(s => s.cancel++);
+                    } else {
+                        const price = o.totalPrice || 0;
+                        const cost = o.totalCost || 0;
 
                         targetStats.forEach(s => {
-                            // Track Item Qty
-                            s.items[iName] = (s.items[iName] || 0) + i.qty;
-                            // Track Category Revenue
-                            s.cats[iCat] = (s.cats[iCat] || 0) + iTotal;
+                            s.revenue += price;
+                            s.cogs += cost; // Adding COGS
+                            s.orders++;
+
+                            // Order Type Counting
+                            if (o.orderType === 'takeaway') s.takeaway++;
+                            else s.dineIn++;
                         });
-                    });
-                }
-            }
-        });
 
-        // --- C. Format Output ---
-        
-        const formatLog = (obj, label) => {
-            return Object.keys(obj).sort().map(k => {
-                const d = obj[k];
-                const grossProfit = d.revenue - d.expenses - d.cogs; // Profit Formula
+                        // Items & Category Breakdown
+                        if (o.items && Array.isArray(o.items)) {
+                            o.items.forEach(i => {
+                                const iName = i.name;
+                                const iCat = i.category || 'Other';
+                                const iTotal = i.lineTotal || 0;
 
-                return `${label}: ${k} | Rev: ${d.revenue} | COGS: ${d.cogs} | Exp: ${d.expenses} | NetProfit: ${grossProfit} | Ord: ${d.orders} | Cancel: ${d.cancel} | Dine: ${d.dineIn} | Take: ${d.takeaway} | TopItem: ${getTopKey(d.items)} | TopCat: ${getTopKey(d.cats)}`;
-            }).join('\n');
-        };
+                                // All Time Tracking
+                                allTimeTopItems[iName] = (allTimeTopItems[iName] || 0) + i.qty;
 
-        const dailyLog = formatLog(dailyData, "Date");
-        const weeklyLog = formatLog(weeklyData, "Week");
-        const monthlyLog = formatLog(monthlyData, "Month");
+                                targetStats.forEach(s => {
+                                    // Track Item Qty
+                                    s.items[iName] = (s.items[iName] || 0) + i.qty;
+                                    // Track Category Revenue
+                                    s.cats[iCat] = (s.cats[iCat] || 0) + iTotal;
+                                });
+                            });
+                        }
+                    }
+                });
 
-        // Top 5 All Time Items
-        const top5AllTime = Object.entries(allTimeTopItems)
-            .sort((a,b) => b[1]-a[1])
-            .slice(0, 5)
-            .map(x => `${x[0]} (${x[1]})`)
-            .join(', ');
+                // --- C. Format Output ---
 
-        // --- PROMPT ENGINEERING ---
-        const todayStr = new Date().toLocaleDateString('en-CA');
-        
-        const prompt = `
+                const formatLog = (obj, label) => {
+                    return Object.keys(obj).sort().map(k => {
+                        const d = obj[k];
+                        const grossProfit = d.revenue - d.expenses - d.cogs; // Profit Formula
+
+                        return `${label}: ${k} | Rev: ${d.revenue} | COGS: ${d.cogs} | Exp: ${d.expenses} | NetProfit: ${grossProfit} | Ord: ${d.orders} | Cancel: ${d.cancel} | Dine: ${d.dineIn} | Take: ${d.takeaway} | TopItem: ${getTopKey(d.items)} | TopCat: ${getTopKey(d.cats)}`;
+                    }).join('\n');
+                };
+
+                const dailyLog = formatLog(dailyData, "Date");
+                const weeklyLog = formatLog(weeklyData, "Week");
+                const monthlyLog = formatLog(monthlyData, "Month");
+
+                // Top 5 All Time Items
+                const top5AllTime = Object.entries(allTimeTopItems)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(x => `${x[0]} (${x[1]})`)
+                    .join(', ');
+
+                // --- PROMPT ENGINEERING ---
+                const todayStr = new Date().toLocaleDateString('en-CA');
+
+                const prompt = `
         Role: Restaurant Business Analyst AI.
         Current Date: ${todayStr} (YYYY-MM-DD).
         
@@ -6042,12 +6417,12 @@ window.sendToAI = async () => {
         6. Provide specific numbers. Answer in the user's language (Burmese/English).
         `;
 
-        // 4. Send to Gemini
-        const response = await callGeminiAPI(prompt);
-        
-        // Show Answer
-        document.getElementById(loadingId).remove();
-        history.innerHTML += `
+                // 4. Send to Gemini
+                const response = await callGeminiAPI(prompt);
+
+                // Show Answer
+                document.getElementById(loadingId).remove();
+                history.innerHTML += `
             <div class="flex gap-3 animate-slide-up">
                 <div class="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-500/30"><i class="fas fa-robot text-xs text-indigo-300"></i></div>
                 <div class="bg-dark-800 p-3 rounded-2xl rounded-tl-none border border-dark-700 text-sm text-gray-200 shadow-md">
@@ -6056,12 +6431,12 @@ window.sendToAI = async () => {
             </div>
         `;
 
-    } catch (e) {
-        console.error("AI Error:", e);
-        document.getElementById(loadingId).innerHTML = `<span class="text-red-400">Error analyzing data: ${e.message}</span>`;
-    }
-    history.scrollTop = history.scrollHeight;
-};
+            } catch (e) {
+                console.error("AI Error:", e);
+                document.getElementById(loadingId).innerHTML = `<span class="text-red-400">Error analyzing data: ${e.message}</span>`;
+            }
+            history.scrollTop = history.scrollHeight;
+        };
         // ==========================================
         // SHARED: API CALLER (Google Gemini) - 2025 FIXED VERSION
         // ==========================================
@@ -6095,6 +6470,70 @@ window.sendToAI = async () => {
 
             return data.candidates[0].content.parts[0].text;
         }
+        // DRAG FUNCTION FOR AI BUBBLE
+        window.makeElementDraggable = (el) => {
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+
+            const startDrag = (e) => {
+                // Prevent clicking buttons inside when dragging starts
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+
+                isDragging = true;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                // Convert current position to absolute left/top to avoid jumping
+                const rect = el.getBoundingClientRect();
+
+                // Remove bottom/right classes logic effectively by setting explicit pixel values
+                el.style.bottom = 'auto';
+                el.style.right = 'auto';
+                el.style.left = rect.left + 'px';
+                el.style.top = rect.top + 'px';
+                el.style.position = 'fixed'; // Use fixed to stick to screen
+
+                startX = clientX - rect.left;
+                startY = clientY - rect.top;
+
+                el.style.cursor = 'grabbing';
+            };
+
+            const doDrag = (e) => {
+                if (!isDragging) return;
+                e.preventDefault(); // Stop scrolling on mobile
+
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                const x = clientX - startX;
+                const y = clientY - startY;
+
+                el.style.left = `${x}px`;
+                el.style.top = `${y}px`;
+            };
+
+            const stopDrag = () => {
+                isDragging = false;
+                el.style.cursor = 'move';
+            };
+
+            // Mouse Events
+            el.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('mouseup', stopDrag);
+
+            // Touch Events (Mobile)
+            el.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('touchmove', doDrag, { passive: false });
+            document.addEventListener('touchend', stopDrag);
+        };
+
+        // Initialize Dragging on Startup
+        setTimeout(() => {
+            const bubble = document.getElementById('ai-upsell-container');
+            if (bubble) window.makeElementDraggable(bubble);
+        }, 2000);
 
         init();
     </script>
