@@ -3533,8 +3533,7 @@
             if (type === 'dine_in') { btnDine.classList.remove('text-dark-muted', 'hover:text-white'); btnDine.classList.add('bg-primary', 'text-white', 'shadow-md'); btnTake.classList.add('text-dark-muted', 'hover:text-white'); btnTake.classList.remove('bg-purple-600', 'text-white', 'shadow-md'); }
             else { btnDine.classList.add('text-dark-muted', 'hover:text-white'); btnDine.classList.remove('bg-primary', 'text-white', 'shadow-md'); btnTake.classList.remove('text-dark-muted', 'hover:text-white'); btnTake.classList.add('bg-purple-600', 'text-white', 'shadow-md'); }
         };
-
-        window.openCheckoutModal = () => {
+window.openCheckoutModal = () => {
             if (state.cart.length === 0) return;
 
             // Discount State Reset
@@ -3542,53 +3541,60 @@
             document.getElementById('input-bill-disc').value = '';
             window.setBillDiscType('percent');
 
-            // 🔥 (အသစ်ပြင်ဆင်ချက်) Security Check
-            // POS Mode (Staff) ဖြစ်မှသာ Discount အကွက်ကို ပြမယ်။ Customer ဆိုရင် ဖျောက်ထားမယ်။
+            // POS Mode Check
             const discContainer = document.getElementById('checkout-discount-container');
             if (state.isPOSMode) {
-                discContainer.classList.remove('hide'); // Staff ဆိုရင် ပြမယ်
+                discContainer.classList.remove('hide'); 
             } else {
-                discContainer.classList.add('hide');    // Customer ဆိုရင် ဖျောက်မယ်
+                discContainer.classList.add('hide');    
             }
 
             window.setOrderType('dine_in');
 
+            // --- ULTRA COMPACT LIST STYLE (Horizontal Price & Icon) ---
             document.getElementById('checkout-items').innerHTML = state.cart.map((item, i) => `
-                <div class="flex justify-between items-start bg-dark-800 p-3 rounded-2xl border border-dark-700 shadow-sm relative group">
-                    <div class="flex gap-3">
-                        <div class="font-bold bg-dark-900 w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs border border-dark-700 shrink-0">${item.qty}x</div>
+                <div class="flex justify-between items-center border-b border-dark-700 py-1.5 last:border-0 relative group">
+                    <div class="flex gap-2 items-center overflow-hidden">
+                        
+                        <!-- QTY Box (Smaller) -->
+                        <div class="font-bold bg-dark-900 w-5 h-5 rounded flex items-center justify-center text-primary text-[10px] border border-dark-700 shrink-0">
+                            ${item.qty}
+                        </div>
+
                         <div class="flex-1 min-w-0">
-                            <p class="font-bold text-sm text-white truncate">${item.name} ${item.size ? `<span class="text-xs text-primary bg-primary/10 px-1 rounded ml-1">${item.size}</span>` : ''}</p>
-                            <p class="text-[10px] text-dark-muted mt-0.5 truncate">${item.modifiers.join(', ')}</p>
-                            
-                            <!-- Detailed Breakdown -->
-                            <div class="mt-1 flex flex-col gap-0.5">
-                                ${item.discount > 0 ? `<p class="text-[10px] text-green-400 font-mono"><i class="fas fa-tag mr-1"></i>-${(item.discount * item.qty).toLocaleString()} Ks</p>` : ''}
-                                ${item.taxAmount > 0 ? `<p class="text-[10px] text-blue-400 font-mono"><i class="fas fa-percentage mr-1"></i>Tax (${item.taxRate}%): +${(item.taxAmount * item.qty).toLocaleString()} Ks</p>` : ''}
-                                ${item.remarks ? `<p class="text-[10px] text-orange-400 italic break-words">"${item.remarks}"</p>` : ''}
+                            <!-- Name & Size -->
+                            <div class="flex items-center gap-1">
+                                <p class="font-bold text-xs text-white truncate">${item.name}</p>
+                                ${item.size ? `<span class="text-[9px] text-primary border border-primary/30 px-1 rounded">${item.size}</span>` : ''}
                             </div>
+
+                            <!-- Modifiers (Subtext) -->
+                            ${item.modifiers.length > 0 ? `<p class="text-[9px] text-dark-muted truncate leading-tight">${item.modifiers.join(', ')}</p>` : ''}
                         </div>
                     </div>
-                    <div class="flex flex-col items-end gap-1 pl-2">
-                        ${item.discount > 0 ? `<span class="text-[10px] text-gray-500 line-through decoration-red-500">${(item.price * item.qty).toLocaleString()}</span>` : ''}
-                        <span class="font-bold text-sm text-white font-mono">${item.lineTotal.toLocaleString()}</span>
-                        <button onclick="window.removeFromCart(${i})" class="text-red-400 text-xs bg-red-900/20 w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-900/40 transition mt-1"><i class="fas fa-trash text-[10px]"></i></button>
+
+                    <!-- Right Side: Price & Delete (Horizontal) -->
+                    <div class="flex items-center gap-2 pl-2 shrink-0">
+                        
+                        <!-- Price Details -->
+                        <div class="flex flex-col items-end leading-none">
+                            ${item.discount > 0 ? `<span class="text-[9px] text-gray-500 line-through">${(item.price * item.qty).toLocaleString()}</span>` : ''}
+                            <span class="font-bold text-xs text-white font-mono">${item.lineTotal.toLocaleString()}</span>
+                        </div>
+                        
+                        <!-- Delete Button -->
+                        <button onclick="window.removeFromCart(${i})" class="text-dark-muted hover:text-red-400 transition p-1.5 bg-dark-900/50 rounded-full">
+                            <i class="fas fa-trash text-[10px]"></i>
+                        </button>
                     </div>
                 </div>`).join('');
+            // ----------------------------------------------------
 
             updateCheckoutTotals();
             document.getElementById('modal-checkout').classList.remove('hide');
 
-            if (state.isPOSMode) {
-                // Staff မို့လို့ AI မလိုရင် ပိတ်ထားနိုင်တယ်၊ သို့မဟုတ် Staff ကို ကူညီဖို့ ဖွင့်ထားနိုင်တယ်။
-                // လောလောဆယ် အမြဲဖွင့်ထားပါမယ်။
-                window.triggerAIUpsell();
-            } else {
-                // Customer View
-                window.triggerAIUpsell();
-            }
+            window.triggerAIUpsell();
         };
-
         // Updated Checkout Calculation (Compact Grid Layout)
         window.updateCheckoutTotals = () => {
             // 1. Get Discount Input
@@ -5792,14 +5798,23 @@
         };
 
         window.handleAiEnter = (e) => { if (e.key === 'Enter') window.sendToAI(); };
-        window.sendToAI = async () => {
-            const input = document.getElementById('ai-user-input');
-            const history = document.getElementById('ai-chat-history');
-            const question = input.value.trim();
-            if (!question) return;
+        
+        // ==========================================
+// FEATURE 2: AI BUSINESS ANALYST (FULL DETAIL UPGRADE)
+// ==========================================
 
-            // 1. User Message ပြမယ်
-            history.innerHTML += `
+window.handleAiEnter = (e) => { if (e.key === 'Enter') window.sendToAI(); };
+
+window.sendToAI = async () => {
+    const input = document.getElementById('ai-user-input');
+    const history = document.getElementById('ai-chat-history');
+    const question = input.value.trim();
+    
+    if (!aiState.apiKey) return window.showMessage("Please set API Key in Settings first", "error");
+    if (!question) return;
+
+    // 1. User Message Display
+    history.innerHTML += `
         <div class="flex gap-3 flex-row-reverse animate-slide-up">
             <div class="w-8 h-8 rounded-full bg-dark-700 flex items-center justify-center shrink-0"><i class="fas fa-user text-xs text-white"></i></div>
             <div class="bg-indigo-600 p-3 rounded-2xl rounded-tr-none text-sm text-white shadow-lg">
@@ -5807,120 +5822,246 @@
             </div>
         </div>
     `;
-            input.value = '';
-            history.scrollTop = history.scrollHeight;
+    input.value = '';
+    history.scrollTop = history.scrollHeight;
 
-            // 2. Loading ပြမယ်
-            const loadingId = 'ai-loading-' + Date.now();
-            history.innerHTML += `
+    // 2. Loading Display
+    const loadingId = 'ai-loading-' + Date.now();
+    history.innerHTML += `
         <div id="${loadingId}" class="flex gap-3 animate-pulse">
             <div class="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-500/30"><i class="fas fa-robot text-xs text-indigo-300"></i></div>
             <div class="bg-dark-800 p-3 rounded-2xl rounded-tl-none border border-dark-700 text-sm text-gray-400">
-                Calculating all data...
+                Analyzing COGS, Items, Categories & Order Types...
             </div>
         </div>
     `;
-            history.scrollTop = history.scrollHeight;
+    history.scrollTop = history.scrollHeight;
 
-            // 3. DATA CALCULATION (Screen ကို မကြည့်ဘဲ Data အစစ်ကို တွက်မယ်)
-            const now = new Date();
-            const todayStr = now.toDateString(); // "Fri Dec 26 2025"
-            const currentMonth = now.getMonth(); // 0-11
-            const currentYear = now.getFullYear();
+    try {
+        // --- HELPER FUNCTIONS ---
+        const getWeekNumber = (d) => {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+            return d.getUTCFullYear() + "-W" + weekNo;
+        };
 
-            // စာရင်းချုပ်မယ့် Variable များ
-            let stats = {
-                today: { revenue: 0, orders: 0, cancel: 0, items: {} },
-                month: { revenue: 0, orders: 0, cancel: 0, items: {} },
-                total: { revenue: 0, orders: 0, cancel: 0 }
-            };
+        // Object ထဲက Value အများဆုံး Key ကို ရှာပေးမယ့် Function (Top Item/Category ရှာရန်)
+        const getTopKey = (obj) => {
+            const arr = Object.entries(obj).sort((a, b) => b[1] - a[1]);
+            return arr.length > 0 ? `${arr[0][0]} (${arr[0][1]})` : "None";
+        };
 
-            // Helper: Top Item ရှာဖို့
-            const getTopItem = (itemMap) => {
-                const sorted = Object.entries(itemMap).sort((a, b) => b[1] - a[1]);
-                return sorted.length > 0 ? `${sorted[0][0]} (${sorted[0][1]} sold)` : "None";
-            };
+        // --- DATA GATHERING START ---
+        
+        // 1. Shifts Data
+        const { collection, getDocs, query, orderBy, limit, getCountFromServer } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+        
+        let recentShiftsText = "No Shift Data";
+        try {
+            const shiftQ = query(collection(db, 'artifacts', appId, 'public', 'data', 'shifts'), orderBy('closedAt', 'desc'), limit(5));
+            const shiftSnap = await getDocs(shiftQ);
+            if (!shiftSnap.empty) {
+                recentShiftsText = shiftSnap.docs.map(d => {
+                    const s = d.data();
+                    const dObj = s.closedAt ? new Date(s.closedAt.seconds * 1000) : null;
+                    const dStr = dObj ? dObj.toLocaleDateString('en-CA') : 'N/A';
+                    return `[${dStr}] Cash: ${s.endCash}, Variance: ${s.variance}, Staff: ${s.closedBy}`;
+                }).join('\n');
+            }
+        } catch(e) { console.log("Shift fetch error", e); }
 
-            // Loop through ALL orders
-            state.orders.forEach(o => {
-                if (!o.timestamp) return;
-                const d = new Date(o.timestamp.seconds * 1000);
+        // 2. Member Count
+        let memberCount = 0;
+        try {
+            const coll = collection(db, 'artifacts', appId, 'public', 'data', 'customers');
+            const snapshot = await getCountFromServer(coll);
+            memberCount = snapshot.data().count;
+        } catch(e) { console.log("Member count error", e); }
 
-                // Check Status
-                const isCancelled = o.status === 'cancelled';
+        // 3. AGGREGATION LOGIC (DETAILED)
+        let dailyData = {};   
+        let weeklyData = {};  
+        let monthlyData = {}; 
+        
+        // Init Structure (အသေးစိတ် အချက်အလက်များ ပါဝင်အောင် ပြင်ထားသည်)
+        const initStats = () => ({ 
+            revenue: 0, 
+            cogs: 0,            // Cost of Goods Sold
+            expenses: 0, 
+            profit: 0, 
+            orders: 0, 
+            cancel: 0,          // Cancelled Orders
+            items: {},          // Item Name -> Qty
+            cats: {},           // Category -> Revenue
+            dineIn: 0,          // Dine-in Count
+            takeaway: 0         // Takeaway Count
+        });
+
+        // --- A. Process Expenses ---
+        state.expenses.forEach(e => {
+            if(!e.timestamp) return;
+            const d = new Date(e.timestamp.seconds * 1000);
+            const amt = e.amount || 0;
+
+            const dayKey = d.toLocaleDateString('en-CA');
+            const weekKey = getWeekNumber(d);
+            const monthKey = dayKey.slice(0, 7);
+
+            if(!dailyData[dayKey]) dailyData[dayKey] = initStats();
+            if(!weeklyData[weekKey]) weeklyData[weekKey] = initStats();
+            if(!monthlyData[monthKey]) monthlyData[monthKey] = initStats();
+
+            dailyData[dayKey].expenses += amt;
+            weeklyData[weekKey].expenses += amt;
+            monthlyData[monthKey].expenses += amt;
+        });
+
+        // --- B. Process Orders (Full Detail) ---
+        let allTimeTopItems = {}; // Overall top items
+
+        state.orders.forEach(o => {
+            if (!o.timestamp) return;
+            const d = new Date(o.timestamp.seconds * 1000);
+            
+            const dayKey = d.toLocaleDateString('en-CA');
+            const weekKey = getWeekNumber(d);
+            const monthKey = dayKey.slice(0, 7);
+
+            if(!dailyData[dayKey]) dailyData[dayKey] = initStats();
+            if(!weeklyData[weekKey]) weeklyData[weekKey] = initStats();
+            if(!monthlyData[monthKey]) monthlyData[monthKey] = initStats();
+
+            const targetStats = [dailyData[dayKey], weeklyData[weekKey], monthlyData[monthKey]];
+
+            if (o.status === 'cancelled') {
+                targetStats.forEach(s => s.cancel++);
+            } else {
                 const price = o.totalPrice || 0;
+                const cost = o.totalCost || 0;
 
-                // 1. TODAY DATA
-                if (d.toDateString() === todayStr) {
-                    if (isCancelled) {
-                        stats.today.cancel++;
-                    } else {
-                        stats.today.revenue += price;
-                        stats.today.orders++;
-                        // Item Counting
-                        o.items.forEach(i => {
-                            const key = i.name;
-                            stats.today.items[key] = (stats.today.items[key] || 0) + i.qty;
+                targetStats.forEach(s => {
+                    s.revenue += price;
+                    s.cogs += cost; // Adding COGS
+                    s.orders++;
+                    
+                    // Order Type Counting
+                    if (o.orderType === 'takeaway') s.takeaway++;
+                    else s.dineIn++;
+                });
+
+                // Items & Category Breakdown
+                if (o.items && Array.isArray(o.items)) {
+                    o.items.forEach(i => {
+                        const iName = i.name;
+                        const iCat = i.category || 'Other';
+                        const iTotal = i.lineTotal || 0;
+
+                        // All Time Tracking
+                        allTimeTopItems[iName] = (allTimeTopItems[iName] || 0) + i.qty;
+
+                        targetStats.forEach(s => {
+                            // Track Item Qty
+                            s.items[iName] = (s.items[iName] || 0) + i.qty;
+                            // Track Category Revenue
+                            s.cats[iCat] = (s.cats[iCat] || 0) + iTotal;
                         });
-                    }
+                    });
                 }
+            }
+        });
 
-                // 2. THIS MONTH DATA
-                if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-                    if (isCancelled) {
-                        stats.month.cancel++;
-                    } else {
-                        stats.month.revenue += price;
-                        stats.month.orders++;
-                        o.items.forEach(i => {
-                            const key = i.name;
-                            stats.month.items[key] = (stats.month.items[key] || 0) + i.qty;
-                        });
-                    }
-                }
-            });
-
-            // 4. Create Prompt with ALL Context
-            const prompt = `
-        Role: Restaurant Business Analyst.
+        // --- C. Format Output ---
         
-        DATA CONTEXT (Use the section that matches the user's question):
+        const formatLog = (obj, label) => {
+            return Object.keys(obj).sort().map(k => {
+                const d = obj[k];
+                const grossProfit = d.revenue - d.expenses - d.cogs; // Profit Formula
+
+                return `${label}: ${k} | Rev: ${d.revenue} | COGS: ${d.cogs} | Exp: ${d.expenses} | NetProfit: ${grossProfit} | Ord: ${d.orders} | Cancel: ${d.cancel} | Dine: ${d.dineIn} | Take: ${d.takeaway} | TopItem: ${getTopKey(d.items)} | TopCat: ${getTopKey(d.cats)}`;
+            }).join('\n');
+        };
+
+        const dailyLog = formatLog(dailyData, "Date");
+        const weeklyLog = formatLog(weeklyData, "Week");
+        const monthlyLog = formatLog(monthlyData, "Month");
+
+        // Top 5 All Time Items
+        const top5AllTime = Object.entries(allTimeTopItems)
+            .sort((a,b) => b[1]-a[1])
+            .slice(0, 5)
+            .map(x => `${x[0]} (${x[1]})`)
+            .join(', ');
+
+        // --- PROMPT ENGINEERING ---
+        const todayStr = new Date().toLocaleDateString('en-CA');
         
-        [TODAY'S STATS (${todayStr})]
-        - Revenue: ${stats.today.revenue.toLocaleString()} Ks
-        - Orders: ${stats.today.orders}
-        - Cancelled: ${stats.today.cancel}
-        - Top Item: ${getTopItem(stats.today.items)}
+        const prompt = `
+        Role: Restaurant Business Analyst AI.
+        Current Date: ${todayStr} (YYYY-MM-DD).
+        
+        You have access to detailed financial and operational data broken down by Daily, Weekly, and Monthly logs.
+        
+        *** DATA LEGEND ***
+        Rev = Revenue (Sales)
+        COGS = Cost of Goods Sold (Product Cost)
+        Exp = Operational Expenses
+        NetProfit = Revenue - COGS - Exp
+        Ord = Total Orders
+        Cancel = Cancelled Orders count
+        Dine = Dine-in count
+        Take = Takeaway count
+        TopItem = Best selling item name (qty sold)
+        TopCat = Best performing category (revenue generated)
 
-        [THIS MONTH STATS (${now.toLocaleString('default', { month: 'long' })})]
-        - Revenue: ${stats.month.revenue.toLocaleString()} Ks
-        - Orders: ${stats.month.orders}
-        - Cancelled: ${stats.month.cancel}
-        - Top Item: ${getTopItem(stats.month.items)}
+        === MONTHLY REPORT ===
+        ${monthlyLog || "No Data"}
+        
+        === WEEKLY REPORT ===
+        ${weeklyLog || "No Data"}
+        
+        === DAILY REPORT ===
+        ${dailyLog || "No Data"}
 
+        [OVERALL STATS]
+        - All-Time Top 5 Items: ${top5AllTime}
+        - Total Members: ${memberCount}
+        
+        [SHIFT HISTORY]
+        ${recentShiftsText}
+        
         User Question: "${question}"
         
-        Instruction: Answer the user's question accurately using the data above. If they ask about "today", look at the [TODAY] section. If they ask about "this month", look at the [MONTH] section. Keep it brief.
-    `;
+        INSTRUCTIONS:
+        1. Identify the time period (Today, Yesterday, Last Month, etc.).
+        2. Look for the specific metrics asked (e.g., if asked for "Product Cost", look at 'COGS').
+        3. If asked for "Top Item" or "Category Sales", use the 'TopItem' and 'TopCat' fields.
+        4. If asked about "Order Types", compare 'Dine' vs 'Take'.
+        5. If asked about "Cancelled", look at 'Cancel'.
+        6. Provide specific numbers. Answer in the user's language (Burmese/English).
+        `;
 
-            // 5. Call API
-            try {
-                const response = await callGeminiAPI(prompt);
-                document.getElementById(loadingId).remove();
-
-                history.innerHTML += `
+        // 4. Send to Gemini
+        const response = await callGeminiAPI(prompt);
+        
+        // Show Answer
+        document.getElementById(loadingId).remove();
+        history.innerHTML += `
             <div class="flex gap-3 animate-slide-up">
                 <div class="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center shrink-0 border border-indigo-500/30"><i class="fas fa-robot text-xs text-indigo-300"></i></div>
                 <div class="bg-dark-800 p-3 rounded-2xl rounded-tl-none border border-dark-700 text-sm text-gray-200 shadow-md">
-                    ${response}
+                    ${response.replace(/\n/g, '<br>')}
                 </div>
             </div>
         `;
-            } catch (e) {
-                document.getElementById(loadingId).innerHTML = `<span class="text-red-400">Error: ${e.message}</span>`;
-            }
-            history.scrollTop = history.scrollHeight;
-        };
+
+    } catch (e) {
+        console.error("AI Error:", e);
+        document.getElementById(loadingId).innerHTML = `<span class="text-red-400">Error analyzing data: ${e.message}</span>`;
+    }
+    history.scrollTop = history.scrollHeight;
+};
         // ==========================================
         // SHARED: API CALLER (Google Gemini) - 2025 FIXED VERSION
         // ==========================================
