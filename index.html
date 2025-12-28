@@ -6206,64 +6206,64 @@
         // ==========================================
 
         // Call this function inside openCheckoutModal()
-        window.triggerAIUpsell = async () => {
-            if (!aiState.apiKey || state.cart.length === 0) {
-                document.getElementById('ai-upsell-container').classList.add('hide');
-                return;
-            }
+    //     window.triggerAIUpsell = async () => {
+    //         if (!aiState.apiKey || state.cart.length === 0) {
+    //             document.getElementById('ai-upsell-container').classList.add('hide');
+    //             return;
+    //         }
 
-            const container = document.getElementById('ai-upsell-container');
-            const textEl = document.getElementById('ai-upsell-text');
-            const reasonEl = document.getElementById('ai-upsell-reason');
-            const btn = document.getElementById('btn-add-upsell');
+    //         const container = document.getElementById('ai-upsell-container');
+    //         const textEl = document.getElementById('ai-upsell-text');
+    //         const reasonEl = document.getElementById('ai-upsell-reason');
+    //         const btn = document.getElementById('btn-add-upsell');
 
-            // Show Loading State
-            container.classList.remove('hide');
-            textEl.innerText = "Thinking...";
-            reasonEl.innerText = "Looking for best match...";
-            btn.classList.add('hide');
+    //         // Show Loading State
+    //         container.classList.remove('hide');
+    //         textEl.innerText = "Thinking...";
+    //         reasonEl.innerText = "Looking for best match...";
+    //         btn.classList.add('hide');
 
-            // Prepare Data
-            const cartItems = state.cart.map(i => i.name).join(', ');
-            const menuItems = state.products.filter(p => !p.isSoldOut).map(p => `${p.name} (ID:${p.id})`).join(', ');
+    //         // Prepare Data
+    //         const cartItems = state.cart.map(i => i.name).join(', ');
+    //         const menuItems = state.products.filter(p => !p.isSoldOut).map(p => `${p.name} (ID:${p.id})`).join(', ');
 
-            const prompt = `
-        Context: Restaurant POS. 
-        Cart: [${cartItems}]. 
-        Menu: [${menuItems}].
-        Task: Recommend ONE item from Menu that complements the Cart. Do not suggest items already in Cart.
-        Output Format: JSON only { "id": "PRODUCT_ID", "name": "PRODUCT_NAME", "reason": "Short reason why (max 5 words)" }
-    `;
+    //         const prompt = `
+    //     Context: Restaurant POS. 
+    //     Cart: [${cartItems}]. 
+    //     Menu: [${menuItems}].
+    //     Task: Recommend ONE item from Menu that complements the Cart. Do not suggest items already in Cart.
+    //     Output Format: JSON only { "id": "PRODUCT_ID", "name": "PRODUCT_NAME", "reason": "Short reason why (max 5 words)" }
+    // `;
 
-            try {
-                const result = await callGeminiAPI(prompt);
-                const jsonMatch = result.match(/\{[\s\S]*\}/); // Extract JSON
-                if (!jsonMatch) throw new Error("No JSON found");
+    //         try {
+    //             const result = await callGeminiAPI(prompt);
+    //             const jsonMatch = result.match(/\{[\s\S]*\}/); // Extract JSON
+    //             if (!jsonMatch) throw new Error("No JSON found");
 
-                const data = JSON.parse(jsonMatch[0]);
-                const product = state.products.find(p => p.id === data.id);
+    //             const data = JSON.parse(jsonMatch[0]);
+    //             const product = state.products.find(p => p.id === data.id);
 
-                if (product) {
-                    textEl.innerText = `Try: ${data.name}`;
-                    reasonEl.innerText = data.reason;
-                    aiState.suggestedProductId = data.id;
+    //             if (product) {
+    //                 textEl.innerText = `Try: ${data.name}`;
+    //                 reasonEl.innerText = data.reason;
+    //                 aiState.suggestedProductId = data.id;
 
-                    // Setup Button
-                    btn.onclick = () => {
-                        state.selectedProduct = { ...product, qty: 1 }; // Prepare for addToCart
-                        window.addToCart(); // Use existing function
-                        window.showMessage(`Added ${data.name}!`, "success");
-                        container.classList.add('hide'); // Hide after adding
-                    };
-                    btn.classList.remove('hide');
-                } else {
-                    container.classList.add('hide'); // Hide if product not found
-                }
-            } catch (e) {
-                console.error("AI Upsell Error:", e);
-                container.classList.add('hide');
-            }
-        };
+    //                 // Setup Button
+    //                 btn.onclick = () => {
+    //                     state.selectedProduct = { ...product, qty: 1 }; // Prepare for addToCart
+    //                     window.addToCart(); // Use existing function
+    //                     window.showMessage(`Added ${data.name}!`, "success");
+    //                     container.classList.add('hide'); // Hide after adding
+    //                 };
+    //                 btn.classList.remove('hide');
+    //             } else {
+    //                 container.classList.add('hide'); // Hide if product not found
+    //             }
+    //         } catch (e) {
+    //             console.error("AI Upsell Error:", e);
+    //             container.classList.add('hide');
+    //         }
+    //     };
 
         // ==========================================
         // FEATURE 2: AI BUSINESS ANALYST
@@ -6642,4 +6642,5 @@
 </body>
 
 </html>
+
 
