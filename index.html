@@ -8,7 +8,7 @@
     <title>Ping-Restaurant</title>
     <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=P&background=FF4757&color=fff">
 
-   
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +16,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Padauk:wght@400;700&display=swap"
         rel="stylesheet">
 
-    
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -41,11 +41,36 @@
         }
     </script>
     <style>
+        /* ၁။ HTML နဲ့ Body တစ်ခုလုံးကို Reload မဖြစ်အောင် ပိတ်လိုက်တာပါ */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            /* စာမျက်နှာတစ်ခုလုံး လိုက်မလှုပ်အောင် ပိတ်ထားမယ် */
+            overscroll-behavior-y: none;
+            /* အပေါ်ကနေ ဆွဲချရင် reload ဖြစ်တာကို လုံးဝပိတ်တဲ့ ကုဒ်ပါ */
+        }
+
         body {
             font-family: 'Inter', 'Noto Sans SC', 'Padauk', sans-serif;
             -webkit-tap-highlight-color: transparent;
             background-color: #111827;
             color: #F9FAFB;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ၂။ မီနူးတွေ၊ အော်ဒါစာရင်းတွေ scroll ဆွဲရမယ့် နေရာတွေကိုပဲ scroll ပြန်ဖွင့်ပေးတာပါ */
+        #main-scroll-container,
+        .page-view,
+        .overflow-y-auto {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            /* iPhone/iPad မှာ scroll ချောမွေ့အောင် */
+            overscroll-behavior-y: contain;
+            /* အတွင်းထဲမှာပဲ scroll ဖြစ်စေပြီး အပြင်ကို reload မရောက်စေပါဘူး */
         }
 
         .hide {
@@ -66,14 +91,14 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-       
+
         .sold-out-filter {
             filter: grayscale(100%);
             opacity: 0.5;
             pointer-events: none;
         }
 
-       
+
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
             cursor: pointer;
@@ -84,7 +109,7 @@
             opacity: 1;
         }
 
-    
+
         @keyframes slideUp {
             from {
                 transform: translateY(100%);
@@ -132,14 +157,14 @@
             }
         }
 
-   
+
         .glass-nav {
             background: rgba(17, 24, 39, 0.85);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-       
+
         .cat-btn-active {
             background-color: #FF4757;
             color: white;
@@ -154,7 +179,7 @@
             border: 1px solid #374151;
         }
 
-      
+
         .table-node {
             position: absolute;
             touch-action: none;
@@ -186,7 +211,7 @@
             z-index: 50;
         }
 
-      
+
         @media print {
             @page {
                 margin: 0;
@@ -200,7 +225,7 @@
                 overflow: visible !important;
             }
 
-      
+
             body * {
                 visibility: hidden;
             }
@@ -214,7 +239,7 @@
                 display: none !important;
             }
 
-    
+
             #receipt-print-area {
                 display: block !important;
                 visibility: visible !important;
@@ -239,7 +264,7 @@
             }
         }
 
-    
+
         .page-view {
             position: fixed;
             inset: 0;
@@ -250,7 +275,7 @@
             flex-direction: column;
         }
 
-   
+
         #bg-canvas {
             position: fixed;
             top: 0;
@@ -258,9 +283,9 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-  
+
             pointer-events: none;
- 
+
             opacity: 0.6;
         }
 
@@ -289,7 +314,7 @@
             letter-spacing: 0.05em;
         }
 
-  
+
         aside button:hover i {
             transform: scale(1.1);
             transition: transform 0.2s;
@@ -301,6 +326,25 @@
 
         .pb-safe {
             padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Checkbox ကို ထိရလွယ်အောင် လုပ်ခြင်း */
+        #pos-mode-header label {
+            cursor: pointer;
+            position: relative;
+            z-index: 70;
+            /* Header ထက် ပိုမြင့်အောင် ထားပါ */
+            padding: 10px;
+            /* လက်နဲ့နှိပ်ရ လွယ်အောင် ဧရိယာချဲ့ပေးပါ */
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #chk-auto-return {
+            transform: scale(1.5);
+            /* ခလုတ်ကို နည်းနည်းကြီးအောင် လုပ်ပေးပါ */
+            margin-right: 8px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -4790,7 +4834,7 @@
 
             document.getElementById('qr-container').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(myWebsiteLink + '?table=' + t)}">`;
         };
-        
+
         window.printQR = () => {
             const qrContent = document.getElementById('qr-container').innerHTML;
             const tableNum = document.getElementById('qr-table-num').value;
