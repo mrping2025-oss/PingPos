@@ -8,7 +8,7 @@
     <title>Ping-Restaurant</title>
     <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=P&background=FF4757&color=fff">
 
-    <!-- 1. Libraries & Fonts -->
+   
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +16,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Padauk:wght@400;700&display=swap"
         rel="stylesheet">
 
-    <!-- 2. Custom CSS & Config -->
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -66,14 +66,14 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* Sold Out Grayscale Effect */
+       
         .sold-out-filter {
             filter: grayscale(100%);
             opacity: 0.5;
             pointer-events: none;
         }
 
-        /* Fix for date input icon */
+       
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
             cursor: pointer;
@@ -84,7 +84,7 @@
             opacity: 1;
         }
 
-        /* Animations */
+    
         @keyframes slideUp {
             from {
                 transform: translateY(100%);
@@ -132,14 +132,14 @@
             }
         }
 
-        /* Glassmorphism */
+   
         .glass-nav {
             background: rgba(17, 24, 39, 0.85);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Category Buttons */
+       
         .cat-btn-active {
             background-color: #FF4757;
             color: white;
@@ -154,7 +154,7 @@
             border: 1px solid #374151;
         }
 
-        /* Table Map Draggable */
+      
         .table-node {
             position: absolute;
             touch-action: none;
@@ -186,7 +186,7 @@
             z-index: 50;
         }
 
-        /* Print Styles - OPTIMIZED FOR ALL DEVICES */
+      
         @media print {
             @page {
                 margin: 0;
@@ -200,7 +200,7 @@
                 overflow: visible !important;
             }
 
-            /* Hide EVERYTHING by default */
+      
             body * {
                 visibility: hidden;
             }
@@ -214,7 +214,7 @@
                 display: none !important;
             }
 
-            /* Only show the print area */
+    
             #receipt-print-area {
                 display: block !important;
                 visibility: visible !important;
@@ -239,7 +239,7 @@
             }
         }
 
-        /* Full Page View Wrapper */
+    
         .page-view {
             position: fixed;
             inset: 0;
@@ -250,7 +250,7 @@
             flex-direction: column;
         }
 
-        /* Canvas Animation Style */
+   
         #bg-canvas {
             position: fixed;
             top: 0;
@@ -258,13 +258,12 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            /* Overlay on top of background */
+  
             pointer-events: none;
-            /* Let clicks pass through */
+ 
             opacity: 0.6;
         }
 
-        /* Keypad Styles */
         .keypad-btn {
             background-color: #374151;
             color: white;
@@ -290,13 +289,12 @@
             letter-spacing: 0.05em;
         }
 
-        /* Sidebar Hover Effect Improvement */
+  
         aside button:hover i {
             transform: scale(1.1);
             transition: transform 0.2s;
         }
 
-        /* Glass effect refinement for sidebar */
         aside {
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
         }
@@ -309,12 +307,9 @@
 
 <body class="h-screen flex flex-col overflow-hidden selection:bg-primary selection:text-white">
 
-    <!-- Canvas Animation -->
     <canvas id="bg-canvas"></canvas>
 
     <audio id="notif-sound" preload="auto" loop></audio>
-
-    <!-- 3. Navigation Bar (Visible only in main views) -->
     <header id="main-nav"
         class="glass-nav h-14 flex items-center justify-between px-4 z-50 no-print sticky top-0 shrink-0">
         <div class="flex items-center gap-3">
@@ -350,13 +345,11 @@
         </div>
     </header>
 
-    <!-- 4. Main Content -->
     <main id="app-container" class="flex-1 overflow-hidden relative no-print">
 
-        <!-- === SCREEN: CUSTOMER VIEW === -->
         <div id="screen-customer" class="h-full flex flex-col bg-dark-900 relative">
 
-            <!-- POS MODE FLOATING HEADER -->
+
             <div id="pos-mode-header"
                 class="hide absolute top-0 left-0 right-0 z-[60] bg-orange-600 text-white shadow-lg flex justify-between items-center px-4 py-2">
                 <div class="flex items-center gap-2">
@@ -446,11 +439,12 @@
         <!-- === SCREEN: KITCHEN / ADMIN DASHBOARD (RESPONSIVE) === -->
         <div id="screen-kitchen" class="h-full flex hide bg-dark-900 overflow-hidden relative">
 
-            <!-- 1. DESKTOP SIDEBAR (Hidden on Mobile) -->
+            <!-- 1. DESKTOP SIDEBAR (Modified for Scrolling) -->
             <aside
-                class="hidden lg:flex w-[240px] bg-dark-800/90 backdrop-blur-xl border-r border-dark-700 flex-col justify-between z-20 shrink-0">
-                <!-- Logo Area -->
-                <div class="h-16 flex items-center px-6 border-b border-dark-700/50">
+                class="hidden lg:flex w-[240px] bg-dark-800/90 backdrop-blur-xl border-r border-dark-700 flex-col z-20 shrink-0">
+
+                <!-- Logo Area (Fixed at Top) -->
+                <div class="h-16 flex items-center px-6 border-b border-dark-700/50 shrink-0">
                     <div
                         class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-red-600 flex items-center justify-center shadow-lg shadow-red-500/30">
                         <i class="fas fa-utensils text-white text-lg"></i>
@@ -459,54 +453,66 @@
                             class="text-primary">POS</span></span>
                 </div>
 
-                <!-- Navigation Menu -->
-                <div class="flex-1 overflow-y-auto py-4 space-y-2 px-3 custom-scroll">
-                    <button onclick="navigateTo('screen-tables')"
-                        class="w-full flex items-center gap-3 p-3 rounded-xl bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white transition-all group">
-                        <i class="fas fa-th-large text-xl"></i> <span class="font-bold text-sm">POS Mode</span>
-                    </button>
-                    <div class="my-2 border-t border-dark-700/50 mx-2"></div>
-                    <button onclick="navigateTo('screen-menu')"
-                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
-                            class="fas fa-hamburger text-lg"></i> <span class="font-medium text-sm">Menu</span></button>
-                    <button onclick="navigateTo('screen-categories')"
-                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
-                            class="fas fa-list-alt text-lg"></i> <span
-                            class="font-medium text-sm">Categories</span></button>
-                    <button onclick="navigateTo('screen-tables')"
-                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
-                            class="fas fa-map-marked-alt text-lg"></i> <span
-                            class="font-medium text-sm">Tables</span></button>
-                    <button onclick="navigateTo('screen-members')"
-                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
-                            class="fas fa-users text-lg"></i> <span class="font-medium text-sm">Members</span></button>
-                    <div class="my-2 border-t border-dark-700/50 mx-2"></div>
-                    <button onclick="navigateTo('screen-analytics')"
-                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
-                            class="fas fa-chart-pie text-lg"></i> <span
-                            class="font-medium text-sm">Analytics</span></button>
-                    <button onclick="navigateTo('screen-expenses')"
-                        class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
-                            class="fas fa-file-invoice-dollar text-lg"></i> <span
-                            class="font-medium text-sm">Expenses</span></button>
-                    <button onclick="openAIAnalyst()"
-                        class="w-full flex items-center gap-3 p-3 rounded-xl text-indigo-400 bg-indigo-900/10 hover:bg-indigo-600 hover:text-white transition-all mt-4 border border-indigo-500/20"><i
-                            class="fas fa-robot text-lg animate-pulse"></i> <span class="font-bold text-sm">Ask
-                            AI</span></button>
-                </div>
+                <!-- Navigation Menu + Bottom Actions (All Scrollable) -->
+                <div class="flex-1 overflow-y-auto py-4 px-3 custom-scroll flex flex-col">
 
-                <!-- Bottom Actions -->
-                <div class="p-3 border-t border-dark-700/50 bg-dark-900/50 space-y-1">
-                    <button onclick="openSettingsModal()"
-                        class="w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
-                            class="fas fa-cog text-lg"></i> <span class="font-medium text-sm">Settings</span></button>
-                    <button onclick="openChangePinModal()"
-                        class="w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
-                            class="fas fa-key text-lg"></i> <span class="font-medium text-sm">PIN</span></button>
-                    <button onclick="openQRModal()"
-                        class="w-full flex items-center gap-3 p-3 rounded-xl text-blue-400 hover:bg-blue-600 hover:text-white transition-all"><i
-                            class="fas fa-qrcode text-lg"></i> <span class="font-medium text-sm">Table
-                            QR</span></button>
+                    <!-- Main Menu Items -->
+                    <div class="space-y-2">
+                        <button onclick="navigateTo('screen-tables')"
+                            class="w-full flex items-center gap-3 p-3 rounded-xl bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white transition-all group">
+                            <i class="fas fa-th-large text-xl"></i> <span class="font-bold text-sm">POS Mode</span>
+                        </button>
+                        <div class="my-2 border-t border-dark-700/50 mx-2"></div>
+                        <button onclick="navigateTo('screen-menu')"
+                            class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                                class="fas fa-hamburger text-lg"></i> <span
+                                class="font-medium text-sm">Menu</span></button>
+                        <button onclick="navigateTo('screen-categories')"
+                            class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                                class="fas fa-list-alt text-lg"></i> <span
+                                class="font-medium text-sm">Categories</span></button>
+                        <button onclick="navigateTo('screen-tables')"
+                            class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                                class="fas fa-map-marked-alt text-lg"></i> <span
+                                class="font-medium text-sm">Tables</span></button>
+                        <button onclick="navigateTo('screen-members')"
+                            class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                                class="fas fa-users text-lg"></i> <span
+                                class="font-medium text-sm">Members</span></button>
+                        <div class="my-2 border-t border-dark-700/50 mx-2"></div>
+                        <button onclick="navigateTo('screen-analytics')"
+                            class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                                class="fas fa-chart-pie text-lg"></i> <span
+                                class="font-medium text-sm">Analytics</span></button>
+                        <button onclick="navigateTo('screen-expenses')"
+                            class="nav-item w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                                class="fas fa-file-invoice-dollar text-lg"></i> <span
+                                class="font-medium text-sm">Expenses</span></button>
+                        <button onclick="openAIAnalyst()"
+                            class="w-full flex items-center gap-3 p-3 rounded-xl text-indigo-400 bg-indigo-900/10 hover:bg-indigo-600 hover:text-white transition-all mt-4 border border-indigo-500/20"><i
+                                class="fas fa-robot text-lg animate-pulse"></i> <span class="font-bold text-sm">Ask
+                                AI</span></button>
+                    </div>
+
+                    <!-- Spacer to push buttons to bottom if space permits -->
+                    <div class="mt-auto pt-6"></div>
+
+                    <!-- Bottom Actions (Moved inside scroll area) -->
+                    <div class="p-3 bg-dark-900/40 rounded-xl border border-dark-700/50 space-y-1">
+                        <p class="text-[10px] text-dark-muted font-bold uppercase px-2 mb-1">System</p>
+                        <button onclick="openSettingsModal()"
+                            class="w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                                class="fas fa-cog text-lg"></i> <span
+                                class="font-medium text-sm">Settings</span></button>
+                        <button onclick="openChangePinModal()"
+                            class="w-full flex items-center gap-3 p-3 rounded-xl text-dark-muted hover:bg-dark-700 hover:text-white transition-all"><i
+                                class="fas fa-key text-lg"></i> <span class="font-medium text-sm">PIN</span></button>
+                        <button onclick="openQRModal()"
+                            class="w-full flex items-center gap-3 p-3 rounded-xl text-blue-400 hover:bg-blue-600 hover:text-white transition-all"><i
+                                class="fas fa-qrcode text-lg"></i> <span class="font-medium text-sm">Table
+                                QR</span></button>
+                    </div>
+
                 </div>
             </aside>
 
@@ -1495,15 +1501,20 @@
                 </div>
             </div>
 
-            <!-- Input Area -->
-            <div class="p-4 bg-dark-800 border-t border-dark-700 rounded-b-[30px]">
-                <div class="flex gap-2">
+            <!-- Input Area (Fixed for All Mobile Screens) -->
+            <div class="p-3 bg-dark-800 border-t border-dark-700 rounded-b-[30px] w-full box-border">
+                <div class="flex items-center gap-2 w-full">
+
+                    <!-- Text Input -->
+                    <!-- min-w-0 is added to prevent overflow on small screens -->
                     <input type="text" id="ai-user-input" placeholder="Ask AI something..."
-                        class="flex-1 bg-dark-900 border border-dark-600 rounded-xl px-4 py-3 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition"
+                        class="flex-1 min-w-0 bg-dark-900 border border-dark-600 text-white rounded-full px-4 h-11 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition shadow-inner placeholder-gray-500"
                         onkeypress="handleAiEnter(event)">
+
+                    <!-- Send Button -->
                     <button onclick="sendToAI()" id="btn-send-ai"
-                        class="bg-indigo-600 hover:bg-indigo-500 text-white w-12 rounded-xl flex items-center justify-center transition shadow-lg shadow-indigo-500/20">
-                        <i class="fas fa-paper-plane"></i>
+                        class="w-11 h-11 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 active:scale-90 transition-all hover:brightness-110 shrink-0">
+                        <i class="fas fa-paper-plane text-sm ml-0.5"></i>
                     </button>
                 </div>
             </div>
@@ -4772,11 +4783,14 @@
             }, true);
         };
 
-        window.generateQR = () => { const t = document.getElementById('qr-table-num').value; document.getElementById('qr-container').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href.split('?')[0] + '?table=' + t)}">`; };
+        window.generateQR = () => {
+            const t = document.getElementById('qr-table-num').value;
 
-        // --- PRINTING FUNCTIONS UPDATE ---
+            const myWebsiteLink = "https://mrping2025-oss.github.io/PingPos/";
 
-        // Updated Print QR
+            document.getElementById('qr-container').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(myWebsiteLink + '?table=' + t)}">`;
+        };
+        
         window.printQR = () => {
             const qrContent = document.getElementById('qr-container').innerHTML;
             const tableNum = document.getElementById('qr-table-num').value;
